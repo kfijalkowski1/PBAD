@@ -1,0 +1,59 @@
+\documentclass[]{sprawko}
+
+% newcomputermodern as a lighter alternative
+% \usepackage{newcomputermodern}
+\usepackage{mlmodern}
+
+\author{Student Debil \and Debil Student}
+
+\title{%
+    \huge{Sprawko z projektu}\\
+    \vspace{0.5em}\large{Pełna Nazwa Przedmiotu}\\
+    \large{Realizacja 99Z}
+}%
+
+
+\date{16.11.2025}
+
+\graphicspath{{assests/}}
+\addbibresource{bibliography.bib}
+
+\RequirePackage[
+    % disable, % <----- uncomment to hide todos
+    colorinlistoftodos,
+    textsize=scriptsize
+]{todonotes}
+\RequirePackage{marginnote}
+% marginpars are disabled in mwart -- replace with marginnotes
+% https://tug.ctan.org/macros/latex/contrib/todonotes/todonotes.pdf
+\let\marginpar\marginnote
+\RequirePackage{soul}
+
+\setstretch{1.2}
+
+% ############################# actual document ###########################
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    \kant[1]
+\end{abstract}
+
+\clearpage
+
+% toc + todos (if enabled)
+% {
+%     \tableofcontents
+%     \if!@todonotes@disabled\else\listoftodos[TODO]\fi
+%     \cleardoublepage
+% }
+
+% .tex files
+\include{tex/00-intro}
+
+\clearpage
+\printbibliography
+
+\end{document}
