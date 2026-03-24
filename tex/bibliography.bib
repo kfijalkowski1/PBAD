@@ -119,3 +119,90 @@
     howpublished = {Dostęp zdalny (14.03.2019): \url{https://github.com/ArturB/DCP-19}},
     year         = {2019}
 }
+
+@misc{wei,
+	title = {Requirements Are {{All You Need}}: {{From Requirements}} to {{Code}} with {{LLMs}}},
+	shorttitle = {Requirements Are {{All You Need}}},
+	author = {Wei, Bingyang},
+	year = 2024,
+	month = jun,
+	number = {arXiv:2406.10101},
+	eprint = {2406.10101},
+	primaryclass = {cs},
+	publisher = {arXiv},
+	doi = {10.48550/arXiv.2406.10101},
+	urldate = {2026-03-22},
+	abstract = {The pervasive use of textual formats in the documentation of software requirements presents a great opportunity for applying large language models (LLMs) to software engineering tasks. High-quality software requirements not only enhance the manual software development process but also position organizations to fully harness the potential of the emerging LLMs technology. This paper introduces a tailored LLM for automating the generation of code snippets from well-structured requirements documents. This LLM is augmented with knowledge, heuristics, and instructions that are pertinent to the software development process, requirements analysis, object-oriented design, and test-driven development, effectively emulating the expertise of a seasoned software engineer. We introduce a "Progressive Prompting" method that allows software engineers to engage with this LLM in a stepwise manner. Through this approach, the LLM incrementally tackles software development tasks by interpreting the provided requirements to extract functional requirements, using these to create object-oriented models, and subsequently generating unit tests and code based on the object-oriented designs. We demonstrate the LLM's proficiency in comprehending intricate user requirements and producing robust design and code solutions through a case study focused on the development of a web project. This study underscores the potential of integrating LLMs into the software development workflow to significantly enhance both efficiency and quality. The tailored LLM is available at https://chat.openai.com/g/g-bahoiKzkB-software-engineer-gpt.},
+	archiveprefix = {arXiv},
+	keywords = {Computer Science - Software Engineering}
+}
+
+@inproceedings{maranhao,
+	title = {A {{Prompt Pattern Sequence Approach}} to {{Apply Generative AI}} in {{Assisting Software Architecture Decision-making}}},
+	booktitle = {Proceedings of the 29th {{European Conference}} on {{Pattern Languages}} of {{Programs}}, {{People}}, and {{Practices}}},
+	author = {Maranh{\~a}o, Jo{\~a}o Jos{\'e} and Guerra, Eduardo Martins},
+	year = {Grudzie\'n 10, 2024},
+	series = {{{EuroPLoP}} '24},
+	pages = {1--12},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	doi = {10.1145/3698322.3698324},
+	urldate = {2026-03-22},
+	abstract = {This paper proposes an approach that employs generative AI, specifically GPT models, to enhance decision-making in software architecture through a sequence of prompt patterns. Five prompt patterns are introduced, each targeting software architects' specific challenges when navigating complex design decisions. Through a structured and context-aware decision flow, we demonstrate how these patterns can mitigate risks, manage uncertainties, and optimize functional and non-functional requirements. The proposed approach is evaluated in two real-world scenarios and one fictional case, illustrating its practical application in optimizing operations and ensuring scalability, security, and performance. While AI demonstrates transformative potential in aiding architectural practices, we also highlight its limitations, emphasizing the importance of human oversight in validating technical assumptions and avoiding over-reliance on automated tools. This paper contributes to the ongoing dialogue on how AI can be integrated into software architecture to foster more efficient, informed, and context-sensitive decision-making processes for architects.},
+	isbn = {979-8-4007-1683-6},
+	file = {/home/b1rtek/Zotero/storage/IIBB5W9Q/Maranhão i Guerra - 2024 - A Prompt Pattern Sequence Approach to Apply Generative AI in Assisting Software Architecture Decisio.pdf}
+}
+
+@misc{arlo,
+	title = {{{ARLO}}: {{A Tailorable Approach}} for {{Transforming Natural Language Software Requirements}} into {{Architecture}} Using {{LLMs}}},
+	shorttitle = {{{ARLO}}},
+	author = {Helmi, Tooraj},
+	year = 2025,
+	month = apr,
+	number = {arXiv:2504.06143},
+	eprint = {2504.06143},
+	primaryclass = {cs},
+	publisher = {arXiv},
+	doi = {10.48550/arXiv.2504.06143},
+	urldate = {2026-03-22},
+	abstract = {Software requirements expressed in natural language (NL) frequently suffer from verbosity, ambiguity, and inconsistency. This creates a range of challenges, including selecting an appropriate architecture for a system and assessing different architectural alternatives. Relying on human expertise to accomplish the task of mapping NL requirements to architecture is time-consuming and error-prone. This paper proposes ARLO, an approach that automates this task by leveraging (1) a set of NL requirements for a system, (2) an existing standard that specifies architecturally relevant software quality attributes, and (3) a readily available Large Language Model (LLM). Specifically, ARLO determines the subset of NL requirements for a given system that is architecturally relevant and maps that subset to a tailorable matrix of architectural choices. ARLO applies integer linear programming on the architectural-choice matrix to determine the optimal architecture for the current requirements. We demonstrate ARLO's efficacy using a set of real-world examples. We highlight ARLO's ability (1) to trace the selected architectural choices to the requirements and (2) to isolate NL requirements that exert a particular influence on a system's architecture. This allows the identification, comparative assessment, and exploration of alternative architectural choices based on the requirements and constraints expressed therein.},
+	archiveprefix = {arXiv},
+	keywords = {Computer Science - Artificial Intelligence,Computer Science - Software Engineering},
+	file = {/home/b1rtek/Zotero/storage/X9J3LI7W/Helmi - 2025 - ARLO A Tailorable Approach for Transforming Natural Language Software Requirements into Architectur.pdf;/home/b1rtek/Zotero/storage/4CFKUH3L/2504.html}
+}
+
+@misc{draft,
+	title = {{{DRAFT-ing Architectural Design Decisions}} Using {{LLMs}}},
+	author = {Dhar, Rudra and Kakran, Adyansh and Karan, Amey and Vaidhyanathan, Karthik and Varma, Vasudeva},
+	year = 2025,
+	month = apr,
+	number = {arXiv:2504.08207},
+	eprint = {2504.08207},
+	primaryclass = {cs},
+	publisher = {arXiv},
+	doi = {10.48550/arXiv.2504.08207},
+	urldate = {2026-03-22},
+	abstract = {Architectural Knowledge Management (AKM) is crucial for software development but remains challenging due to the lack of standardization and high manual effort. Architecture Decision Records (ADRs) provide a structured approach to capture Architecture Design Decisions (ADDs), but their adoption is limited due to the manual effort involved and insufficient tool support. Our previous work has shown that Large Language Models (LLMs) can assist in generating ADDs. However, simply prompting the LLM does not produce quality ADDs. Moreover, using third-party LLMs raises privacy concerns, while self-hosting them poses resource challenges. To this end, we experimented with different approaches like few-shot, retrieval-augmented generation (RAG) and fine-tuning to enhance LLM's ability to generate ADDs. Our results show that both techniques improve effectiveness. Building on this, we propose Domain Specific Retreival Augumented Few Shot Fine Tuninng, DRAFT, which combines the strengths of all these three approaches for more effective ADD generation. DRAFT operates in two phases: an offline phase that fine-tunes an LLM on generating ADDs augmented with retrieved examples and an online phase that generates ADDs by leveraging retrieved ADRs and the fine-tuned model. We evaluated DRAFT against existing approaches on a dataset of 4,911 ADRs and various LLMs and analyzed them using automated metrics and human evaluations. Results show DRAFT outperforms all other approaches in effectiveness while maintaining efficiency. Our findings indicate that DRAFT can aid architects in drafting ADDs while addressing privacy and resource constraints.},
+	archiveprefix = {arXiv},
+	keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Computer Science - Software Engineering},
+	file = {/home/b1rtek/Zotero/storage/ESVCQRWP/Dhar et al. - 2025 - DRAFT-ing Architectural Design Decisions using LLMs.pdf;/home/b1rtek/Zotero/storage/G2F2G7M7/2504.html}
+}
+
+@misc{add,
+	title = {An {{LLM-assisted}} Approach to Designing Software Architectures Using {{ADD}}},
+	author = {Cervantes, Humberto and Kazman, Rick and Cai, Yuanfang},
+	year = 2025,
+	month = jun,
+	number = {arXiv:2506.22688},
+	eprint = {2506.22688},
+	primaryclass = {cs},
+	publisher = {arXiv},
+	doi = {10.48550/arXiv.2506.22688},
+	urldate = {2026-03-22},
+	abstract = {Designing effective software architectures is a complex, iterative process that traditionally relies on expert judgment. This paper proposes an approach for Large Language Model (LLM)-assisted software architecture design using the Attribute-Driven Design (ADD) method. By providing an LLM with an explicit description of ADD, an architect persona, and a structured iteration plan, our method guides the LLM to collaboratively produce architecture artifacts with a human architect. We validate the approach through case studies, comparing generated designs against proven solutions and evaluating them with professional architects. Results show that our LLM-assisted ADD process can generate architectures closely aligned with established solutions and partially satisfying architectural drivers, highlighting both the promise and current limitations of using LLMs in architecture design. Our findings emphasize the importance of human oversight and iterative refinement when leveraging LLMs in this domain.},
+	archiveprefix = {arXiv},
+	keywords = {Computer Science - Software Engineering},
+	file = {/home/b1rtek/Zotero/storage/73G3TWAW/Cervantes et al. - 2025 - An LLM-assisted approach to designing software architectures using ADD.pdf;/home/b1rtek/Zotero/storage/XPYX95VP/2506.html}
+}
+
+
