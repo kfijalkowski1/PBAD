@@ -80,14 +80,12 @@ Razem pozwalają one ocenić, na ile dana architektura rokuje pod kątem kluczow
 
 \subsubsection{Miarodajne metryki}
 
-\section{Miarodajne metryki jakości architektury}
-
 Oprócz metod scenariuszowych i przeglądów eksperckich, jakość architektury na wczesnym etapie można próbować oceniać za pomocą prostych metryk.
 W literaturze dotyczącej stabilności i modyfikowalności architektury podkreśla się znaczenie miar sprzężenia,
 rozmiaru oraz rozkładu odpowiedzialności jako głównych predyktorów łatwości zmian i ewolucji systemu \cite{bengtsson_alma_2004,add}.
 Poniżej przedstawiono trzy przykładowe metryki.
 
-\subsection{Średni wpływ zmiany (Average Change Impact)}
+\subsubsection{Średni wpływ zmiany (Average Change Impact)}
 
 Pierwszą metryką jest \emph{średni wpływ zmiany}, która przybliża poziom sprzężenia między komponentami oraz modyfikowalność architektury.
 Dla zadanego zestawu scenariuszy zmian (np. dodanie nowej funkcjonalności, zmiana sposobu autoryzacji, podmiana systemu płatności)
@@ -95,12 +93,12 @@ dla każdego scenariusza identyfikuje się komponent wyjściowy, w którym inicj
 które muszą zostać zmodyfikowane, aby scenariusz zrealizować.
 Metryka jest obliczana jako średnia liczba komponentów dotkniętych zmianą w przeliczeniu na scenariusz:
 \[
-\text{ACI} = \frac{1}{N}\sum_{i=1}^{N} c_i,
+\text{ACI} = \frac{1}{C}\frac{1}{N}\sum_{i=1}^{N} c_i,
 \]
-gdzie \(N\) to liczba scenariuszy, a \(c_i\) to liczba komponentów wymagających modyfikacji dla scenariusza \(i\).
+gdzie \(N\) to liczba scenariuszy, \(C\) to liczba komponentów, a \(c_i\) to liczba komponentów wymagających modyfikacji dla scenariusza \(i\).
 Im niższa wartość ACI, tym architektura jest potencjalnie mniej sprzężona.
 
-\subsection{Wskaźnik stabilności architektury}
+\subsubsection{Wskaźnik stabilności architektury}
 
 Drugą metryką jest \emph{wskaźnik stabilności architektury}. 
 W kontekście modeli architektonicznych można go zdefiniować jako udział komponentów,
@@ -108,12 +106,12 @@ które pozostają niezmienione w typowych scenariuszach ewolucji systemu (np. do
 Dla przyjętego zestawu scenariuszy określa się, które komponenty wymagają modyfikacji, a które pozostają stabilne,
 następnie wyznacza się stosunek liczby komponentów stabilnych do całkowitej liczby komponentów w architekturze:
 \[
-\text{Stab} = \frac{|C_{\text{stabilne}}|}{|C_{\text{wszystkie}}|}.
+\text{Stab} = sum_{i=1}^{N} \frac{|C_{\text{stabilne}}|}{|C_{\text{wszystkie}}|}.
 \]
 Wysoka wartość wskaźnika sugeruje, że architektura dobrze lokalizuje zmiany w ograniczonej liczbie komponentów,
 co redukuje ryzyko nieoczekiwanych efektów ubocznych podczas rozwoju systemu \cite{bengtsson_alma_2004}.
 
-\subsection{Średni stopień zależności komponentów}
+\subsubsection{Średni stopień zależności komponentów}
 
 Trzecią metryką jest \emph{średni stopień zależności komponentów}, która mierzy,
 jak silnie każdy komponent jest powiązany z pozostałymi, i tym samym w jakim stopniu architektura sprzyja niskosprzężonemu, modułowemu projektowi.
