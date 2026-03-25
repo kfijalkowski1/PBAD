@@ -41,15 +41,87 @@ Nazwa ARLO pochodzi od nazwy "\textbf{A}rchitecture from a set of NL \textbf{R}e
 
 DRAFT \cite{draft} jest rozwiązaniem łączącym w sobie strategię RAG i fine-tuning LLMa w ramach tworzenia architektury systemu. Na początek wybierany jest model językowy, który trenowany jest za pomocą przykładowych par kontekstów i decyzji architektonicznych, z których tworzone są również prompty typu few-shot dla fine-tuningowanego LLMa. Użytkownik tworzący architekturę podaje opis swojego problemu, który na podstawie zapamiętanych par treningowych przetwarzany jest na prompt few-shot podawany do wytrenowanego LLMa który na podstawie danych treningowych oraz lepszego propmptu generuje decyzje architektoniczne.
 
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.7\textwidth]{assets/maxwell.jpeg}
-	\caption{Diagram architektury NVIDIA Maxwell}
-\end{figure}
-
 \subsection{Metody oceny obiektywnej jakości, zgodności z wymaganiami}
 
-\kant[1]
+\subsubsection{Przegląd literatury}
+
+Na bardzo wczesnym etapie projektu, gdy istnieje jedynie opis architektury (np. diagramy, widoki C4, opis komponentów),
+a nie ma jeszcze kodu ani alternatywnych rozwiązań do porównania, ocena jakości musi opierać się na analizie modelu architektonicznego i
+scenariuszy jakościowych, a nie na pomiarach wydajności gotowego systemu. Poniżej przedstawiono trzy uzupełniające się metody,
+które nadają się do takiej wczesnej analizy: scenariuszową analizę atrybutów jakości (np. ATAM/SAAM) \cite{kazman_atam_2000},
+analizę modyfikowalności ALMA \cite{bengtsson_alma_2004} oraz eksperckie przeglądy architektury z użyciem list kontrolnych
+\cite{cianca_eval_arch_2000,uta_design_review_checklist}.
+
+Pierwszą grupą technik są \emph{scenariuszowe metody oceny architektury}, takie jak SAAM i ATAM,
+które formułują wymagania niefunkcjonalne w postaci scenariuszy jakościowych i badają, w jaki sposób dana architektura reaguje na te scenariusze
+\cite{kazman_atam_2000}. Dla pojedynczej architektury oznacza to zdefiniowanie kluczowych scenariuszy (np. skok obciążenia, awaria komponentu, typowa zmiana funkcjonalna),
+przejście przez diagramy architektury krok po kroku oraz identyfikację komponentów krytycznych, punktów wrażliwości i potencjalnych ryzyk dla wydajności,
+skalowalności czy niezawodności, jeszcze zanim powstanie kod \cite{cianca_eval_arch_2000}.
+
+Drugą metodą, wyspecjalizowaną w analizie modyfikowalności na poziomie architektury, jest
+\emph{Architecture-Level Modifiability Analysis (ALMA)} \cite{bengtsson_alma_2004}.
+ALMA składa się z pięciu kroków: wyboru celu analizy, doprecyzowania opisów architektury, elicytacji scenariuszy zmian,
+ich systematycznej oceny oraz interpretacji wyników, co pozwala oszacować koszt oraz ryzyko typowych zmian już na etapie projektu architektury.
+Ponieważ cała analiza opiera się na scenariuszach zmian i strukturze architektury, metoda dobrze nadaje się do wczesnej fazy,
+gdy jeszcze nie istnieje implementacja, a celem jest wykrycie potencjalnie kosztownych obszarów (wysokie sprzężenie, wąskie gardła odpowiedzialności itp.)
+\cite{bengtsson_alma_2004}.
+
+Trzecią klasą podejść są \emph{eksperckie przeglądy architektury z użyciem list kontrolnych}
+(architecture/design review checklists),
+w których doświadczeni architekci przechodzą przez ustrukturyzowany zestaw pytań dotyczących m.in. prostoty i spójności podziału na komponenty,
+powiązań z wymaganiami, przejrzystości interfejsów, zarządzania błędami czy aspektów bezpieczeństwa \cite{uta_design_review_checklist}.
+Tego typu checklisty pozwalają zidentyfikować błędy koncepcyjne (zbyt złożone komponenty, nadmierne sprzężenie, brak jawnie zdefiniowanych interfejsów,
+nieprzemyślana redundancja) zanim jakiekolwiek decyzje zostaną „utrwalone” w kodzie, a jednocześnie są stosunkowo lekkie procesowo i
+dobrze łączą się z podejściami scenariuszowymi \cite{cianca_eval_arch_2000,uta_design_review_checklist}.
+
+Podsumowując, we wczesnej fazie projektu -- kiedy dostępna jest tylko dokumentacja architektury -- sensowne jest połączenie dwóch perspektyw: 
+(1) scenariuszowej analizy atrybutów jakości (np. w duchu ATAM), oraz (2) ukierunkowanej analizy modyfikowalności ALMA .
+Razem pozwalają one ocenić, na ile dana architektura rokuje pod kątem kluczowych atrybutów jakości, zanim powstanie implementacja.
+
+\subsubsection{Miarodajne metryki}
+
+\section{Miarodajne metryki jakości architektury}
+
+Oprócz metod scenariuszowych i przeglądów eksperckich, jakość architektury na wczesnym etapie można próbować oceniać za pomocą prostych metryk.
+W literaturze dotyczącej stabilności i modyfikowalności architektury podkreśla się znaczenie miar sprzężenia,
+rozmiaru oraz rozkładu odpowiedzialności jako głównych predyktorów łatwości zmian i ewolucji systemu \cite{bengtsson_alma_2004,add}.
+Poniżej przedstawiono trzy przykładowe metryki.
+
+\subsection{Średni wpływ zmiany (Average Change Impact)}
+
+Pierwszą metryką jest \emph{średni wpływ zmiany}, która przybliża poziom sprzężenia między komponentami oraz modyfikowalność architektury.
+Dla zadanego zestawu scenariuszy zmian (np. dodanie nowej funkcjonalności, zmiana sposobu autoryzacji, podmiana systemu płatności)
+dla każdego scenariusza identyfikuje się komponent wyjściowy, w którym inicjowana jest zmiana, a następnie liczbę komponentów,
+które muszą zostać zmodyfikowane, aby scenariusz zrealizować.
+Metryka jest obliczana jako średnia liczba komponentów dotkniętych zmianą w przeliczeniu na scenariusz:
+\[
+\text{ACI} = \frac{1}{N}\sum_{i=1}^{N} c_i,
+\]
+gdzie \(N\) to liczba scenariuszy, a \(c_i\) to liczba komponentów wymagających modyfikacji dla scenariusza \(i\).
+Im niższa wartość ACI, tym architektura jest potencjalnie mniej sprzężona.
+
+\subsection{Wskaźnik stabilności architektury}
+
+Drugą metryką jest \emph{wskaźnik stabilności architektury}. 
+W kontekście modeli architektonicznych można go zdefiniować jako udział komponentów,
+które pozostają niezmienione w typowych scenariuszach ewolucji systemu (np. dodanie nowych przypadków użycia, integracja z zewnętrzną usługą, zmiana technologii bazy danych).
+Dla przyjętego zestawu scenariuszy określa się, które komponenty wymagają modyfikacji, a które pozostają stabilne,
+następnie wyznacza się stosunek liczby komponentów stabilnych do całkowitej liczby komponentów w architekturze:
+\[
+\text{Stab} = \frac{|C_{\text{stabilne}}|}{|C_{\text{wszystkie}}|}.
+\]
+Wysoka wartość wskaźnika sugeruje, że architektura dobrze lokalizuje zmiany w ograniczonej liczbie komponentów,
+co redukuje ryzyko nieoczekiwanych efektów ubocznych podczas rozwoju systemu \cite{bengtsson_alma_2004}.
+
+\subsection{Średni stopień zależności komponentów}
+
+Trzecią metryką jest \emph{średni stopień zależności komponentów}, która mierzy,
+jak silnie każdy komponent jest powiązany z pozostałymi, i tym samym w jakim stopniu architektura sprzyja niskosprzężonemu, modułowemu projektowi.
+Dla każdego komponentu liczy się liczbę zależności wychodzących (np. wywołań, komunikatów, relacji wymagań) do innych komponentów, a następnie oblicza średnią po wszystkich komponentach:
+\[
+\text{DepAvg} = \frac{1}{|C|}\sum_{k \in C} d_k,
+\]
+gdzie \(C\) to zbiór komponentów, a \(d_k\) to liczba zależności wychodzących komponentu \(k\). Można dodatkowo rozróżniać zależności krytyczne (np. w ścieżkach transakcji biznesowych) i wagować je wyżej w obliczeniach. Niższa wartość tej metryki wskazuje na mniejszy poziom sprzężenia i potencjalnie lepszą skalowalność oraz testowalność architektury, co jest spójne z obserwacjami dotyczącymi roli sprzężenia i granic komponentów w jakości projektów architektonicznych \cite{add}.
 
 \subsection{Pipeline eksperymentów, dane testowe, ground truth, wynikowe artefakty}
 
