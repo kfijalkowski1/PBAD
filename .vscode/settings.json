@@ -1,0 +1,72 @@
+{
+    "cSpell.language": "en,pl",
+    "ltex.additionalRules.motherTongue": "pl-PL",
+    "ltex.language": "auto",
+    "ltex.additionalRules.enablePickyRules": true,
+    "ltex.latex.commands": {
+      "\\cite{}": "pluralDummy",
+      "\\cite[]{}": "pluralDummy",
+      "\\citedate{}": "pluralDummy",
+      "\\citedate[]{}": "pluralDummy",
+    },
+    "ltex.dictionary": {
+      "pl-PL": [
+        "Dummies"
+      ],
+    },
+    "latex-workshop.latex.recipes": [
+      {
+        "name": "latexmk (lualatex)",
+        "tools": [
+          "lualatexmk",
+          "biber",
+          "lualatexmk",
+          "lualatexmk"
+        ]
+      },
+    ],
+    "latex-workshop.latex.tools": [
+      {
+        "name": "lualatexmk",
+        "command": "latexmk",
+        "args": [
+          "-synctex=1",
+          "-interaction=nonstopmode",
+          "-file-line-error",
+          "-lualatex",
+          "-outdir=%OUTDIR%",
+          "%DOC%"
+        ],
+        "env": {}
+      },
+      {
+        "name": "biber",
+        "command": "biber",
+        "args": ["--output-directory=%OUTDIR%", "%DOCFILE%"],
+        "env": {}
+      },
+    ],
+    "files.exclude": {
+      "**/*.app": true,
+      "**/*.aux": true,
+      "**/*.bbl": true,
+      "**/*.bcf": true,
+      "**/*.blg": true,
+      "**/*.fdb_latexmk": true,
+      "**/*.fls": true,
+      "**/*.lof": true,
+      "**/*.lot": true,
+      "**/*.out": true,
+      "**/*.run.xml": true,
+      "**/*.synctex.gz": true,
+      "**/*.tdo": true,
+      "**/*.toc": true
+    },
+    "latex-workshop.intellisense.citation.backend": "biblatex",
+    "editor.wordWrap": "wordWrapColumn",
+    "cSpell.ignorePaths": [
+      ".vscode/**",
+      "tex/sprawko.cls",
+      "tex/bibliography.bib",
+    ]
+}

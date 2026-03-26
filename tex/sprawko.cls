@@ -8,21 +8,22 @@
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{\@baseclass}}
 % linter detects 'openright' as unused option
 % \PassOptionsToClass{a4paper,twoside,openright,12pt}{\@baseclass}
-\PassOptionsToClass{a4paper,oneside,12pt}{\@baseclass}
+\PassOptionsToClass{a4paper,oneside,10pt,twocolumn}{\@baseclass}
 \ProcessOptions
 
 \LoadClass[
-    12pt,
-    oneside
+    10pt,
+    oneside,
+    twocolumn
 ]{\@baseclass}
 
 \RequirePackage[
     a4paper,
-    left=2.5cm,
-    right=2.5cm,
-    top=2.5cm,
-    bottom=2.5cm,
-    marginparwidth=2.5cm
+    left=2.0cm,
+    right=2.0cm,
+    top=2.0cm,
+    bottom=2.0cm,
+    marginparwidth=2.0cm
 ]{geometry}
 
 \pagenumbering{arabic}
@@ -82,6 +83,7 @@
 
 \RequirePackage{csquotes}
 \RequirePackage{makecell}
+\RequirePackage{newclude}
 
 
 %--------------------------------

@@ -1,25 +1,24 @@
 \documentclass[]{sprawko}
 
 % newcomputermodern as a lighter alternative
-% \usepackage{newcomputermodern}
-\usepackage{mlmodern}
+\usepackage{newcomputermodern}
+% \usepackage{mlmodern}
 
-\author{Student Debil \and Debil Student}
 
+\author{Krzysztof Fijałkowski \and Tomasz Owienko \and Bartłomiej Pełka}
 \title{%
-    \huge{Sprawko z projektu}\\
-    \vspace{0.5em}\large{Pełna Nazwa Przedmiotu}\\
-    \large{Realizacja 99Z}
+    \huge{Analiza i ocena jakości architektury oprogramowania wytworzonej za pomocą generatywnych modeli językowych}
 }%
 
 
-\date{16.11.2025}
+
+% \date{26.03.2026}
 
 \graphicspath{{assests/}}
 \addbibresource{bibliography.bib}
 
 \RequirePackage[
-    % disable, % <----- uncomment to hide todos
+    disable, % <----- uncomment to hide todos
     colorinlistoftodos,
     textsize=scriptsize
 ]{todonotes}
@@ -35,13 +34,25 @@
 
 \begin{document}
 
-\maketitle
+% TODO move somewhere else
+\renewenvironment{abstract}{%
+\hfill\begin{minipage}{0.95\textwidth}
+\rule{\textwidth}{0.5pt}}
+{\par\noindent\rule{\textwidth}{0.5pt}\end{minipage}}
+%
 
-\begin{abstract}
-    \kant[1]
-\end{abstract}
+\twocolumn[
+    \maketitle
+    \begin{abstract}
+        As any dedicated reader can clearly see, the Ideal of practical reason is a representation of, as far as I know, the things in themselves; as I have shown elsewhere, the phenomena should only be used as a canon for our understanding. The paralogisms of practical reason are what first give rise to the architectonic of practical reason. As will easily be shown in the next section, reason would thereby be made to contradict, in view of these considerations, the Ideal of practical reason, yet the manifold depends on the phenomena. Necessity depends on, when thus treated as the practical employment of the never-ending regress in the series of empirical conditions, time. Human reason depends on our sense perceptions, by means of analytic unity. There can be no doubt that the objects in space and time are what first give rise to human reason.
+    \end{abstract}
+    \vskip 4em
+]
 
-\clearpage
+
+\if!@todonotes@disabled\else\listoftodos[TODO]\fi
+
+
 
 % toc + todos (if enabled)
 % {
@@ -51,7 +62,7 @@
 % }
 
 % .tex files
-\include{tex/00-intro}
+\include*{tex/00-intro}
 
 \clearpage
 \printbibliography
