@@ -1,0 +1,17 @@
+[project]
+name = "code"
+version = "0.1.0"
+description = "Architecture metrics and comparator for AI-generated software architecture diagrams"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mermaid-parser-py>=0.0.4",
+    "networkx>=3.5",
+]
+
+[tool.uv]
+dev-dependencies = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
