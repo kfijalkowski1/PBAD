@@ -1,18 +1,19 @@
 graph TD
 
     %% Clients
-    Client[Web/Mobile Client]
+    ClientWeb[Web Application]
+    ClientMobile[Mobile Application]
 
     %% Edge Layer
     APIGW[API Gateway]
     BFF[BFF Layer]
 
     %% Core Services
-    Auth[Auth Service]
+    Auth[Authentication Service]
     Event[Event Service]
     Search[Search Service]
     Inventory[Inventory Service]
-    Order[Order Orchestrator]
+    Order[Order Service]
     Payment[Payment Service]
     Ticket[Ticket Service]
     Notification[Notification Service]
@@ -23,11 +24,11 @@ graph TD
     Observability[Monitoring & Logging]
 
     %% Data Stores
-    AuthDB[(Auth DB)]
-    EventDB[(Event DB)]
-    InventoryDB[(Inventory DB - Partitioned)]
-    OrderDB[(Order DB)]
-    TicketDB[(Ticket DB)]
+    AuthDB[(User Database)]
+    EventDB[(Event Database)]
+    InventoryDB[(Inventory Database)]
+    OrderDB[(Order Database)]
+    TicketDB[(Ticket Database)]
     SearchIndex[(Search Index)]
 
     %% Event Streaming
@@ -39,7 +40,8 @@ graph TD
     IdP[Identity Provider]
 
     %% Flow
-    Client --> APIGW
+    ClientWeb --> APIGW
+    ClientMobile --> APIGW
     APIGW --> BFF
 
     BFF --> Auth

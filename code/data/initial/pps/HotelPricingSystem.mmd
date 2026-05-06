@@ -1,16 +1,16 @@
 flowchart TD
 
-    User[Web Client Angular]
+    User[Web Application]
     APIGW[API Gateway]
 
     subgraph Write Path Critical under 100ms
-        CmdSvc[Pricing Command Service]
+        CmdSvc[Pricing Management Service]
         Cache[In-Memory Cache]
         Outbox[Outbox Table]
     end
 
     subgraph Event Backbone
-        EventBus[Event Streaming Platform]
+        EventBus[Event Bus]
     end
 
     subgraph Read Path High Scale
@@ -22,11 +22,12 @@ flowchart TD
     subgraph Supporting Services
         RateSvc[Rate Service]
         HotelSvc[Hotel Service]
-        IdentitySvc[Cloud Identity Service]
+        IdentitySvc[User Identity Service]
         DistSvc[Distribution Service]
     end
 
-    External[External Systems CMS, PMS]
+    ExternalCMS[Property Management System]
+    ExternalPMS[Channel Management System]
 
     %% User flow
     User --> APIGW
