@@ -40,8 +40,8 @@ uv run pytest
 Expected output: **50 passed**.
 
 - `tests/test_parser.py` — Mermaid parsing (requires Node.js)
-- `tests/test_metrics.py` — DepAvg, ACI, Stab (pure Python, no Node.js)
-- `tests/test_comparator.py` — precision/recall/F1 (pure Python, no Node.js)
+- `tests/test_metrics.py` — DepAvg, ACI (pure Python, no Node.js)
+- `tests/test_comparator.py` — precision/recall (pure Python, no Node.js)
 
 To run only the Node.js-free tests:
 
@@ -63,13 +63,12 @@ python main.py <mode> <args>
 python main.py metrics path/to/diagram.mmd
 ```
 
-Parses the Mermaid flowchart and prints three metrics as JSON:
+Parses the Mermaid flowchart and prints two metrics as JSON:
 
 ```json
 {
   "dep_avg": 1.0,
-  "average_change_impact": 0.111,
-  "stability_index": 1.0
+  "average_change_impact": 0.111
 }
 ```
 
@@ -79,16 +78,14 @@ Parses the Mermaid flowchart and prints three metrics as JSON:
 python main.py compare path/to/base.mmd path/to/generated.mmd
 ```
 
-Prints precision, recall, and F1 for both nodes and edges, plus raw counts:
+Prints precision and recall for both nodes and edges, plus raw counts:
 
 ```json
 {
   "node_precision": 1.0,
   "node_recall": 0.75,
-  "node_f1": 0.857,
   "edge_precision": 1.0,
   "edge_recall": 0.666,
-  "edge_f1": 0.8,
   "base_node_count": 4,
   "generated_node_count": 3,
   "common_node_count": 3,
@@ -139,19 +136,6 @@ ACI = (1/C) * (1/N) * Σ_{i=1}^{N} c_i
 
 A lower ACI means changes are better localised.
 
-### Stab — Architecture Stability Index
-
-The fraction of components that remain *unaffected* per scenario, summed
-across all scenarios.
-
-```
-Stab = Σ_{i=1}^{N} ( |C_stable_i| / |C_all| )
-```
-
-where `|C_stable_i|` = components not reachable from the change origin `i`
-(excluding the origin itself).  A higher value indicates that changes are well
-localised to a small number of components.
-
 ---
 
 ## Comparison metrics
@@ -163,7 +147,6 @@ as ground truth and measure how well the generated architecture recovers it.
 |--------|---------|
 | **Precision** | `|gen ∩ base| / |gen|` — fraction of generated elements that are correct |
 | **Recall** | `|gen ∩ base| / |base|` — fraction of base elements that were recovered |
-| **F1** | `2 · P · R / (P + R)` — harmonic mean of precision and recall |
 
 Both **nodes** (components) and **edges** (dependencies) are evaluated
 separately.  Node matching is case-insensitive.
@@ -177,9 +160,9 @@ code/
 ├── main.py            CLI entry point
 ├── mermaid_utils/     Mermaid → networkx DiGraph parsing
 │   └── parser.py
-├── metrics/           Architecture quality metrics (DepAvg, ACI, Stab)
+├── metrics/           Architecture quality metrics (DepAvg, ACI)
 │   └── calculator.py
-├── comparator/        Architecture comparison (precision, recall, F1)
+├── comparator/        Architecture comparison (precision, recall)
 │   └── compare.py
 └── tests/             Parametrized unit tests for all three packages
 ```

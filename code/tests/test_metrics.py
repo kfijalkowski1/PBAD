@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 import networkx as nx
-from metrics import dep_avg, average_change_impact, stability_index, calculate_all_metrics
+from metrics import dep_avg, average_change_impact, calculate_all_metrics
 
 
 # ---------------------------------------------------------------------------
@@ -76,44 +76,13 @@ def test_average_change_impact(
 
 
 # ---------------------------------------------------------------------------
-# stability_index
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize(
-    "edges, isolated, expected",
-    [
-        pytest.param([], ["A"], 0.0, id="single_node"),
-        # A->B->C (n=3):
-        # scenario A: stable = 3-1-2=0  → 0/3
-        # scenario B: stable = 3-1-1=1  → 1/3
-        # scenario C: stable = 3-1-0=2  → 2/3
-        # total = 3/3 = 1.0
-        pytest.param([("A", "B"), ("B", "C")], None, 1.0, id="linear_chain_ABC"),
-        # Star A->B,C,D (n=4):
-        # A: stable=4-1-3=0 → 0/4
-        # B,C,D: stable=4-1-0=3 each → 3/4 each
-        # total = 0 + 3*(3/4) = 9/4
-        pytest.param([("A", "B"), ("A", "C"), ("A", "D")], None, 9 / 4, id="star_hub_A"),
-        # Cycle A<->B (n=2):
-        # both scenarios: stable=2-1-1=0 → 0/2 each → total=0.0
-        pytest.param([("A", "B"), ("B", "A")], None, 0.0, id="two_node_cycle"),
-    ],
-)
-def test_stability_index(
-    edges: list[tuple[str, str]], isolated: list[str] | None, expected: float
-) -> None:
-    g = make_graph(edges, isolated)
-    assert stability_index(g) == pytest.approx(expected)
-
-
-# ---------------------------------------------------------------------------
 # calculate_all_metrics
 # ---------------------------------------------------------------------------
 
 def test_calculate_all_metrics_keys() -> None:
     g = make_graph([("A", "B"), ("B", "C")])
     result = calculate_all_metrics(g)
-    assert set(result.keys()) == {"dep_avg", "average_change_impact", "stability_index"}
+    assert set(result.keys()) == {"dep_avg", "average_change_impact"}
 
 
 @pytest.mark.parametrize(
@@ -131,4 +100,3 @@ def test_calculate_all_metrics_matches_individual(
     result = calculate_all_metrics(g)
     assert result["dep_avg"] == pytest.approx(dep_avg(g))
     assert result["average_change_impact"] == pytest.approx(average_change_impact(g))
-    assert result["stability_index"] == pytest.approx(stability_index(g))
