@@ -1,0 +1,86 @@
+graph TD
+
+    %% Clients
+    Client[Web/Mobile Client]
+
+    %% Edge Layer
+    APIGW[API Gateway]
+    BFF[BFF Layer]
+
+    %% Core Services
+    Auth[Auth Service]
+    Event[Event Service]
+    Search[Search Service]
+    Inventory[Inventory Service]
+    Order[Order Orchestrator]
+    Payment[Payment Service]
+    Ticket[Ticket Service]
+    Notification[Notification Service]
+
+    %% Platform Services
+    Config[Config Service]
+    FeatureFlag[Feature Flag Service]
+    Observability[Monitoring & Logging]
+
+    %% Data Stores
+    AuthDB[(Auth DB)]
+    EventDB[(Event DB)]
+    InventoryDB[(Inventory DB - Partitioned)]
+    OrderDB[(Order DB)]
+    TicketDB[(Ticket DB)]
+    SearchIndex[(Search Index)]
+
+    %% Event Streaming
+    EventBus[(Event Bus / Stream)]
+
+    %% External Systems
+    PaymentExt[Payment Gateway]
+    EmailExt[Email Service]
+    IdP[Identity Provider]
+
+    %% Flow
+    Client --> APIGW
+    APIGW --> BFF
+
+    BFF --> Auth
+    BFF --> Event
+    BFF --> Search
+    BFF --> Order
+
+    Auth --> AuthDB
+    Auth --> IdP
+
+    Event --> EventDB
+    Search --> SearchIndex
+
+    Order --> Inventory
+    Order --> Payment
+
+    Inventory --> InventoryDB
+    Order --> OrderDB
+    Ticket --> TicketDB
+
+    %% Event-driven backbone
+    Order --> EventBus
+    Inventory --> EventBus
+    Payment --> EventBus
+
+    EventBus --> Ticket
+    EventBus --> Notification
+    EventBus --> Search
+
+    %% External integrations
+    Payment --> PaymentExt
+    Notification --> EmailExt
+
+    %% Platform services
+    Auth --> Config
+    Event --> Config
+    Order --> Config
+
+    Auth --> FeatureFlag
+    Event --> FeatureFlag
+
+    Auth --> Observability
+    Order --> Observability
+    Inventory --> Observability

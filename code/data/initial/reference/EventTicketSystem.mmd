@@ -1,0 +1,146 @@
+graph TD
+    subgraph "Event Ticket Booking System"
+        subgraph "Frontend"
+            WebApp[Web Application]
+            MobileApp[Mobile Application]
+        end
+
+        subgraph "Backend"
+            APIGateway[API Gateway]
+            AuthService[Authentication Service]
+            UserService[User Service]
+            EventService[Event Service]
+            SearchService[Search Service]
+            InventoryService[Inventory Service]
+            OrderService[Order Service]
+            PaymentService[Payment Service]
+            TicketService[Ticket Service]
+            DeliveryService[Delivery Service]
+            NotificationService[Notification Service]
+        end
+
+        subgraph "Data"
+            UserDB[(User Database)]
+            EventDB[(Event Database)]
+            SearchIndex[(Search Index)]
+            InventoryDB[(Inventory Database)]
+            OrderDB[(Order Database)]
+            PaymentDB[(Payment Database)]
+            TicketDB[(Ticket Database)]
+            DeliveryDB[(Delivery Database)]
+            Cache[(Cache)]
+            MessageQueue[Message Queue]
+        end
+    end
+
+    subgraph "External Systems"
+        IdP[Identity Provider]
+        EmailService[Email Service]
+        PaymentGateway[Payment Gateway]
+    end
+
+    %% Frontend to API Gateway (Synchronous)
+    WebApp <-->|HTTPS| APIGateway
+    MobileApp <-->|HTTPS| APIGateway
+
+    %% API Gateway to Services (Synchronous)
+    APIGateway <-->|REST| AuthService
+    APIGateway <-->|REST| UserService
+    APIGateway <-->|REST| EventService
+    APIGateway <-->|REST| SearchService
+    APIGateway <-->|REST| InventoryService
+    APIGateway <-->|REST| OrderService
+    APIGateway <-->|REST| PaymentService
+    APIGateway <-->|REST| TicketService
+    APIGateway <-->|REST| DeliveryService
+    APIGateway <-->|REST| NotificationService
+
+    %% Authentication (Synchronous)
+    AuthService <-->|OAuth2| IdP
+    AuthService <-->|JWT| UserService
+    AuthService <-->|JWT| EventService
+    AuthService <-->|JWT| SearchService
+    AuthService <-->|JWT| InventoryService
+    AuthService <-->|JWT| OrderService
+    AuthService <-->|JWT| PaymentService
+    AuthService <-->|JWT| TicketService
+    AuthService <-->|JWT| DeliveryService
+
+    %% Database Access (Synchronous)
+    UserService <-->|SQL| UserDB
+    EventService <-->|SQL| EventDB
+    SearchService <-->|Elasticsearch| SearchIndex
+    InventoryService <-->|SQL| InventoryDB
+    OrderService <-->|SQL| OrderDB
+    PaymentService <-->|SQL| PaymentDB
+    TicketService <-->|SQL| TicketDB
+    DeliveryService <-->|SQL| DeliveryDB
+
+    %% Service-to-Service Communication
+    %% Synchronous (REST)
+    EventService <-->|REST| SearchService
+    EventService <-->|REST| InventoryService
+    InventoryService <-->|REST| OrderService
+    OrderService <-->|REST| PaymentService
+    PaymentService <-->|REST| PaymentGateway
+    PaymentService <-->|REST| TicketService
+    TicketService <-->|REST| DeliveryService
+
+    %% Asynchronous (Event-Driven)
+    EventService -->|Event: EventCreated| MessageQueue
+    EventService -->|Event: EventUpdated| MessageQueue
+    EventService -->|Event: EventDeleted| MessageQueue
+
+    InventoryService -->|Event: InventoryUpdated| MessageQueue
+    InventoryService -->|Event: TicketsReserved| MessageQueue
+    InventoryService -->|Event: TicketsReleased| MessageQueue
+
+    OrderService -->|Event: OrderCreated| MessageQueue
+    OrderService -->|Event: OrderConfirmed| MessageQueue
+    OrderService -->|Event: OrderCancelled| MessageQueue
+
+    PaymentService -->|Event: PaymentProcessed| MessageQueue
+    PaymentService -->|Event: PaymentFailed| MessageQueue
+    PaymentService -->|Event: RefundProcessed| MessageQueue
+
+    TicketService -->|Event: TicketGenerated| MessageQueue
+    TicketService -->|Event: TicketValidated| MessageQueue
+
+    DeliveryService -->|Event: DeliveryInitiated| MessageQueue
+    DeliveryService -->|Event: DeliveryCompleted| MessageQueue
+    DeliveryService -->|Event: DeliveryFailed| MessageQueue
+
+    %% Event Subscriptions
+    MessageQueue -->|Event: EventCreated| SearchService
+    MessageQueue -->|Event: EventUpdated| SearchService
+    MessageQueue -->|Event: EventDeleted| SearchService
+
+    MessageQueue -->|Event: InventoryUpdated| OrderService
+    MessageQueue -->|Event: TicketsReserved| OrderService
+    MessageQueue -->|Event: TicketsReleased| OrderService
+
+    MessageQueue -->|Event: OrderConfirmed| PaymentService
+    MessageQueue -->|Event: OrderCancelled| PaymentService
+
+    MessageQueue -->|Event: PaymentProcessed| TicketService
+    MessageQueue -->|Event: PaymentFailed| TicketService
+
+    MessageQueue -->|Event: TicketGenerated| DeliveryService
+    MessageQueue -->|Event: TicketValidated| DeliveryService
+
+    MessageQueue -->|Event: DeliveryCompleted| NotificationService
+    MessageQueue -->|Event: DeliveryFailed| NotificationService
+
+    %% External Service Integration
+    NotificationService <-->|SMTP| EmailService
+    NotificationService <-->|AMQP| MessageQueue
+
+    %% Caching
+    UserService <-->|Redis| Cache
+    EventService <-->|Redis| Cache
+    SearchService <-->|Redis| Cache
+    InventoryService <-->|Redis| Cache
+    OrderService <-->|Redis| Cache
+    PaymentService <-->|Redis| Cache
+    TicketService <-->|Redis| Cache
+    DeliveryService <-->|Redis| Cache
