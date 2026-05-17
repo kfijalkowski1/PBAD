@@ -1,0 +1,15 @@
+Działamy z https://chatgpt.com/g/g-bahoiKzkB-software-engineer-gpt
+1. Klikamy w "Let's get started."
+
+2. Uploadujemy dokumentację, wszystkie pliki pokroju Concerns.md, Priorities.md, QualityAttributeScenarios.md, Vision.md itd
+
+3. Let's go through each user story one by one and derive functional requirements from them.
+
+4. LLM powinien zacząć przerabiać pierwsze user story, jeżeli nie to należy go zachęcić promptem pokroju "derive functional requirements from the first user story"
+
+5. "proceed with the next user story" aż do przejścia przez wszystkie US.
+
+6. Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet.
+
+7. Create a mermaid diagram of the designed architecture.
+na tym etapie llm wypluwa mermaida.
