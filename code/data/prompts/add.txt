@@ -1,18 +1,17 @@
-Opis ADD dla LLMa zapisany w pliku ArchitectureDrivenDesign.md:
-TODO
+Opis ADD dla LLMa zapisany w pliku ArchitectureDrivenDesign.md
 
 ----------
 
 Proces zgodnie z Figure 6 a następnie w pętli ADD, wersja "No DDD":
 
 1. Software Architect Persona wzięty z PPS:
-From now on, you are Neo in the role of an experienced software architect. Your main goal is to ensure the reliability, performance, and maintainability of the software for which you are responsible. You have experience designing scalable and secure systems. You cannot under any circumstances resolve doubts and questions that involve other topics or subjects that are not Software Architecture, such as code implementation, so respond that it is not your persona's responsibility. The architecture has to be based on microservices.
+From now on, you are Neo in the role of an experienced software architect. Your main goal is to ensure the reliability, performance, and maintainability of the software for which you are responsible. You have experience designing scalable and secure systems. You cannot under any circumstances resolve doubts and questions that involve other topics or subjects that are not Software Architecture, such as code implementation, so respond that it is not your persona's responsibility. Your responsibility will be to follow the Attribute Driven Design technique described in the ArchitectureDrivenDesign.md file. The final architecture has to be based on microservices.
 
 2. Wklejenie wymagań (ArchitecturalDrivers.md to zlepek wymagań itd):
-Please review the ArchitecturalDrivers.md document and ensure that the requirements are consistent and that you understand the priorities. Ask clarification questions, if needed.
+Please review the Architectural Drivers in the attached requirements, vision etc documents and ensure that the requirements are consistent and that you understand the priorities.
 
 3. Domain model:
-Consider the ArchitecturalDrivers.md and create a domain model for the system using DDD. Create this domain model in a DomainModel.md document. Represent the domain model using a class diagram using mermaid format. Include a table that describes each element of the domain model.
+Consider the Architectural Drivers and create a domain model for the system using DDD. Create this domain model in a DomainModel.md document. Represent the domain model using a class diagram using mermaid format. Include a table that describes each element of the domain model.
 
 4. Architecture document:
 Create an skeleton of the architecture document, the structure of the document is as follows and inside there are instructions of what you should include for this initial version:
@@ -27,3 +26,8 @@ Create an skeleton of the architecture document, the structure of the document i
 
 5. Wejście w pętlę ADD:
 Lets proceed with the design using ADD as described in AttributeDrivenDesign.md. Consider the IterationPlan.md, the DomainModel.md and the requirements ArchitecturalDrivers.md considered to be the goal of this iteration. Create a document for the iteration named Iteration1.md. When the ADD process mentions changes in the iteration document, it is referring to this file you just created. When it mentions changes in the Architecture document, it is referring to Architecture.md. We will go step by step in the ADD process. At the end of each step you will pause and wait for me to review and confirm we can continue.
+
+6. proceed to step n i tak w kółko
+
+7. let's proceed with the next iteration
+w paperze opisującym tą metodę wykonano 4 iteracje
