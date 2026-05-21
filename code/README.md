@@ -9,7 +9,7 @@ architecture diagrams encoded as [Mermaid](https://mermaid.js.org/) flowcharts.
 
 | Requirement | Version |
 |-------------|---------|
-| Python      | ≥ 3.11  |
+| Python      | $\geq$ 3.11  |
 | Node.js     | any LTS (required by `mermaid-parser-py`) |
 | [uv](https://docs.astral.sh/uv/) | latest |
 
@@ -116,23 +116,22 @@ scenario per component, where that component is the origin of a change.
 
 Measures mean coupling per component.
 
-```
-DepAvg = (1 / |C|) * Σ_{k ∈ C} d_k
-```
+$$
+\text{DepAvg} = \frac{1}{|C|} \sum_{k \in C} d_k 
+$$
 
-where `d_k` is the number of *outgoing* edges (dependencies) of component `k`.
+where \(d_k\) is the number of *outgoing* edges (dependencies) of component \(k\).
 A lower value indicates less coupling and potentially better modularity.
 
 ### ACI — Average Change Impact
 
 Approximates how far a change ripples through the architecture.  For each
-component `i`, every component *transitively reachable* from it (direct and
-indirect dependents) is counted as affected (`c_i`).
+component \(i\), every component *transitively reachable* from it (direct and
+indirect dependents) is counted as affected (\(c_i\)).
 
-```
-ACI = (1/C) * (1/N) * Σ_{i=1}^{N} c_i
-    = (1/C²) * Σ_{i=1}^{C} c_i      (because N = C)
-```
+$$
+\text{ACI} = \frac{1}{C} \cdot \frac{1}{N} \sum_{i=1}^{N} c_i = \frac{1}{C^2} \sum_{i=1}^{C} c_i \quad (N = C) 
+$$
 
 A lower ACI means changes are better localised.
 
@@ -145,8 +144,8 @@ as ground truth and measure how well the generated architecture recovers it.
 
 | Metric | Formula |
 |--------|---------|
-| **Precision** | `|gen ∩ base| / |gen|` — fraction of generated elements that are correct |
-| **Recall** | `|gen ∩ base| / |base|` — fraction of base elements that were recovered |
+| **Precision** | $\lvert gen \cap base \rvert / \lvert gen \rvert$ — fraction of generated elements that are also in the reference |
+| **Recall** | $\lvert gen \cap base \rvert / \lvert base \rvert$ — fraction of reference elements that were generated |
 
 Both **nodes** (components) and **edges** (dependencies) are evaluated
 separately.  Node matching is case-insensitive.
@@ -155,14 +154,25 @@ separately.  Node matching is case-insensitive.
 
 ## Package structure
 
-```
-code/
-├── main.py            CLI entry point
-├── mermaid_utils/     Mermaid → networkx DiGraph parsing
-│   └── parser.py
-├── metrics/           Architecture quality metrics (DepAvg, ACI)
-│   └── calculator.py
-├── comparator/        Architecture comparison (precision, recall)
-│   └── compare.py
-└── tests/             Parametrized unit tests for all three packages
+```mermaid
+flowchart TD
+    main["main.py"]
+
+    subgraph mermaid_utils
+        parser["parser.py"]
+    end
+
+    subgraph metrics
+        calculator["calculator.py"]
+    end
+
+    subgraph comparator
+        compare["compare.py"]
+    end
+
+    main --> mermaid_utils
+    main --> metrics
+    main --> comparator
+    mermaid_utils --> metrics
+    mermaid_utils --> comparator
 ```
