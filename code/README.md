@@ -176,3 +176,15 @@ flowchart TD
     mermaid_utils --> metrics
     mermaid_utils --> comparator
 ```
+
+
+## Data
+-  HotelPricingSystem
+    - [Architecture](../submodules/HotelPricingSystem/Design/Architecture.md)
+    - [Domain model](../submodules/HotelPricingSystem/Design/DomainModel.md)
+- Pitstop
+    - [General arch docs](../submodules/pitstop/docs/arc42/arc42.md)
+    - [Scopes](../submodules/pitstop/docs/arc42/01-introduction-and-goals.md)
+    - [constraints](../submodules/pitstop/docs/arc42/02-architecture-constraints.md)
+- EventTicketSystem
+    - [Architecture & architectural drivers](../submodules/EventTicketSystem/Design/Architecture.md)
