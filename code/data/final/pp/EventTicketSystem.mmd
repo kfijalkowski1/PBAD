@@ -1,0 +1,118 @@
+graph TD
+    subgraph Clients["Client Layer"]
+        WebApp["Web Application"]
+        MobileApp["Mobile Application"]
+    end
+
+    subgraph Gateway["Gateway Layer"]
+        APIGW["API Gateway"]
+    end
+
+    subgraph CoreServices["Core Domain Services"]
+        IdentitySvc["Authentication Service"]
+        UserSvc["User Service"]
+        EventSvc["Event Service"]
+        InventorySvc["Inventory Service"]
+        OrderSvc["Order Service"]
+        PaymentSvc["Payment Service"]
+        TicketSvc["Ticket Service"]
+        DeliverySvc["Delivery Service"]
+        NotificationSvc["Notification Service"]
+        SearchSvc["Search Service"]
+        AnalyticsSvc["Analytics Service"]
+    end
+
+    subgraph Messaging["Async Messaging"]
+        Kafka["Message Queue"]
+    end
+
+    subgraph DataStores["Data Stores"]
+        PG_Identity["Identity Database"]
+        PG_User["User Database"]
+        PG_Event["Event Database"]
+        PG_Inventory["Inventory Database"]
+        PG_Order["Order Database"]
+        PG_Payment["Payment Database"]
+        Mongo_Ticket["Ticket Database"]
+        PG_Delivery["Delivery Database"]
+        PG_Notification["Notification Database"]
+        ES["Search Index"]
+        CH["Analytics"]
+        Redis["Cache"]
+    end
+
+    subgraph ExternalSystems["External Systems"]
+        IdP["Identity Provider"]
+        PayGW["Payment Gateway"]
+        EmailSvc["Email Service"]
+        VenueSys["Venue Management System"]
+        SMSSvc["Push Service"]
+    end
+
+    subgraph Infra["Infrastructure & Observability"]
+        ServiceMesh["Service Mesh"]
+        Prometheus["Observability Stack"]
+        Jaeger["Distributed Tracing"]
+        Vault["Secret Management"]
+    end
+
+    WebApp --> APIGW
+    MobileApp --> APIGW
+
+    APIGW --> IdentitySvc
+    APIGW --> UserSvc
+    APIGW --> EventSvc
+    APIGW --> InventorySvc
+    APIGW --> OrderSvc
+    APIGW --> PaymentSvc
+    APIGW --> TicketSvc
+    APIGW --> DeliverySvc
+    APIGW --> SearchSvc
+    APIGW --> AnalyticsSvc
+
+    IdentitySvc --> IdP
+    IdentitySvc --> PG_Identity
+    IdentitySvc --> Redis
+
+    UserSvc --> PG_User
+    EventSvc --> PG_Event
+    EventSvc --> VenueSys
+    InventorySvc --> PG_Inventory
+    InventorySvc --> Redis
+
+    OrderSvc --> PG_Order
+    OrderSvc --> Redis
+
+    PaymentSvc --> PayGW
+    PaymentSvc --> PG_Payment
+    PaymentSvc --> Vault
+
+    TicketSvc --> Mongo_Ticket
+    TicketSvc --> Redis
+
+    DeliverySvc --> EmailSvc
+    DeliverySvc --> SMSSvc
+    DeliverySvc --> PG_Delivery
+
+    NotificationSvc --> EmailSvc
+    NotificationSvc --> SMSSvc
+    NotificationSvc --> PG_Notification
+
+    SearchSvc --> ES
+
+    AnalyticsSvc --> CH
+
+    EventSvc --> Kafka
+    InventorySvc --> Kafka
+    OrderSvc --> Kafka
+    PaymentSvc --> Kafka
+    TicketSvc --> Kafka
+    DeliverySvc --> Kafka
+    NotificationSvc --> Kafka
+    SearchSvc --> Kafka
+    AnalyticsSvc --> Kafka
+
+    ServiceMesh -.->|mTLS + observability| CoreServices
+    Prometheus -.->|scrapes| CoreServices
+    Jaeger -.->|traces| CoreServices
+    Vault -.->|secrets| CoreServices

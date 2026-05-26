@@ -1,0 +1,65 @@
+flowchart TB
+    subgraph Client
+        BROWSER["User"]
+    end
+
+    subgraph WebLayer["Web Layer"]
+        WEBAPP["Web Application"]
+    end
+
+    subgraph Gateway["Routing"]
+        PROXY["Reverse Proxy"]
+    end
+
+    subgraph APIs["Command / Query APIs (.NET / C#)"]
+        CUSTAPI["Customer Management API"]
+        VEHAPI["Vehicle Management API"]
+        WORKSHOPAPI["Workshop Management API"]
+    end
+
+    subgraph Workers["Event-Driven Worker Services (.NET / C#)"]
+        NOTIF["Notification Service"]
+        INVOICE["Invoice Service"]
+        AUDITLOG["Auditlog Service"]
+        TIME["Time Service"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        MQ["Message Queue"]
+        %%DB["SQL Server\nPer-service schemas"] -> Per-Service DBs
+        SMTP["Test Mail Server"]
+    end
+
+    subgraph "Per-Service Databases"
+        CustomerDB[(Customer Database)]
+        VehicleDB[(Vehicle Database)]
+        WorkshopDB[(Workshop Database)]
+        NotificationDB[(Notification Database)]
+        InvoiceDB[(Invoice Database)]
+        AuditDB[(Audit Database)]
+    end
+
+    BROWSER -->|HTTPS| WEBAPP
+    WEBAPP -->|REST| PROXY
+    PROXY --> CUSTAPI
+    PROXY --> VEHAPI
+    PROXY --> WORKSHOPAPI
+
+    CUSTAPI -->|CustomerRegistered| MQ
+    VEHAPI -->|VehicleRegistered| MQ
+    WORKSHOPAPI -->|MaintenanceJobPlanned\nMaintenanceJobFinished| MQ
+    TIME -->|DayHasPassed| MQ
+
+    MQ -->|DayHasPassed\nMaintenanceJobPlanned| NOTIF
+    MQ -->|MaintenanceJobFinished| INVOICE
+    MQ -->|All domain events| AUDITLOG
+
+    CUSTAPI --> CustomerDB
+    VEHAPI --> VehicleDB
+    WORKSHOPAPI --> WorkshopDB
+    NOTIF --> NotificationDB
+    AUDITLOG --> AuditDB
+    INVOICE --> InvoiceDB
+
+    NOTIF -->|email| SMTP
+    INVOICE -->|email| SMTP
