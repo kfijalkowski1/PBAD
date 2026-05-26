@@ -1,164 +1,177 @@
-# ADD Iteration 1 — Establish Overall System Structure and Microservice Decomposition
+# Iteration 1 — Overall System Structure and Supporting Bounded Contexts
 
-## Overview
-
-| | |
-|---|---|
-| **Iteration** | 1 |
-| **Goal** | Establish the overall microservices architecture — decompose the system into independently deployable services aligned with bounded contexts, define the communication topology, and verify the system starts end-to-end with Docker Compose. |
-| **Drivers** | UC-01, UC-02, UC-03, QAS-D1, CON-01, CON-02, CON-05, CRN-01, CRN-06 |
-| **Element refined** | The Pitstop system (entire system — black box decomposition) |
-| **Status** | In progress — Step 2 complete |
+**Architect:** Neo  
+**Process:** Attribute-Driven Design (ADD 3.0)  
+**Iteration goal:** Establish the foundational microservices structure, containerization strategy, and the two supporting bounded contexts (Customer Management and Vehicle Management).
 
 ---
 
 ## Step 1: Review Inputs
 
-This step examines all available architectural inputs — design purpose, primary functionality, quality attributes, constraints, and architectural concerns — to ensure the design effort is grounded in a complete and consistent understanding of the problem space before any design decisions are made.
-
 ### 1.1 Design Purpose
 
-Pitstop is a **greenfield educational reference implementation** of a garage management system. Its design purpose is dual:
+Pitstop is a **reference implementation** whose primary purpose is educational: it must demonstrate microservices architecture, event-driven design, DDD, CQRS, and event sourcing to .NET developers, conference audiences, and workshop participants. Architectural decisions must therefore prioritize **clarity**, **learnability**, and **demonstrability** alongside the functional correctness of the garage management domain.
 
-1. **Functional purpose**: support garage employees in their daily operations — registering customers and vehicles, planning maintenance jobs, and automating follow-up activities (notifications, invoicing, audit logging).
-2. **Educational purpose**: demonstrate, in a single working system, how microservices architecture, event-driven communication, Domain-Driven Design (DDD), CQRS, and event sourcing are applied in a .NET ecosystem. This second purpose is the **primary architectural driver** and takes precedence over production-grade concerns such as scalability or high availability.
+This has a direct impact on design choices: patterns must be made explicitly visible (e.g., separate services for each bounded context, explicit event schemas, deliberate use of CRUD vs. DDD to contrast approaches), and operational complexity should be minimized where it does not add educational value.
 
-Because this is greenfield development, the initial iteration must establish the entire structural foundation from scratch. There are no existing components to refine or extend. The decomposition chosen in this iteration defines service boundaries, data ownership, and the communication topology for the lifetime of the system.
+### 1.2 Primary Functionality for This Iteration
 
-### 1.2 Primary Functionality
+The following user stories are in scope for Iteration 1:
 
-The six use cases below represent the complete functional scope of the system. Three are classified as **High** priority and drive the structural decomposition in this iteration; three are **Medium/Low** and are addressed in later iterations.
+| ID | User Story | Description |
+|----|------------|-------------|
+| US-1 | Register Customer | A garage employee registers a new customer (name, telephone, email). |
+| US-2 | Look Up Customer | A garage employee retrieves a customer by ID or lists all customers. |
+| US-3 | Register Vehicle | A garage employee registers a vehicle (license number, brand, type) and associates it with an existing customer. |
+| US-4 | Look Up Vehicle | A garage employee retrieves a vehicle by license number or lists all vehicles. |
 
-| ID | Title | Priority | Relevance to Iteration 1 |
-|----|-------|----------|--------------------------|
-| UC-01 | Register and look up customers | **High** | Defines the Customer Management bounded context and its API surface |
-| UC-02 | Register vehicles and associate with owner | **High** | Defines the Vehicle Management bounded context and its API surface |
-| UC-03 | Plan and track maintenance jobs | **High** | Defines the Workshop Management bounded context — the core domain |
-| UC-04 | Send daily maintenance notifications | Medium | Deferred to Iteration 2 |
-| UC-05 | Generate and email invoices | Medium | Deferred to Iteration 2 |
-| UC-06 | Record all domain events for audit | Low | Deferred to Iteration 2 |
+These four user stories are fully supported by the two supporting bounded contexts (Customer Management and Vehicle Management) identified in `DomainModel.md`. Both contexts use a simple CRUD design, which is appropriate for their supporting role and intentionally contrasts with the DDD + Event Sourcing approach used for Workshop Management in Iteration 2.
+
+In addition to the four user stories, this iteration must establish the **overall system structure** that all subsequent iterations will build upon: the microservices decomposition, the communication topology, the containerization strategy, and the shared infrastructure components (RabbitMQ, SQL Server, Seq, MailDev).
 
 ### 1.3 Quality Attribute Scenarios
 
-Eleven quality attribute scenarios have been identified across four quality goals. For Iteration 1, only **QAS-D1** is a direct driver — the others will be addressed in later iterations once the structural foundation exists.
+| ID | Quality Attribute | Scenario | Priority |
+|----|-------------------|----------|----------|
+| QAS-O1 | Operability | Running `docker compose up` starts all services and infrastructure. The system is accessible at `http://localhost:7005` within 2 minutes. | High |
+| QAS-L1 | Learnability | A .NET developer can understand the overall architecture and the role of each service within 30 minutes by reading the documentation and browsing the code. | High |
 
-| ID | Quality Attribute | Priority | Relevance to Iteration 1 |
-|----|------------------|----------|--------------------------|
-| QAS-D1 | Demonstrability | **High** | **Primary driver**: `docker compose up` must start all containers within 2 minutes on a clean machine. This constrains how services are packaged and how startup dependencies are managed. |
-| QAS-L1 | Learnability | High | Deferred to Iteration 3 — requires completed structure |
-| QAS-L2 | Learnability | High | Deferred to Iteration 3 |
-| QAS-L3 | Learnability | High | Deferred to Iteration 3 |
-| QAS-A1 | Autonomy | High | Deferred to Iteration 2 — requires event-driven communication to be designed |
-| QAS-A2 | Autonomy | High | Deferred to Iteration 2 |
-| QAS-R1 | Resilience | High | Deferred to Iteration 2 |
-| QAS-R2 | Resilience | High | Deferred to Iteration 2 |
-| QAS-D2 | Demonstrability | Medium | Deferred to Iteration 3 |
-| QAS-R3 | Resilience | Medium | Deferred to Iteration 3 |
-| QAS-D3 | Demonstrability | Low | Deferred to Iteration 3 |
+**Analysis:**
+- QAS-O1 drives the need for a well-defined Docker Compose configuration, health checks on all services, and retry policies for infrastructure dependencies (SQL Server, RabbitMQ) that may not be ready immediately.
+- QAS-L1 drives the need for a clean, one-service-per-bounded-context decomposition with consistent code structure, clear naming conventions, and a shared messaging abstraction that hides broker-specific complexity.
 
-### 1.4 Constraints
+### 1.4 Architectural Concerns
 
-All constraints are binding. The table below identifies their relevance to this iteration specifically.
+| ID | Concern | Description |
+|----|---------|-------------|
+| CRN-1 | Overall system structure | Establish the microservices decomposition, define service boundaries aligned with the DDD bounded contexts from `DomainModel.md`, define the inter-service communication pattern, and establish the deployment topology for all services. |
 
-| ID | Constraint | Relevance to Iteration 1 |
-|----|------------|--------------------------|
-| CON-01 | All services implemented in .NET / C# | **Primary driver**: directly determines the technology stack for all containers identified in this iteration. Enables shared NuGet infrastructure libraries. |
-| CON-02 | Every service runs as a Linux Docker container; Docker Compose is the local orchestration tool | **Primary driver**: every container identified in this iteration must be independently containerisable. Docker Compose governs how they are started together (QAS-D1). |
-| CON-03 | Single SQL Server instance; per-service schema isolation | Informational for this iteration — schema ownership is confirmed per service, but the mechanics of isolation are deferred to Iteration 2. |
-| CON-04 | RabbitMQ is the sole message broker | Informational for this iteration — the broker is identified as a container, but its event flows are designed in Iteration 2. |
-| CON-05 | Microservices architecture — each service independently deployable | **Primary driver**: directly mandates the decomposition style. No monolith or modular monolith is permissible. |
-| CON-06 | All broker interactions via `IMessagePublisher` / `IMessageHandler` abstractions | Informational for this iteration — introduces the `Infrastructure.Messaging` shared library as a container candidate. |
-| CON-07 | Open source; no proprietary runtime dependencies | Informational for this iteration. |
+**Analysis:** CRN-1 is the dominant concern of this iteration. Without a stable structural foundation, subsequent iterations cannot proceed. The domain model already defines the service boundaries; this iteration must translate them into a concrete container topology.
 
-### 1.5 Architectural Concerns
+### 1.5 Constraints
 
-| ID | Concern | Relevance to Iteration 1 |
-|----|---------|--------------------------|
-| CRN-01 | Establish overall initial system structure | **Primary goal of this iteration**: no other iteration can proceed without a decomposed structure. |
-| CRN-02 | Demonstrate multiple design approaches (DDD vs. CRUD) without cross-contamination | Informational — the structure established here must provide separate, isolated service boundaries to make this possible. The detailed design patterns within each service are deferred to Iteration 2. |
-| CRN-03 | Achieve per-service data autonomy within shared SQL Server | Informational for this iteration — SQL Server is identified as a container and per-service schema ownership is established. Enforcement mechanisms are deferred to Iteration 2. |
-| CRN-04 | Handle time-dependent behaviour deterministically | Informational for this iteration — the Time Service is identified as a container. Its event publishing behaviour is designed in Iteration 2. |
-| CRN-05 | Centralised observability without heavy infrastructure | Informational for this iteration — Seq is identified as a container. The observability design is deferred to Iteration 3. |
-| CRN-06 | Manage shared infrastructure code without tight coupling | **Driver for this iteration**: the `Infrastructure.Messaging` shared library must be introduced at the structural level as a NuGet package dependency to satisfy CON-06, and its boundaries must be defined so services do not couple directly to broker implementations. |
+| ID | Constraint | Architectural Impact |
+|----|------------|----------------------|
+| CON-1 | .NET / C# | All service implementations use ASP.NET Core Web API for HTTP services and .NET hosted services for background workers. Shared infrastructure code is distributed as a NuGet package (`Infrastructure.Messaging`). |
+| CON-2 | Docker / Docker Compose | All containers must be defined in a `docker-compose.yml`. Services must include `HEALTHCHECK` instructions and depend on health-checked infrastructure containers. |
+| CON-3 | SQL Server | All services use SQL Server as their database engine. Each service owns a logically separate database schema on the shared SQL Server instance. Entity Framework Core (code-first migrations) is used for CRUD services. |
+| CON-4 | RabbitMQ | RabbitMQ is the message broker. All inter-service async communication goes through `IMessagePublisher` / `IMessageHandler` interfaces defined in `Infrastructure.Messaging`, decoupling services from the concrete broker. |
 
-### 1.6 Key Observations from Input Review
+**Analysis:** The constraints are mutually consistent and non-conflicting. CON-2 directly supports QAS-O1. CON-1 enables the NuGet-based sharing of the messaging abstraction demanded by CON-4. CON-3 intentionally avoids polyglot persistence complexity for educational clarity (the cost is a single point of failure at the database engine level, accepted as a known trade-off).
 
-The following observations are drawn from examining all inputs and will directly inform the design decisions in subsequent steps:
+### 1.6 Consistency Review
 
-1. **No existing architectural elements exist.** The system is greenfield. The element to be refined in Step 3 is the entire system — we begin at the highest level of abstraction (black box decomposition).
+| Check | Result |
+|-------|--------|
+| User stories traceable to domain model bounded contexts? | ✅ US-1/US-2 → `Customer` aggregate in Customer Management context. US-3/US-4 → `Vehicle` aggregate in Vehicle Management context. Both identified in `DomainModel.md`. |
+| Quality attribute scenarios compatible with constraints? | ✅ QAS-O1 is enabled by CON-2 (Docker Compose). QAS-L1 is supported by CON-1 (single .NET stack, familiar to target audience). |
+| Concerns consistent with iteration scope? | ✅ CRN-1 (overall structure) is the necessary precondition for Iterations 2 and 3. Addressing it first is correct sequencing. |
+| Any conflicting requirements? | ✅ None identified. The intentional simplifications (CRUD for supporting contexts, single SQL Server instance) are documented and accepted. |
+| Drivers not addressed in this iteration? | ✅ US-5 to US-9, QAS-R1 to QAS-R4, QAS-L2, QAS-L3, QAS-O2, QAS-O3, CRN-2 to CRN-5 are deferred to Iterations 2 and 3 as planned. |
 
-2. **Multiple converging drivers mandate microservices.** CON-05 (microservices), CON-02 (Docker containers), the educational purpose (demonstrating service decomposition), and the domain model's seven bounded contexts all independently require a microservices decomposition. No alternative style is compatible with the drivers.
+**Conclusion:** All inputs are consistent, complete, and well-understood. Iteration 1 can proceed.
 
-3. **The domain model has already established seven bounded contexts** (Customer Management, Vehicle Management, Workshop Management, Notification, Invoice, Audit Log, Time). Service boundaries should align with these contexts to preserve aggregate integrity and avoid reintroducing cross-context coupling.
+---
 
-4. **Two distinct service types emerge from the domain model.** Three contexts expose synchronous REST APIs (Customer, Vehicle, Workshop Management) and are called by the WebApp. Four contexts operate as autonomous background workers (Notification, Invoice, Audit Log, Time) that consume events and have no synchronous callers. This asymmetry must be reflected in the container decomposition.
-
-5. **Shared infrastructure code (CRN-06) must be resolved at the structural level.** The `IMessagePublisher` / `IMessageHandler` abstraction (CON-06) and cross-cutting concerns (Polly, Serilog, health checks) cannot live inside any single service. They must be packaged as a shared NuGet library, establishing a dependency that affects the build structure of all services.
-
-6. **QAS-D1 constrains startup ordering.** Docker Compose must start all containers successfully within 2 minutes. This requires all services to handle the situation where their infrastructure dependencies (SQL Server, RabbitMQ) are not yet ready when the service starts — a design constraint that will be resolved in Iteration 2 (QAS-R1, QAS-R2) but whose architectural implication (health-check and depends-on configuration) must be anticipated in the container structure defined here.
-
-7. **No API gateway is warranted.** The WebApp calls only three APIs (Customer, Vehicle, Workshop Management). The educational purpose favours simplicity. Adding an API gateway would introduce a layer of indirection that obscures the microservices patterns being demonstrated without adding any capability that serves the drivers of this system. This will be recorded as a design decision.
+*— END OF STEP 1 — Confirmed. Proceeding to Step 2.*
 
 ---
 
 ## Step 2: Establish Iteration Goal by Selecting Drivers
 
-This step formally establishes what this iteration must achieve and identifies the specific drivers that will govern all design decisions made within it. Drivers not listed here remain in the backlog for future iterations.
+### 2.1 Iteration Goal Statement
 
-### 2.1 Iteration Goal
+> **Establish the foundational microservices structure of the Pitstop system.** This iteration produces a deployable skeleton that includes the complete container topology, the two supporting bounded contexts (Customer Management and Vehicle Management) with their HTTP APIs, databases, and event publishing, the shared messaging abstraction library, and the infrastructure components (RabbitMQ, SQL Server, Seq, MailDev). All subsequent iterations will build on top of this foundation without requiring structural changes to what is designed here.
 
-> **Decompose the Pitstop system into a set of independently deployable microservices aligned with its bounded contexts, define the communication topology between those services, and establish the shared infrastructure structure, such that the entire system can be started end-to-end with a single `docker compose up` command.**
+### 2.2 Driver Selection and Prioritization
 
-This goal is deliberately structural. Iteration 1 operates at the highest level of abstraction — the entire system as a black box. Its output is not a working feature but the architectural skeleton within which all subsequent iterations will design specific capabilities. Every decision made here constrains and shapes what is possible in Iterations 2 and 3.
+The following drivers are addressed in this iteration. They are ordered by their influence on the structural decisions that must be made.
 
-### 2.2 Selected Drivers
-
-The following drivers are selected for this iteration. All are structural or infrastructural in nature — none can be addressed by refining an individual component, because the components themselves do not yet exist.
-
-| Driver | Type | Rationale for Selection |
-|--------|------|------------------------|
-| **CRN-01** — Establish overall initial system structure | Architectural Concern | The foundational concern of any greenfield system. No other design work can proceed without a decomposition to build upon. This is the entire purpose of Iteration 1. |
-| **CON-05** — Microservices architecture; each service independently deployable | Constraint | Directly mandates the decomposition style and granularity. All container boundaries defined in this iteration must satisfy independent deployability. |
-| **CON-01** — All services implemented in .NET / C# | Constraint | Determines the technology stack for every container. Enables the shared NuGet infrastructure library strategy required by CRN-06. Must be established at the structural level before any component-level decisions. |
-| **CON-02** — Every service runs as a Linux Docker container; Docker Compose for local orchestration | Constraint | Every container identified in this iteration must be independently containerisable. Docker Compose is the delivery mechanism for QAS-D1 and must be defined as part of this iteration's output. |
-| **QAS-D1** — System starts within 2 minutes via `docker compose up` | Quality Attribute Scenario | Constrains how startup ordering and infrastructure dependencies are handled. The container decomposition must be completable enough to produce a working Compose file. |
-| **UC-01** — Register and look up customers | Use Case | Defines the existence and API surface of the Customer Management service. The decomposition must include a container that satisfies this use case. |
-| **UC-02** — Register vehicles and associate with owner | Use Case | Defines the existence and API surface of the Vehicle Management service. The decomposition must include a container that satisfies this use case. |
-| **UC-03** — Plan and track maintenance jobs | Use Case | Defines the existence and API surface of the Workshop Management service — the core domain. The decomposition must include a container that satisfies this use case and is designed to accommodate the DDD + event sourcing approach required in Iteration 2. |
-| **CRN-06** — Manage shared infrastructure code without tight coupling | Architectural Concern | Must be resolved at this structural level: the `Infrastructure.Messaging` abstraction (and other cross-cutting concerns) requires a shared NuGet library, which is a build-level decision that affects the structure of all services. |
+| Priority | Driver | Type | Rationale for Inclusion |
+|----------|--------|------|--------------------------|
+| 1 | **CRN-1** — Establish overall system structure | Concern | The dominant concern of this iteration. All other decisions (service count, communication topology, deployment model) depend on resolving this first. |
+| 2 | **CON-2** — Docker / Docker Compose | Constraint | Determines the deployment unit (container) and the local orchestration mechanism. Directly shapes how services are structured and how infrastructure dependencies are declared. Also directly satisfies QAS-O1. |
+| 3 | **CON-4** — RabbitMQ as message broker | Constraint | Determines the inter-service communication backbone. Must be established early because all services — including the two CRUD services in this iteration — must publish domain events through it. |
+| 4 | **CON-3** — SQL Server as database platform | Constraint | Determines the persistence technology for all services. Entity Framework Core code-first migrations are chosen for the CRUD services in this iteration. |
+| 5 | **CON-1** — .NET / C# | Constraint | Determines the technology stack for all services and shared libraries. Enables NuGet-based sharing of the `Infrastructure.Messaging` abstraction. |
+| 6 | **US-1** — Register Customer | User Story | Core functional driver for Customer Management API. Requires `RegisterCustomer` command handling and `CustomerRegistered` event publication. |
+| 7 | **US-2** — Look Up Customer | User Story | Core functional driver for Customer Management API (read path). Requires list and by-ID query endpoints. |
+| 8 | **US-3** — Register Vehicle | User Story | Core functional driver for Vehicle Management API. Requires `RegisterVehicle` command and `VehicleRegistered` event. |
+| 9 | **US-4** — Look Up Vehicle | User Story | Core functional driver for Vehicle Management API (read path). |
+| 10 | **QAS-O1** — Docker Compose startup ≤ 2 min | Quality Attribute | Requires health checks on all containers and retry policies (Polly) for infrastructure dependencies. Shapes container configuration. |
+| 11 | **QAS-L1** — Architecture understandable in 30 min | Quality Attribute | Requires consistent code structure across services, explicit naming conventions, and a shared abstraction that makes the system's communication patterns immediately visible. |
 
 ### 2.3 Drivers Deferred to Later Iterations
 
-The following drivers are explicitly out of scope for Iteration 1. They will be addressed once the structural foundation established here provides sufficient context.
+The following drivers are explicitly **out of scope** for Iteration 1 and deferred:
 
-| Driver | Deferred to Iteration | Reason for Deferral |
-|--------|----------------------|---------------------|
-| UC-04: Send daily notifications | 2 | Requires event-driven communication to be designed first |
-| UC-05: Generate and email invoices | 2 | Requires event-driven communication and the `DayHasPassed` event pattern |
-| UC-06: Record all domain events for audit | 2 | Requires the event broker topology to be established |
-| QAS-A1, QAS-A2: Service autonomy | 2 | Requires local read-model and event subscription patterns |
-| QAS-R1, QAS-R2: Retry and resilience | 2 | Requires services and broker container to exist before retry policies can be designed |
-| CON-04: RabbitMQ as sole message broker | 2 | Broker is identified as a container here; event flows and routing designed in Iteration 2 |
-| CON-06: Messaging abstraction | 2 | Library structure defined here; usage patterns and interfaces designed in Iteration 2 |
-| CRN-02: Multiple design approaches | 2 | Requires Workshop Management internals to be designed |
-| CRN-03: Per-service data autonomy | 2 | Schema isolation mechanisms designed when event-driven patterns are established |
-| CRN-04: Deterministic time behaviour | 2 | Time Service is identified as a container here; event publishing designed in Iteration 2 |
-| QAS-R3: Circuit breaker fallback | 3 | Requires WebApp and API containers to exist first |
-| QAS-D2: Kubernetes deployment | 3 | Builds directly on the Docker Compose structure established here |
-| QAS-D3: Health check endpoints | 3 | Cross-cutting concern added after service internals are established |
-| QAS-L1, QAS-L2, QAS-L3: Learnability | 3 | Can only be assessed once the full structure and documentation are complete |
-| CRN-05: Centralised observability | 3 | Seq identified as a container here; structured logging design deferred to Iteration 3 |
+| Driver | Deferred to | Reason |
+|--------|-------------|--------|
+| US-5, US-6, US-7 | Iteration 2 | Depend on Workshop Management core domain (DDD + Event Sourcing), which requires the structural foundation from this iteration. |
+| QAS-R1, QAS-R2, QAS-R3 | Iteration 2 | Resilience patterns (exponential backoff, autonomous operation) are most relevant in the context of the Workshop Management service. |
+| QAS-L3 | Iteration 2 | Event sourcing implementation is out of scope for this iteration. |
+| US-8, US-9, QAS-R4, QAS-L2, QAS-O3 | Iteration 3 | Depend on Notification, Invoice, and Time services, which depend on Workshop Management from Iteration 2. |
+| CRN-2, CRN-3 | Iteration 2 | The event-driven communication pattern and the database-per-service enforcement are first exercised fully in Workshop Management. |
+| CRN-4, CRN-5 | Iteration 3 | Centralized logging (Seq) and Kubernetes manifests are cross-cutting concerns added after the core structure is stable. |
 
-### 2.4 Expected Outcomes of This Iteration
+### 2.4 Definition of Done for Iteration 1
 
-By the end of Iteration 1, the following artefacts must be produced:
-
-1. **Container diagram** — showing all deployable units, their responsibilities, and their top-level communication relationships (web-to-API and presence of the broker).
-2. **Container responsibility table** — detailing what each container owns and provides.
-3. **Sequence diagrams for UC-01, UC-02, UC-03, and QAS-D1** — tracing the primary request flows at the container level.
-4. **Design decisions** — documenting the rationale for the microservices decomposition, the no-API-gateway decision, the shared library approach, and the Docker Compose startup topology.
-5. **Updated Architecture.md** — container diagram, container responsibilities, and design decisions populated.
+This iteration is complete when:
+- [ ] The complete container topology (all services and infrastructure) is defined and documented in the container diagram.
+- [ ] Customer Management API supports `RegisterCustomer` (POST) and retrieval (GET by ID, GET all) with event publication.
+- [ ] Vehicle Management API supports `RegisterVehicle` (POST) and retrieval (GET by license number, GET all) with event publication.
+- [ ] The `Infrastructure.Messaging` shared library defines `IMessagePublisher` / `IMessageHandler` interfaces with a RabbitMQ implementation.
+- [ ] All services and infrastructure run via `docker compose up` with health checks.
+- [ ] Architecture.md is updated with the container diagram and populated sequence diagrams for US-1 to US-4 and QAS-O1.
+- [ ] Design decisions for this iteration are recorded in Architecture.md.
 
 ---
 
-*— End of Step 2. Awaiting review before proceeding to Step 3.*
+*— END OF STEP 2 — Confirmed. Proceeding to Step 3.*
+
+---
+
+## Step 3: Choose One or More Elements of the System to Refine
+
+### 3.1 Starting Point
+
+At the beginning of Iteration 1, the system exists only as a black box (the C4 Level 1 context diagram in Architecture.md). The internal structure — the containers — has not yet been designed. There are no elements below the system boundary to select from. The element to refine is therefore the **system itself**: we will decompose it from a context-level black box into its constituent containers (C4 Level 2).
+
+### 3.2 Elements Selected for Refinement
+
+The following elements are selected for refinement in this iteration:
+
+| # | Element | Current State | Refinement Action |
+|---|---------|---------------|-------------------|
+| 1 | **Pitstop System (entire system boundary)** | Black box from the context diagram | Decompose into individual containers aligned with the DDD bounded contexts from `DomainModel.md`. |
+| 2 | **Customer Management bounded context** | Identified in `DomainModel.md` as a supporting domain (CRUD) | Instantiate as a concrete ASP.NET Core Web API container with its own SQL Server database. |
+| 3 | **Vehicle Management bounded context** | Identified in `DomainModel.md` as a supporting domain (CRUD) | Instantiate as a concrete ASP.NET Core Web API container with its own SQL Server database. |
+| 4 | **Infrastructure.Messaging shared library** | Referenced in domain model and constraints but not yet designed | Define the `IMessagePublisher` / `IMessageHandler` abstraction and its RabbitMQ implementation. |
+| 5 | **Web Application** | Mentioned in context but not yet decomposed | Instantiate as an ASP.NET Core MVC container that orchestrates user-facing interactions and calls the backend APIs. |
+| 6 | **Shared infrastructure containers** | Listed in Architecture.md container table but not yet defined | Define RabbitMQ, SQL Server, Seq, and MailDev containers as infrastructure dependencies of the system. |
+
+### 3.3 Elements Deliberately Excluded from This Iteration
+
+The following containers identified in the Architecture.md container diagram are **not refined** in this iteration. They appear in the container diagram as placeholders to show the complete topology, but their internal design is deferred.
+
+| Element | Deferred to | Reason |
+|---------|-------------|--------|
+| Workshop Management API | Iteration 2 | Core domain; requires DDD + Event Sourcing design that depends on the structural foundation from this iteration. |
+| Workshop Management Event Handler | Iteration 2 | Depends on Workshop Management API design. |
+| Notification Service | Iteration 3 | Depends on Workshop Management events and Time Service. |
+| Invoice Service | Iteration 3 | Depends on Workshop Management events and Time Service. |
+| Time Service | Iteration 3 | Enabler for Notification and Invoice services. |
+| Auditlog Service | Iteration 3 | Pure event consumer; designed after all event producers are defined. |
+
+### 3.4 Refinement Scope Justification
+
+Decomposing the entire system boundary in Iteration 1 is necessary because:
+
+1. **CRN-1** explicitly requires establishing the overall structure. An incomplete topology would leave architectural unknowns that would delay Iterations 2 and 3.
+2. **QAS-O1** (docker compose up within 2 minutes) requires *all* containers — including those not yet designed internally — to be declared in the Docker Compose file with correct networking, health checks, and startup ordering.
+3. **QAS-L1** (understandable in 30 minutes) requires the full container map to be visible from the start. A developer reading the repository on day one should see all services, even if some are stubs.
+4. The domain model already provides the decomposition logic (one service per bounded context), so the number of containers is not a design decision to be made here — it is a consequence of applying DDD to the known domain.
+
+---
+
+*— END OF STEP 3 — Awaiting review and confirmation to proceed to Step 4.*

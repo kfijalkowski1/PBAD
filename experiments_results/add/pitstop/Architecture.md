@@ -1,597 +1,686 @@
-# Pitstop — Architecture Document
+# Pitstop Garage Management System — Architecture Document
 
-**Architect**: Neo  
-**Method**: Attribute-Driven Design 3.0  
-**Date**: 2026-05-23
+**Architect:** Neo  
+**Method:** Attribute-Driven Design (ADD 3.0) / C4 Model  
+**Target Architecture:** Microservices
+
+---
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Context Diagram](#2-context-diagram)
+3. [Architectural Drivers](#3-architectural-drivers)
+   - [3.1 User Stories](#31-user-stories)
+   - [3.2 Quality Attribute Scenarios](#32-quality-attribute-scenarios)
+   - [3.3 Architectural Concerns](#33-architectural-concerns)
+   - [3.4 Constraints](#34-constraints)
+4. [Domain Model](#4-domain-model)
+5. [Container Diagram](#5-container-diagram)
+   - [5.1 Diagram](#51-diagram)
+   - [5.2 Container Descriptions](#52-container-descriptions)
+6. [Component Diagrams](#6-component-diagrams)
+7. [Sequence Diagrams](#7-sequence-diagrams)
+   - [7.1 Iteration 1 — Overall System Structure and Supporting Bounded Contexts](#71-iteration-1--overall-system-structure-and-supporting-bounded-contexts)
+   - [7.2 Iteration 2 — Core Domain: Workshop Management](#72-iteration-2--core-domain-workshop-management)
+   - [7.3 Iteration 3 — Event-Driven Supporting Services](#73-iteration-3--event-driven-supporting-services)
+8. [Interfaces](#8-interfaces)
+9. [Design Decisions](#9-design-decisions)
 
 ---
 
 ## 1. Introduction
 
-This document describes the software architecture of the **Pitstop Garage Management System**. It presents the architectural decisions, structural components, and their relationships that together satisfy the functional and quality requirements of the system. The document follows the **Attribute-Driven Design (ADD) 3.0** process and uses the **C4 model** as the primary notation for visualising architecture at multiple levels of abstraction: context, container, and component.
+This document describes the software architecture of the **Pitstop Garage Management System**, a reference application for a fictitious car repair garage. The system supports the daily operational tasks of garage employees: registering customers and vehicles, planning and finishing maintenance jobs, automatically notifying customers of upcoming work, and generating invoices for completed jobs.
 
-Pitstop is a sample application built around a fictitious car repair shop. Its purpose is not to implement a complete, production-grade garage system — its purpose is to **demonstrate architectural concepts** to .NET developers learning about microservices, event-driven systems, Domain-Driven Design (DDD), CQRS, and event sourcing. This educational mission is the highest-priority architectural driver and shapes every design decision in the document.
+The document is produced following the **Attribute-Driven Design (ADD 3.0)** process, which derives every architectural decision from a prioritised set of architectural drivers — user stories, quality attribute scenarios, architectural concerns, and constraints. The final architecture is based on a **microservices** style, with each bounded context identified through Domain-Driven Design mapping directly to one or more independently deployable services.
 
-The architecture is built on a **microservices** foundation. Each service is independently deployable, owns its own data, and communicates exclusively through asynchronous events published to a RabbitMQ message broker. The Workshop Management bounded context — the core domain — demonstrates DDD aggregates with event sourcing and CQRS. Supporting contexts (Customer Management, Vehicle Management) use simpler CRUD approaches, illustrating that different subdomains warrant different levels of design complexity.
+Structural views use the **C4 model** (context, container, and component diagrams). Behavioural views use **UML sequence diagrams** for the key use cases and quality attribute scenarios listed in the Iteration Plan. Design decisions are recorded in the decision log in section 9.
 
-The document is structured to be progressively refined across **three ADD iterations**, each guided by the highest-priority architectural drivers. Sections marked as empty or skeletal will be completed in the corresponding iteration. The document serves as the authoritative architectural reference for all stakeholders: developers, architects, workshop participants, and conference audiences.
+The document is structured to evolve incrementally across three design iterations, as defined in `IterationPlan.md`, starting with the foundational system structure, progressing through the core business domain, and concluding with the event-driven supporting services.
+
+The primary goals of the system are **learnability** and **demonstrability**: the architecture is intentionally transparent and well-documented so that .NET developers, conference audiences, and workshop participants can understand microservices, DDD, CQRS, event sourcing, and container technologies from a working reference implementation.
+
+The intended audience is developers, architects, and technical stakeholders who wish to study, extend, or present the system.
 
 ---
 
 ## 2. Context Diagram
 
-The diagram below shows Pitstop in the context of its users and external systems. It is drawn at the C4 *System Context* level, which means the Pitstop system is treated as a black box: the diagram does not reveal any internal structure. Its purpose is to establish the system's boundary — to identify who uses the system (actors), which external systems it interacts with, and the nature of those interactions. Pitstop has a single category of user (garage employees who interact through a web browser) and two external systems (a mail server that delivers outbound emails, and PrestoPrint, a fictitious printing company that receives invoice HTML emails). There are no external identity providers, no payment systems, and no real-time integrations — the limited integration surface is a deliberate consequence of the system's educational scope.
+The context diagram below positions the Pitstop Garage Management System within its operational environment. It represents the entire system as a single black box and shows all external actors and systems that interact with it, together with the direction and nature of each interaction. This level of abstraction — C4 Level 1 (System Context) — establishes the system boundary, identifies all integration points with the outside world, and provides the foundation from which more detailed views (containers, components) are derived in later sections.
+
+The system is used exclusively by **Garage Employees** through a web browser. It has two outbound email dependencies: **MailDev** (a simulated SMTP/POP3 server that captures all outbound mail in development, representing a real mail server in production) and **PrestoPrint** (a fictitious external print service that receives invoices as HTML email). No external systems call into the Pitstop system; all interaction is initiated by garage employees or by the passage of time.
 
 ```mermaid
-flowchart LR
-    GarageEmployee["Garage Employee\n[Person]\nGarage staff who manages customers,\nvehicles, and workshop planning"]
-    Pitstop["Pitstop\n[Software System]\nGarage Management System"]
-    MailServer["Mail Server\n[External System]\nSMTP server — MailDev in\ndevelopment, real SMTP in production"]
-    PrestoPrint["PrestoPrint\n[External System]\nFictitious printing company;\nreceives invoice HTML emails"]
+flowchart TD
+    GarageEmployee([Garage Employee\nBrowser])
 
-    GarageEmployee -->|"Manages customers, vehicles\nand workshop planning via browser"| Pitstop
-    Pitstop -->|"Sends maintenance reminder\nand invoice emails via SMTP"| MailServer
-    MailServer -->|"Forwards invoice\nHTML emails"| PrestoPrint
+    subgraph Pitstop["Pitstop Garage Management System"]
+        System[Pitstop]
+    end
+
+    MailDev([MailDev\nSimulated Mail Server])
+    PrestoPrint([PrestoPrint\nExternal Print Service])
+
+    GarageEmployee -- "Manages customers,\nvehicles, and workshop\nplanning [HTTP/Browser]" --> System
+    System -- "Sends customer\nnotifications [SMTP]" --> MailDev
+    System -- "Sends invoices\nas HTML email [SMTP]" --> MailDev
+    MailDev -- "Forwards invoices\n[email]" --> PrestoPrint
 ```
+
+| Actor / System | Type | Description |
+|----------------|------|-------------|
+| **Garage Employee** | User | Uses the web application to register customers and vehicles, plan and finish maintenance jobs, and view the workshop schedule. Only actor that directly interacts with the system. |
+| **MailDev** | External System | Simulated SMTP/POP3 server that captures all outbound emails during development. In a production deployment this would be replaced by a real mail server or email delivery service. |
+| **PrestoPrint** | External System | Fictitious external printing company. Receives HTML invoices for completed maintenance jobs via email, forwarded through MailDev. |
 
 ---
 
 ## 3. Architectural Drivers
 
-This section summarises the architectural drivers for Pitstop as elicited from stakeholders and recorded in `ArchitecturalDrivers.md`. Drivers are the primary inputs to the ADD process and directly shape every architectural decision made in this document. They are organised into four categories: use cases, quality attribute scenarios, constraints, and architectural concerns.
+This section summarises the complete set of architectural drivers that shape the system design. Drivers are divided into user stories (functional requirements), quality attribute scenarios (non-functional requirements), architectural concerns (cross-cutting design and governance concerns), and constraints (non-negotiable boundary conditions). Each driver is assigned a priority that directly influences the ordering of design iterations.
 
-### 3.1 Use Cases
+### 3.1 User Stories
 
-Use cases represent the primary functional requirements of the system. Stories classified as **High** priority are primary drivers addressed in the earliest iterations.
-
-| ID | Description | Priority |
-|----|-------------|----------|
-| UC-01 | **Register and look up customers**: A garage employee registers a new customer (name, address, telephone, email) and can retrieve the list of registered customers or look up a specific customer by ID. | **High** |
-| UC-02 | **Register vehicles and associate with owner**: A garage employee registers a vehicle (licence number, brand, type) and associates it with a registered customer as its owner. | **High** |
-| UC-03 | **Plan and track maintenance jobs**: A garage employee selects a day, chooses a vehicle and customer, and schedules a maintenance job within an available timeslot. A job can subsequently be marked as finished, recording actual start/end times and technician notes. | **High** |
-| UC-04 | **Send daily maintenance notifications**: Each day, customers who have a maintenance job scheduled for that day automatically receive an email reminder listing all their jobs for the day. | Medium |
-| UC-05 | **Generate and email invoices**: Each day, invoices are automatically generated for all maintenance jobs that were completed but not yet invoiced, and emailed to PrestoPrint for printing. | Medium |
-| UC-06 | **Record all domain events for audit**: Every domain event raised by any service is automatically persisted to a date-partitioned audit log for retrospective analysis. | Low |
+| ID | User Story | Description | Priority |
+|----|------------|-------------|----------|
+| US-1 | Register Customer | A garage employee registers a new customer by providing their name, telephone number, and email address. | **High** |
+| US-2 | Look Up Customer | A garage employee looks up an existing customer by listing all customers or retrieving a customer by ID. | **High** |
+| US-3 | Register Vehicle | A garage employee registers a vehicle (license number, brand, type) and associates it with an existing customer. | **High** |
+| US-4 | Look Up Vehicle | A garage employee looks up an existing vehicle by listing all vehicles or retrieving a vehicle by license number. | **High** |
+| US-5 | Plan Maintenance Job | A garage employee selects a date, a vehicle, and a time slot, and schedules a maintenance job in the workshop planning for that day. | **High** |
+| US-6 | View Workshop Planning | A garage employee views the workshop planning for a specific day, including all maintenance jobs, their time slots, associated vehicles and customers. | **High** |
+| US-7 | Finish Maintenance Job | A garage employee marks a planned maintenance job as finished. | **High** |
+| US-8 | Receive Maintenance Notification | When a day passes, customers who have a maintenance job scheduled for that day automatically receive a reminder email. | Medium |
+| US-9 | Receive Invoice | When a day passes, customers whose maintenance job was finished but not yet invoiced automatically receive an HTML invoice by email. | Medium |
 
 ### 3.2 Quality Attribute Scenarios
 
-Quality attribute scenarios define measurable, testable requirements on the system's runtime and developmental qualities. Scenarios rated **High** by stakeholder importance and selected as primary drivers are addressed in the earliest ADD iterations.
+| ID | Quality Attribute | Scenario | Associated Drivers | Business Priority | Technical Difficulty |
+|----|-------------------|----------|--------------------|-------------------|----------------------|
+| QAS-L1 | Learnability | A .NET developer clones the repository and wants to understand the microservices architecture. The developer can understand the overall architecture and the role of each service within 30 minutes by reading the documentation and browsing the code. | US-1 to US-9 | **High** | Medium |
+| QAS-L2 | Learnability | A conference presenter registers a customer and shows the resulting event flowing to all consuming services in real-time via the Seq log server. | US-1, CRN-4 | **High** | Low |
+| QAS-L3 | Learnability | A developer wants to understand how event sourcing works. The WorkshopManagementAPI provides a clear, isolated implementation of event sourcing with DDD aggregates that can be studied independently. | US-5, US-7 | **High** | **High** |
+| QAS-O1 | Operability | Running `docker compose up` starts all services and infrastructure. The system is accessible at `http://localhost:7005` within 2 minutes. | CRN-1, CON-2 | **High** | Low |
+| QAS-O2 | Operability | Kubernetes manifests in the `k8s/` folder can be applied to a cluster. The system starts successfully, with an optional Istio or Linkerd service mesh. | CRN-5 | Medium | Medium |
+| QAS-O3 | Operability | Every API service exposes a `/hc` endpoint returning health status. Docker performs health checks every 30 seconds. | CON-2 | Medium | Low |
+| QAS-R1 | Resilience | SQL Server is slow to start during `docker compose up`. Services retry database connections with exponential backoff (Polly). After SQL Server is ready, services connect successfully without manual intervention. | CON-2, CON-3 | **High** | Medium |
+| QAS-R2 | Resilience | RabbitMQ is temporarily unavailable. Services retry message broker connections with exponential backoff. Published messages are retried up to 9 times. | CON-4 | **High** | Medium |
+| QAS-R3 | Autonomy | The Customer Management API is offline when a maintenance job is being planned. The Workshop Management service operates autonomously using its local read-model (cached customer and vehicle data). | US-5, US-6 | **High** | **High** |
+| QAS-R4 | Resilience | The WebApp cannot reach a backend API after multiple retries. A Polly circuit-breaker triggers and the WebApp shows an offline fallback page rather than an error. | US-1 to US-7 | **High** | Medium |
 
-| ID | Quality Attribute | Scenario | Stakeholder Importance | Implementation Difficulty |
-|----|------------------|----------|----------------------|--------------------------|
-| QAS-L1 | Learnability | A .NET developer clones the repository and reads the documentation. They can understand the overall architecture, the role of each service, and the event flow between services within 30 minutes, without external assistance. | **High** | Low |
-| QAS-L2 | Learnability | During a live demo, a presenter registers a customer and shows the `CustomerRegistered` event flowing through RabbitMQ to all consuming services in real time, visible in the Seq log dashboard. | **High** | Medium |
-| QAS-L3 | Learnability | A developer wants to understand event sourcing. They can read and understand the `WorkshopManagementAPI` — its aggregate, events, event store, and read-model — in isolation, without needing to read any other service's code. | **High** | Medium |
-| QAS-D1 | Demonstrability | A developer runs `docker compose up` on a clean machine with Docker installed. All services and infrastructure components start without manual intervention and the system is accessible at `http://localhost:7005` within 2 minutes. | **High** | Low |
-| QAS-D2 | Demonstrability | A developer applies the Kubernetes manifests from the `k8s/` folder to a cluster. The system starts successfully. A service mesh (Istio or Linkerd) functions as an optional, additive layer without requiring changes to any service. | Medium | Medium |
-| QAS-D3 | Demonstrability | An operator queries the health endpoint of any running API service. The `/hc` endpoint returns the current health status within 1 second. Docker performs health checks automatically every 30 seconds. | Low | Low |
-| QAS-A1 | Autonomy | The `CustomerManagementAPI` is taken offline while the `WorkshopManagementAPI` continues to receive job planning requests. All planning requests are processed successfully using the Workshop Management local read-model. No requests fail or degrade because the Customer service is unavailable. | **High** | **High** |
-| QAS-A2 | Autonomy | A single service is redeployed (container restart) while all other services remain running. The redeployment of that service causes zero disruption or configuration changes in any other service. | **High** | **High** |
-| QAS-R1 | Resilience | SQL Server is slow to start during `docker compose up`. All services retry their database connections with exponential backoff. Once SQL Server is available, all services connect successfully without manual intervention. | **High** | Low |
-| QAS-R2 | Resilience | RabbitMQ is temporarily unavailable during operation. Services retry their message broker connections with exponential backoff. Published messages are retried up to 9 times before failing. No message is silently lost when the broker is temporarily unreachable. | **High** | Low |
-| QAS-R3 | Resilience | The WebApp cannot reach a backend API after multiple consecutive failures. The Polly circuit breaker activates and the WebApp displays a graceful offline page rather than propagating the error to the user. | Medium | Medium |
+**Primary drivers:** QAS-L1, QAS-L3, QAS-O1, QAS-R1, QAS-R2, QAS-R3, QAS-R4 (addressed across iterations 1–3).
 
-### 3.3 Constraints
+### 3.3 Architectural Concerns
 
-Constraints are non-negotiable conditions imposed on the system by its technical, organisational, and educational context. All constraints are equally binding and are not prioritised relative to one another.
+| ID | Concern | Description | Priority |
+|----|---------|-------------|----------|
+| CRN-1 | Establish overall system structure | Define the microservices decomposition, service boundaries, inter-service communication patterns, and overall deployment topology from the first iteration. | **High** |
+| CRN-2 | Event-driven inter-service communication | Design the asynchronous messaging pattern: fanout exchange per event type, domain event schema, manual acknowledgement, and retry policy. | **High** |
+| CRN-3 | Database-per-service data isolation | Ensure each service owns its own logical database schema. No service accesses another service's database directly. | **High** |
+| CRN-4 | Centralized structured logging | All services must use Serilog with a Seq sink and enrich log events with the machine name for correlation in multi-container environments. | Medium |
+| CRN-5 | Container orchestration | Provide both Docker Compose (local) and Kubernetes manifests (cloud/demo) for all services and infrastructure components. | Medium |
 
-| ID | Constraint |
-|----|------------|
-| CON-01 | All services must be implemented in .NET and C#. |
-| CON-02 | Every service and infrastructure component must run as a Linux Docker container. Docker Compose is the primary local orchestration tool; Kubernetes manifests must be provided for cluster deployment. |
-| CON-03 | A single SQL Server instance is used as the database platform for all services. Each service must use its own dedicated logical schema — no cross-service schema sharing is permitted. |
-| CON-04 | RabbitMQ is the sole message broker for all asynchronous inter-service communication. |
-| CON-05 | The final architecture must be based on microservices. Each service must be independently deployable. |
-| CON-06 | All message-broker interactions must go through the `IMessagePublisher` / `IMessageHandler` abstractions. No service may have a direct dependency on `RabbitMQ.Client`. |
-| CON-07 | The project is open source. No proprietary runtime dependencies may be introduced (Seq is permitted as it has a free development tier). |
+### 3.4 Constraints
 
-### 3.4 Architectural Concerns
-
-Architectural concerns capture cross-cutting technical and organisational considerations that guide the design process.
-
-| ID | Concern |
-|----|---------|
-| CRN-01 | Establish the overall initial system structure: identify bounded contexts, decompose them into deployable services, and define inter-service communication patterns. |
-| CRN-02 | Demonstrate multiple design approaches within a single system (DDD + Event Sourcing for the core domain; CRUD for supporting domains) without allowing one pattern to bleed into adjacent services. |
-| CRN-03 | Achieve per-service data autonomy within the constraint of a shared SQL Server instance. |
-| CRN-04 | Handle time-dependent behaviour (daily notifications, daily invoicing) in a deterministic and demonstrable way that does not rely on real-time clocks or cron jobs within consuming services. |
-| CRN-05 | Provide centralised, structured observability across all services without introducing heavy distributed tracing infrastructure. |
-| CRN-06 | Manage shared infrastructure code (messaging abstraction, health checks, Polly policies, Serilog configuration) without introducing tight coupling between services. |
+| ID | Constraint | Description |
+|----|------------|-------------|
+| CON-1 | .NET / C# | All services are implemented in .NET and C#. This keeps the solution accessible to the target audience (.NET developers) and enables shared libraries via NuGet. |
+| CON-2 | Docker | Every service and all infrastructure components run as Linux Docker containers. Docker Compose is the primary local orchestration tool. |
+| CON-3 | SQL Server | A single SQL Server instance is used as the database platform for all services. This is a deliberate simplification; production deployments would use separate database instances. |
+| CON-4 | RabbitMQ | RabbitMQ is the sole message broker for all asynchronous inter-service communication. All services use the `Infrastructure.Messaging` abstraction library rather than depending on `RabbitMQ.Client` directly. |
+| CON-5 | Educational scope | Functional scope is limited to create and read operations only (no update or delete). The primary goal is to demonstrate architectural concepts clearly, not to build a production-grade application. |
+| CON-6 | Open source | The code is publicly available on GitHub. No proprietary dependencies or licences are used (except Seq, which has a free development tier). |
 
 ---
 
 ## 4. Domain Model
 
-This section presents the domain model for Pitstop, developed using Domain-Driven Design (DDD) principles. The model defines the **ubiquitous language** of the system — the shared vocabulary used by both business stakeholders and the development team — and establishes the structural foundation from which service boundaries, data ownership, and event contracts are derived.
+The domain model below was derived from the architectural drivers using Domain-Driven Design (DDD). Full detail — including the bounded context map, class diagram, element reference tables, and design decisions — is documented in `DomainModel.md`. The key findings are reproduced here for completeness.
 
-The model is organised around **seven bounded contexts**, each representing an independently deployable subdomain with its own internally consistent language and clearly defined integration boundaries. Cross-context integration is achieved exclusively through domain events published to RabbitMQ — there are no synchronous service-to-service calls in the domain model. The **Workshop Management** context is the **core domain**: it contains the most complex business logic and is where DDD patterns (aggregates, value objects, event sourcing, CQRS) are applied in full. All other contexts are supporting or generic subdomains that use simpler approaches appropriate to their complexity.
+The system decomposes into **six bounded contexts**: Workshop Management (core domain), Customer Management and Vehicle Management (supporting domains), and Notification, Invoice, Auditlog, and Time (generic subdomains). All cross-context integration is via asynchronous domain events — there are no synchronous service-to-service calls.
 
-### 4.1 Bounded Contexts
+### 4.1 Bounded Context Map
 
-| Bounded Context | Type | Design Approach |
-|----------------|------|----------------|
-| Customer Management | Supporting | CRUD — Entity Framework Core |
-| Vehicle Management | Supporting | CRUD — Entity Framework Core |
-| Workshop Management | **Core** | DDD — Aggregates + Event Sourcing + CQRS |
-| Notification | Supporting | Read-model built from consumed events |
-| Invoice | Supporting | Read-model + Invoice record built from consumed events |
-| Audit Log | Generic | Append-only log of all domain events |
-| Time | Generic | Domain event source for time progression |
+```mermaid
+flowchart TD
+    subgraph Core["🔴 Core Domain"]
+        WM["Workshop Management\n(DDD · Event Sourcing · CQRS)"]
+    end
 
-### 4.2 Class Diagram
+    subgraph Supporting["🟡 Supporting Domains"]
+        CM["Customer Management\n(CRUD)"]
+        VM["Vehicle Management\n(CRUD)"]
+    end
+
+    subgraph Generic["🟢 Generic Subdomains"]
+        NS["Notification Service"]
+        IS["Invoice Service"]
+        AL["Auditlog Service"]
+        TS["Time Service"]
+    end
+
+    CM -- CustomerRegistered --> WM
+    CM -- CustomerRegistered --> NS
+    CM -- CustomerRegistered --> IS
+    CM -- CustomerRegistered --> AL
+
+    VM -- VehicleRegistered --> WM
+    VM -- VehicleRegistered --> AL
+
+    WM -- WorkshopPlanningCreated --> AL
+    WM -- MaintenanceJobPlanned --> NS
+    WM -- MaintenanceJobPlanned --> IS
+    WM -- MaintenanceJobPlanned --> AL
+    WM -- MaintenanceJobFinished --> NS
+    WM -- MaintenanceJobFinished --> IS
+    WM -- MaintenanceJobFinished --> AL
+
+    TS -- DayHasPassed --> NS
+    TS -- DayHasPassed --> IS
+    TS -- DayHasPassed --> AL
+```
+
+### 4.2 Domain Model Class Diagram
 
 ```mermaid
 classDiagram
     namespace CustomerManagement {
         class Customer {
-            <<Aggregate Root>>
-            +string CustomerId
-            +string Name
-            +string Address
-            +string PostalCode
-            +string City
-            +string TelephoneNumber
-            +string EmailAddress
+            <<AggregateRoot>>
+            +CustomerId id
+            +Name name
+            +TelephoneNumber telephoneNumber
+            +EmailAddress emailAddress
+            +register()$ CustomerRegistered
+        }
+        class CustomerId {
+            <<ValueObject>>
+            +Guid value
+        }
+        class Name {
+            <<ValueObject>>
+            +string firstName
+            +string lastName
+        }
+        class TelephoneNumber {
+            <<ValueObject>>
+            +string value
+        }
+        class EmailAddress {
+            <<ValueObject>>
+            +string value
         }
         class CustomerRegistered {
-            <<Domain Event>>
-            +Guid MessageId
-            +string CustomerId
-            +string Name
-            +string Address
-            +string PostalCode
-            +string City
-            +string TelephoneNumber
-            +string EmailAddress
+            <<DomainEvent>>
+            +Guid customerId
+            +string firstName
+            +string lastName
+            +string telephoneNumber
+            +string emailAddress
         }
     }
 
     namespace VehicleManagement {
         class Vehicle {
-            <<Aggregate Root>>
-            +string LicenseNumber
-            +string Brand
-            +string Type
-            +string OwnerId
+            <<AggregateRoot>>
+            +LicenseNumber licenseNumber
+            +string brand
+            +string type
+            +CustomerId ownerId
+            +register()$ VehicleRegistered
+        }
+        class LicenseNumber {
+            <<ValueObject>>
+            +string value
         }
         class VehicleRegistered {
-            <<Domain Event>>
-            +Guid MessageId
-            +string LicenseNumber
-            +string Brand
-            +string Type
-            +string OwnerId
+            <<DomainEvent>>
+            +string licenseNumber
+            +string brand
+            +string type
+            +Guid ownerId
         }
     }
 
     namespace WorkshopManagement {
         class WorkshopPlanning {
-            <<Aggregate Root — Event Sourced>>
-            +WorkshopPlanningId Id
-            +List~MaintenanceJob~ Jobs
-            +Create(date) WorkshopPlanningCreated
-            +PlanMaintenanceJob(cmd) MaintenanceJobPlanned
-            +FinishMaintenanceJob(cmd) MaintenanceJobFinished
+            <<AggregateRoot>>
+            +PlanningDate date
+            +List~MaintenanceJob~ jobs
+            +planMaintenanceJob(cmd)$ MaintenanceJobPlanned
+            +finishMaintenanceJob(cmd)$ MaintenanceJobFinished
         }
         class MaintenanceJob {
             <<Entity>>
-            +Guid Id
-            +Timeslot PlannedTimeslot
-            +Timeslot ActualTimeslot
-            +WmCustomer Customer
-            +WmVehicle Vehicle
-            +string Description
-            +string Notes
-            +string Status
-            +Plan(timeslot, vehicle, customer, desc)
-            +Finish(actualTimeslot, notes)
+            +JobId id
+            +CustomerId customerId
+            +LicenseNumber vehicleId
+            +TimeSlot timeSlot
+            +string description
+            +JobStatus status
         }
-        class WmCustomer {
-            <<Local Snapshot>>
-            +string Id
-            +string Name
-            +string TelephoneNumber
+        class PlanningDate {
+            <<ValueObject>>
+            +DateTime date
         }
-        class WmVehicle {
-            <<Local Snapshot>>
-            +LicenseNumber Id
-            +string Brand
-            +string Type
-            +string OwnerId
+        class JobId {
+            <<ValueObject>>
+            +Guid value
         }
-        class WorkshopPlanningId {
-            <<Value Object>>
-            +string Value
-            +Create(date) WorkshopPlanningId
+        class TimeSlot {
+            <<ValueObject>>
+            +DateTime startTime
+            +DateTime endTime
         }
-        class LicenseNumber {
-            <<Value Object>>
-            +string Value
-            +Create(value) LicenseNumber
+        class JobStatus {
+            <<Enumeration>>
+            Planned
+            Finished
         }
-        class Timeslot {
-            <<Value Object>>
-            +DateTime StartTime
-            +DateTime EndTime
-            +IsWithinOneDay() bool
-            +OverlapsWith(other) bool
+        class CustomerInfo {
+            <<ReadModel>>
+            +Guid customerId
+            +string name
+            +string telephoneNumber
+            +string emailAddress
+        }
+        class VehicleInfo {
+            <<ReadModel>>
+            +string licenseNumber
+            +string brand
+            +string type
+            +Guid ownerId
         }
         class WorkshopPlanningCreated {
-            <<Domain Event>>
-            +Guid MessageId
-            +DateTime Date
+            <<DomainEvent>>
+            +DateTime planningDate
         }
         class MaintenanceJobPlanned {
-            <<Domain Event>>
-            +Guid MessageId
-            +Guid JobId
-            +DateTime StartTime
-            +DateTime EndTime
-            +CustomerInfo CustomerInfo
-            +VehicleInfo VehicleInfo
-            +string Description
+            <<DomainEvent>>
+            +Guid jobId
+            +DateTime planningDate
+            +Guid customerId
+            +string vehicleLicenseNumber
+            +DateTime startTime
+            +DateTime endTime
+            +string description
         }
         class MaintenanceJobFinished {
-            <<Domain Event>>
-            +Guid MessageId
-            +Guid JobId
-            +DateTime StartTime
-            +DateTime EndTime
-            +string Notes
+            <<DomainEvent>>
+            +Guid jobId
+            +DateTime planningDate
+            +DateTime finishedAt
         }
     }
 
-    namespace NotificationService {
-        class NsCustomer {
-            <<Read Model>>
-            +string CustomerId
-            +string Name
-            +string TelephoneNumber
-            +string EmailAddress
+    namespace NotificationContext {
+        class NotificationCustomer {
+            <<Entity>>
+            +Guid customerId
+            +string name
+            +string telephoneNumber
+            +string emailAddress
         }
-        class NsMaintenanceJob {
-            <<Read Model>>
-            +string JobId
-            +string LicenseNumber
-            +string CustomerId
-            +DateTime StartTime
-            +string Description
-        }
-    }
-
-    namespace InvoiceService {
-        class Invoice {
-            <<Aggregate Root>>
-            +string InvoiceId
-            +DateTime InvoiceDate
-            +string CustomerId
-            +decimal Amount
-            +string Specification
-            +string JobIds
-        }
-        class IsCustomer {
-            <<Read Model>>
-            +string CustomerId
-            +string Name
-            +string Address
-            +string PostalCode
-            +string City
-        }
-        class IsMaintenanceJob {
-            <<Read Model>>
-            +string JobId
-            +string LicenseNumber
-            +string CustomerId
-            +string Description
-            +DateTime StartTime
-            +DateTime EndTime
-            +bool Finished
-            +bool InvoiceSent
+        class PlannedMaintenanceJob {
+            <<Entity>>
+            +Guid jobId
+            +Guid customerId
+            +string vehicleLicenseNumber
+            +DateTime plannedDate
+            +bool notificationSent
         }
     }
 
-    namespace AuditLogService {
-        class AuditLogEntry {
-            <<Record>>
-            +DateTime Timestamp
-            +string MessageType
-            +string Message
+    namespace InvoiceContext {
+        class InvoiceCustomer {
+            <<Entity>>
+            +Guid customerId
+            +string name
+            +string emailAddress
+        }
+        class FinishedMaintenanceJob {
+            <<Entity>>
+            +Guid jobId
+            +Guid customerId
+            +string vehicleLicenseNumber
+            +DateTime finishedDate
+            +bool invoiceSent
         }
     }
 
-    namespace TimeService {
+    namespace AuditlogContext {
+        class AuditlogEntry {
+            <<Entity>>
+            +Guid id
+            +string eventType
+            +string messageBody
+            +DateTime timestamp
+        }
+    }
+
+    namespace TimeContext {
+        class TimeService {
+            <<Service>>
+            +tick()$ DayHasPassed
+        }
         class DayHasPassed {
-            <<Domain Event>>
-            +Guid MessageId
+            <<DomainEvent>>
+            +DateTime date
         }
     }
 
-    %% ── Customer Management ──────────────────────────────────────────
+    Customer "1" *-- "1" CustomerId : identified by
+    Customer "1" *-- "1" Name : has
+    Customer "1" *-- "1" TelephoneNumber : has
+    Customer "1" *-- "1" EmailAddress : has
     Customer ..> CustomerRegistered : publishes
 
-    %% ── Vehicle Management ───────────────────────────────────────────
+    Vehicle "1" *-- "1" LicenseNumber : identified by
     Vehicle ..> VehicleRegistered : publishes
-    Vehicle ..> Customer : OwnerId references
 
-    %% ── Workshop Management (intra-BC) ───────────────────────────────
-    WorkshopPlanning "1" *-- "*" MaintenanceJob : contains
-    WorkshopPlanning --> WorkshopPlanningId : identified by
+    WorkshopPlanning "1" *-- "1" PlanningDate : identified by
+    WorkshopPlanning "1" *-- "0..*" MaintenanceJob : contains
+    MaintenanceJob "1" *-- "1" JobId : identified by
+    MaintenanceJob "1" *-- "1" TimeSlot : scheduled in
+    MaintenanceJob --> JobStatus : status
     WorkshopPlanning ..> WorkshopPlanningCreated : publishes
     WorkshopPlanning ..> MaintenanceJobPlanned : publishes
     WorkshopPlanning ..> MaintenanceJobFinished : publishes
-    MaintenanceJob --> Timeslot : planned / actual timeslot
-    MaintenanceJob --> WmCustomer : carries snapshot
-    MaintenanceJob --> WmVehicle : carries snapshot
-    WmVehicle --> LicenseNumber : identified by
 
-    %% ── Cross-BC event flows (integration) ───────────────────────────
-    CustomerRegistered ..> NsCustomer : hydrates
-    CustomerRegistered ..> IsCustomer : hydrates
-    CustomerRegistered ..> WmCustomer : hydrates ref-data
-    VehicleRegistered ..> WmVehicle : hydrates ref-data
-    MaintenanceJobPlanned ..> NsMaintenanceJob : hydrates
-    MaintenanceJobPlanned ..> IsMaintenanceJob : hydrates
-    MaintenanceJobFinished ..> IsMaintenanceJob : updates
-    MaintenanceJobFinished ..> Invoice : triggers creation
-    DayHasPassed ..> NsMaintenanceJob : triggers daily notification
-    DayHasPassed ..> IsMaintenanceJob : triggers daily invoicing
+    TimeService ..> DayHasPassed : publishes
+
+    CustomerRegistered ..> CustomerInfo : populates
+    VehicleRegistered ..> VehicleInfo : populates
+    CustomerRegistered ..> NotificationCustomer : populates
+    CustomerRegistered ..> InvoiceCustomer : populates
+    MaintenanceJobPlanned ..> PlannedMaintenanceJob : creates
+    MaintenanceJobFinished ..> FinishedMaintenanceJob : creates
+    MaintenanceJobFinished ..> PlannedMaintenanceJob : updates status
 ```
 
-### 4.3 Element Descriptions
+### 4.3 Domain Elements Reference
 
-#### Aggregates
-
-| Element | Kind | Bounded Context | Description |
-|---------|------|----------------|-------------|
-| `Customer` | Aggregate Root | Customer Management | Represents a registered garage customer. Identified by `CustomerId`. Persisted via EF Core. Publishes `CustomerRegistered` on creation. |
-| `Vehicle` | Aggregate Root | Vehicle Management | Represents a registered vehicle identified by its `LicenseNumber`. Linked to its owner via `OwnerId`. Publishes `VehicleRegistered` on creation. |
-| `WorkshopPlanning` | Aggregate Root (Event-Sourced) | Workshop Management | Represents the maintenance plan for a **single calendar day**. State is reconstructed by replaying stored events. Enforces business rules on job scheduling: single-day timeslot, workstation capacity, no vehicle overlap. |
-| `Invoice` | Aggregate Root | Invoice Service | Represents a generated invoice for one or more finished maintenance jobs. Created and persisted as an immutable record when emailed to PrestoPrint. |
-
-#### Entities
-
-| Element | Kind | Bounded Context | Description |
-|---------|------|----------------|-------------|
-| `MaintenanceJob` | Entity | Workshop Management | A single maintenance task within a `WorkshopPlanning`. Holds a planned and (after completion) actual `Timeslot`, plus local snapshots of the customer and vehicle. Status is derived from whether `ActualTimeslot` is set. |
-| `WmCustomer` | Local Snapshot | Workshop Management | Denormalised local copy of customer data, built from `CustomerRegistered` events. Enables autonomous planning without calling the Customer service. |
-| `WmVehicle` | Local Snapshot | Workshop Management | Denormalised local copy of vehicle data, built from `VehicleRegistered` events. Same autonomy rationale as `WmCustomer`. |
-| `AuditLogEntry` | Record | Audit Log Service | Immutable record of a received domain event, written to a date-partitioned flat file. |
-
-#### Value Objects
-
-| Element | Kind | Bounded Context | Description |
-|---------|------|----------------|-------------|
-| `WorkshopPlanningId` | Value Object | Workshop Management | Date-derived identity of the `WorkshopPlanning` aggregate (`"yyyy-MM-dd"` format). Structural equality. |
-| `LicenseNumber` | Value Object | Workshop Management | Validated vehicle licence number (`nn-nnn-nn` pattern). Implicit conversion to `string`. |
-| `Timeslot` | Value Object | Workshop Management | Immutable time window with `StartTime` and `EndTime`. Enforces start-before-end invariant. Provides overlap detection and single-day boundary check. |
-
-#### Domain Events
-
-| Element | Published By | Consumed By | Description |
-|---------|-------------|-------------|-------------|
-| `CustomerRegistered` | Customer Management | Workshop Mgmt, Notification, Invoice, Audit Log | New customer registered; full profile payload. |
-| `VehicleRegistered` | Vehicle Management | Workshop Mgmt, Audit Log | New vehicle registered; full vehicle payload. |
-| `WorkshopPlanningCreated` | Workshop Management | Workshop Mgmt (event store) | New day plan initialised; internal event used for aggregate replay. |
-| `MaintenanceJobPlanned` | Workshop Management | Notification, Invoice, Audit Log | Job scheduled; embedded `CustomerInfo` and `VehicleInfo` snapshots. |
-| `MaintenanceJobFinished` | Workshop Management | Invoice, Audit Log | Job completed; actual timeslot and notes payload. |
-| `DayHasPassed` | Time Service | Notification, Invoice | Calendar day advanced; triggers daily notification and invoicing flows. |
-
-#### Business Rules (Workshop Management)
-
-| Rule ID | Description | Enforced On |
-|---------|-------------|-------------|
-| BR-01 | Planned job must fall entirely within a single business day. | `PlanMaintenanceJob` |
-| BR-02 | Parallel jobs must not exceed available workstation capacity. | `PlanMaintenanceJob` |
-| BR-03 | A vehicle may not have overlapping maintenance jobs. | `PlanMaintenanceJob` |
-| BR-04 | A completed job cannot be finished again. | `FinishMaintenanceJob` |
+| Element | Bounded Context | DDD Type | Description |
+|---------|----------------|----------|-------------|
+| `Customer` | Customer Management | AggregateRoot | Represents a registered garage customer. Publishes `CustomerRegistered` on creation. |
+| `Vehicle` | Vehicle Management | AggregateRoot | Represents a vehicle owned by a customer. Identified by its license number. Publishes `VehicleRegistered` on creation. |
+| `WorkshopPlanning` | Workshop Management | AggregateRoot | The schedule for a single calendar day. Enforces business rules (no overlapping time slots). Persisted via event sourcing. |
+| `MaintenanceJob` | Workshop Management | Entity | A single maintenance task within a `WorkshopPlanning`. Transitions from `Planned` to `Finished`. |
+| `NotificationCustomer` | Notification | Entity | Local projection of customer data cached by the Notification service. |
+| `PlannedMaintenanceJob` | Notification | Entity | Local projection of job data; tracks whether a notification has been sent. |
+| `InvoiceCustomer` | Invoice | Entity | Local projection of customer data cached by the Invoice service. |
+| `FinishedMaintenanceJob` | Invoice | Entity | Local projection of finished job data; tracks whether an invoice has been sent. |
+| `AuditlogEntry` | Auditlog | Entity | Immutable record of a domain event (type, body, timestamp). |
+| `CustomerId` | Customer Management | ValueObject | `Guid` wrapper that uniquely identifies a customer across bounded contexts. |
+| `Name` | Customer Management | ValueObject | Immutable `firstName` + `lastName` pair. |
+| `TelephoneNumber` | Customer Management | ValueObject | Validated, immutable telephone number string. |
+| `EmailAddress` | Customer Management | ValueObject | Validated, immutable email address string. |
+| `LicenseNumber` | Vehicle Management | ValueObject | Vehicle license plate; natural identity key for `Vehicle`. |
+| `PlanningDate` | Workshop Management | ValueObject | Date-only wrapper identifying which day a `WorkshopPlanning` covers. |
+| `JobId` | Workshop Management | ValueObject | `Guid` wrapper uniquely identifying a `MaintenanceJob`. |
+| `TimeSlot` | Workshop Management | ValueObject | Immutable `startTime` + `endTime` pair for a maintenance job window. |
+| `JobStatus` | Workshop Management | Enumeration | `Planned` or `Finished`. |
+| `CustomerInfo` | Workshop Management | ReadModel | Cached customer projection used by Workshop Management for autonomous operation. |
+| `VehicleInfo` | Workshop Management | ReadModel | Cached vehicle projection used by Workshop Management for autonomous operation. |
+| `TimeService` | Time Context | Service | Publishes `DayHasPassed` events to advance the simulated calendar day. |
+| `CustomerRegistered` | Customer Management | DomainEvent | Signals a new customer registration; consumed by Workshop Management, Notification, Invoice, Auditlog. |
+| `VehicleRegistered` | Vehicle Management | DomainEvent | Signals a new vehicle registration; consumed by Workshop Management, Auditlog. |
+| `WorkshopPlanningCreated` | Workshop Management | DomainEvent | Signals a new planning day aggregate; consumed by Workshop Management EventHandler, Auditlog. |
+| `MaintenanceJobPlanned` | Workshop Management | DomainEvent | Signals a job has been scheduled; consumed by Workshop Management EventHandler, Notification, Invoice, Auditlog. |
+| `MaintenanceJobFinished` | Workshop Management | DomainEvent | Signals a job has been completed; consumed by Workshop Management EventHandler, Notification, Invoice, Auditlog. |
+| `DayHasPassed` | Time Context | DomainEvent | Signals the passage of a calendar day; triggers Notification and Invoice processing. |
 
 ---
 
 ## 5. Container Diagram
 
-The diagram below shows Pitstop at the C4 *Container* level. In the C4 model, a **container** is any separately deployable unit that executes code or stores data — this includes web frontends, microservices, background workers, databases, and message brokers. The container diagram reveals how the system's responsibilities are distributed across independently deployable runtime units, how those units communicate with one another and with external actors, and how the overall system decomposition maps to the bounded contexts identified in the domain model. Each container owns its data exclusively: no container accesses another container's database schema directly. Asynchronous integration between containers happens exclusively via RabbitMQ domain events. The detailed communication flows and configuration parameters will be elaborated during ADD Iteration 1.
+### 5.1 Diagram
+
+The container diagram below is a C4 Level 2 view of the Pitstop Garage Management System. It zooms inside the system boundary to show all high-level technical building blocks — applications, services, databases, message queues, and infrastructure components — that must be running for the system to function. Each container is an independently deployable unit, runs in its own Docker container, and owns its own lifecycle. This diagram serves as the primary map for understanding how the system is composed and how information flows between its parts. Subsequent sections (component diagrams and sequence diagrams) zoom further into individual containers.
 
 ```mermaid
+%% C4 Container Diagram — to be completed in Iteration 1
 flowchart TD
-    %% External actors
-    GarageEmployee(["Garage Employee"])
-    MailServer(["Mail Server"])
-    PrestoPrint(["PrestoPrint"])
+    GarageEmployee([Garage Employee])
+    MailDev([MailDev\nMail Server])
 
-    %% Containers — connections to be detailed in Iteration 1
-    WebApp["Web Application\n[ASP.NET Core MVC]"]
-    CustomerAPI["Customer Management API\n[ASP.NET Core Web API]"]
-    VehicleAPI["Vehicle Management API\n[ASP.NET Core Web API]"]
-    WorkshopAPI["Workshop Management API\n[ASP.NET Core Web API]"]
-    WorkshopEventHandler["Workshop Management\nEvent Handler\n[Background Worker]"]
-    NotificationSvc["Notification Service\n[Background Worker]"]
-    InvoiceSvc["Invoice Service\n[Background Worker]"]
-    TimeSvc["Time Service\n[Background Worker]"]
-    AuditlogSvc["Auditlog Service\n[Background Worker]"]
-    RabbitMQ[("RabbitMQ\n[Message Broker]")]
-    SQLServer[("SQL Server\n[Relational Database]")]
-    Seq["Seq\n[Log Server]"]
+    subgraph Pitstop["Pitstop Garage Management System"]
+
+        WebApp["Web Application\n(ASP.NET Core MVC)"]
+
+        CustomerAPI["Customer Management API\n(ASP.NET Core)"]
+        VehicleAPI["Vehicle Management API\n(ASP.NET Core)"]
+        WorkshopAPI["Workshop Management API\n(ASP.NET Core)"]
+
+        MQ["Message Broker\n(RabbitMQ)"]
+
+        WMEH["Workshop Management\nEvent Handler"]
+        NotificationSvc["Notification Service"]
+        InvoiceSvc["Invoice Service"]
+        TimeSvc["Time Service"]
+        AuditSvc["Auditlog Service"]
+
+        CustomerDB[("Customer DB\n(SQL Server)")]
+        VehicleDB[("Vehicle DB\n(SQL Server)")]
+        WorkshopEventStore[("Workshop Event Store\n(SQL Server)")]
+        WorkshopReadDB[("Workshop Read Model DB\n(SQL Server)")]
+        NotificationDB[("Notification DB\n(SQL Server)")]
+        InvoiceDB[("Invoice DB\n(SQL Server)")]
+        AuditDB[("Auditlog DB\n(SQL Server)")]
+
+        Seq["Seq\n(Log Server)"]
+    end
+
+    GarageEmployee -- HTTP/Browser --> WebApp
+    WebApp -- HTTP/REST --> CustomerAPI
+    WebApp -- HTTP/REST --> VehicleAPI
+    WebApp -- HTTP/REST --> WorkshopAPI
+
+    CustomerAPI -- AMQP --> MQ
+    VehicleAPI -- AMQP --> MQ
+    WorkshopAPI -- AMQP --> MQ
+    TimeSvc -- AMQP --> MQ
+
+    MQ -- AMQP --> WMEH
+    MQ -- AMQP --> NotificationSvc
+    MQ -- AMQP --> InvoiceSvc
+    MQ -- AMQP --> AuditSvc
+
+    CustomerAPI --- CustomerDB
+    VehicleAPI --- VehicleDB
+    WorkshopAPI --- WorkshopEventStore
+    WMEH --- WorkshopReadDB
+    WorkshopAPI --- WorkshopReadDB
+    NotificationSvc --- NotificationDB
+    InvoiceSvc --- InvoiceDB
+    AuditSvc --- AuditDB
+
+    NotificationSvc -- SMTP --> MailDev
+    InvoiceSvc -- SMTP --> MailDev
+
+    CustomerAPI -. HTTP .-> Seq
+    VehicleAPI -. HTTP .-> Seq
+    WorkshopAPI -. HTTP .-> Seq
+    WMEH -. HTTP .-> Seq
+    NotificationSvc -. HTTP .-> Seq
+    InvoiceSvc -. HTTP .-> Seq
+    AuditSvc -. HTTP .-> Seq
+    TimeSvc -. HTTP .-> Seq
+    WebApp -. HTTP .-> Seq
 ```
 
-### Container Responsibilities
+### 5.2 Container Descriptions
 
-| Container | Responsibilities |
-|-----------|----------------|
-| **Web Application** | Browser-based user interface for garage employees. Provides views for managing customers, vehicles, and workshop planning. Calls Customer, Vehicle, and Workshop Management APIs directly via Refit typed HTTP clients. Implements Polly circuit-breaker fallback to an offline page when a backend API is unreachable (QAS-R3). |
-| **Customer Management API** | REST API that handles the `RegisterCustomer` command and exposes customer query endpoints. Persists `Customer` aggregates using Entity Framework Core (CRUD). Publishes `CustomerRegistered` to RabbitMQ on successful registration. Owns the `CustomerManagement` database schema. |
-| **Vehicle Management API** | REST API that handles the `RegisterVehicle` command and exposes vehicle query endpoints. Persists `Vehicle` aggregates using Entity Framework Core (CRUD). Publishes `VehicleRegistered` to RabbitMQ on successful registration. Owns the `VehicleManagement` database schema. |
-| **Workshop Management API** | REST API that handles `PlanMaintenanceJob` and `FinishMaintenanceJob` commands. Implements the core domain using DDD aggregates with full event sourcing. Aggregate state is reconstructed by replaying events from the `WorkshopManagementEventStore`. Publishes `WorkshopPlanningCreated`, `MaintenanceJobPlanned`, and `MaintenanceJobFinished` to RabbitMQ. |
-| **Workshop Management Event Handler** | Background worker that subscribes to `CustomerRegistered` and `VehicleRegistered` events and maintains local customer and vehicle reference data in the `WorkshopManagement` read-model database. This reference data is used by the Workshop Management API to resolve customer and vehicle information when planning a job, enabling the API to operate autonomously even when Customer or Vehicle services are offline (QAS-A1). Shares the `WorkshopManagement` database schema with the Workshop Management API. |
-| **Notification Service** | Background worker that subscribes to `CustomerRegistered`, `MaintenanceJobPlanned`, `MaintenanceJobFinished`, and `DayHasPassed` events. Maintains a local read-model of customers and today's jobs. When `DayHasPassed` is received, sends email reminders to all customers with a job scheduled for that day via SMTP. Owns the `Notification` database schema. |
-| **Invoice Service** | Background worker that subscribes to `CustomerRegistered`, `MaintenanceJobPlanned`, `MaintenanceJobFinished`, and `DayHasPassed` events. Maintains a local read-model of customers and jobs. When `DayHasPassed` is received, generates and emails HTML invoices to PrestoPrint for all finished, uninvoiced jobs. Owns the `Invoice` (Invoicing) database schema. |
-| **Time Service** | Background worker with no database. Publishes `DayHasPassed` events at a configurable interval to simulate the passage of time. Externalises time progression as a domain event, making time-dependent behaviour in Notification and Invoice services fully deterministic and testable (CRN-04). |
-| **Auditlog Service** | Background worker that subscribes to all domain events from RabbitMQ and appends each received event (type and raw JSON payload) to a date-partitioned log file. Provides a complete, append-only audit trail of all domain activity. |
-| **RabbitMQ** | Message broker providing durable fanout exchanges for all asynchronous inter-service communication. Each domain event type has a dedicated exchange. Consumer services create and bind their own queues to the relevant exchanges. All interactions go through the `Infrastructure.Messaging` abstraction (CON-06). |
-| **SQL Server** | Shared relational database server hosting all per-service schemas as logically isolated databases. Each service connects only to its own database; no cross-service schema access is permitted (CON-03). In a production deployment, each service would have its own dedicated SQL Server instance. |
-| **Seq** | Centralised structured log server. All services use Serilog with a Seq sink to ship structured log events. Provides a searchable, real-time log dashboard for observability during demos and debugging (QAS-L2, CRN-05). |
+| Container | Type | Responsibilities |
+|-----------|------|-----------------|
+| **Web Application** | ASP.NET Core MVC Web App | Browser-based front-end for garage employees. Provides views for customer registration, vehicle registration, workshop planning, and job management. Calls backend APIs via Refit typed HTTP clients. Has no direct knowledge of the message broker or other services. |
+| **Customer Management API** | ASP.NET Core Web API | Manages customers: registers new customers and retrieves existing ones (by ID or full list). Persists data in the Customer DB using Entity Framework Core (CRUD). Publishes `CustomerRegistered` events to the message broker on each successful registration. |
+| **Vehicle Management API** | ASP.NET Core Web API | Manages vehicles: registers new vehicles, associates them with a customer owner, and retrieves existing ones. Persists data in the Vehicle DB using Entity Framework Core (CRUD). Publishes `VehicleRegistered` events. |
+| **Workshop Management API** | ASP.NET Core Web API | Core domain service. Manages maintenance job scheduling and completion. Implements DDD (aggregate: `WorkshopPlanning`), Event Sourcing (state persisted as event stream in the Event Store), and CQRS (writes via event store, reads from the read model DB). Publishes `WorkshopPlanningCreated`, `MaintenanceJobPlanned`, and `MaintenanceJobFinished` events. |
+| **Workshop Management Event Handler** | Background Worker Service | Subscribes to all domain events and maintains the Workshop Management read model and reference data cache (customer and vehicle info) in the Workshop Read Model DB. Ensures the Workshop Management API can operate autonomously when other services are unavailable. |
+| **Notification Service** | Background Worker Service | Subscribes to `CustomerRegistered`, `MaintenanceJobPlanned`, `MaintenanceJobFinished`, and `DayHasPassed` events. On each `DayHasPassed`, queries its local database for jobs planned for that day and sends reminder email notifications to customers via SMTP. |
+| **Invoice Service** | Background Worker Service | Subscribes to `CustomerRegistered`, `MaintenanceJobPlanned`, `MaintenanceJobFinished`, and `DayHasPassed` events. On each `DayHasPassed`, queries its local database for finished but uninvoiced jobs and sends HTML invoice emails to the customer and PrestoPrint via SMTP. |
+| **Time Service** | Background Worker Service | Publishes `DayHasPassed` events at a configurable interval to simulate the passage of time. Has no database. Enables deterministic and testable time-dependent behaviour. |
+| **Auditlog Service** | Background Worker Service | Subscribes to all domain events and persists each event as an `AuditlogEntry` in the Auditlog DB for later reference. |
+| **Message Broker (RabbitMQ)** | Infrastructure — Message Broker | Fanout-exchange-based AMQP message broker. Every domain event is published to its own fanout exchange; each subscribing service has a dedicated queue bound to that exchange, ensuring every service receives every event independently. |
+| **Customer DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Customer Management API. Stores `Customer` records. |
+| **Vehicle DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Vehicle Management API. Stores `Vehicle` records. |
+| **Workshop Event Store DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Workshop Management API. Stores the append-only stream of domain events for the `WorkshopPlanning` aggregate (event sourcing store). |
+| **Workshop Read Model DB** | Infrastructure — SQL Server Database | Logical database schema shared between the Workshop Management API (reads) and the Workshop Management Event Handler (writes). Stores denormalized read-model data: planning schedules, cached `CustomerInfo`, and cached `VehicleInfo`. |
+| **Notification DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Notification Service. Caches customer contact data and planned job records, including a flag tracking whether a notification has been sent. |
+| **Invoice DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Invoice Service. Caches customer contact data and finished job records, including a flag tracking whether an invoice has been sent. |
+| **Auditlog DB** | Infrastructure — SQL Server Database | Logical database schema owned exclusively by the Auditlog Service. Stores all `AuditlogEntry` records. |
+| **Seq** | Infrastructure — Log Server | Centralized structured log aggregation server. All services use Serilog with a Seq HTTP sink. Provides a searchable, filterable dashboard over all structured log events from all containers in real-time. |
 
 ---
 
 ## 6. Component Diagrams
 
-For each container identified in the Container Diagram that will be developed by the team, this section will include a dedicated subsection containing a component diagram. Component diagrams operate at the C4 *Component* level and detail the internal structure of a container — the major components (classes, modules, or services) that compose it, their responsibilities, and their interactions with each other and with external elements.
+For each container identified in the Container Diagram (section 5) that will be developed as part of this project, a dedicated subsection will be included here with a component diagram detailing the internal design of that container. Component diagrams correspond to C4 Level 3 and show the major structural building blocks inside a container — controllers, command handlers, repositories, aggregates, event publishers, and other significant internal components — along with their responsibilities and how they interact.
 
-Each component diagram subsection will be accompanied by a table listing every component and its responsibilities. Component diagrams will be produced incrementally across ADD iterations 1 through 3, following the priority order established in `IterationPlan.md`.
+Each component diagram subsection will be accompanied by a table listing the name and responsibility of every component shown in the diagram.
+
+Component diagrams will be produced incrementally as part of the ADD iteration process: each iteration that refines a specific container will introduce or update the corresponding component diagram in this section.
 
 ---
 
 ## 7. Sequence Diagrams
 
-This section contains sequence diagrams that trace the flow of control and data through the system for each key use case and quality attribute scenario. Each subsection corresponds to a driver addressed in `IterationPlan.md` and illustrates how the containers and components interact to satisfy that driver. Sequence diagrams will be elaborated during the ADD iteration in which the corresponding driver is addressed.
+For each use case and quality attribute scenario addressed in the Iteration Plan (`IterationPlan.md`), a dedicated subsection below contains a sequence diagram that illustrates the runtime behaviour of the system for that driver. Sequence diagrams capture the interaction between containers (and, where relevant, internal components) from the perspective of a single scenario. They complement the structural views in sections 5 and 6 by showing how the architecture behaves dynamically.
 
-### 7.1 UC-01: Register and Look Up Customers
+Sequence diagrams are produced iteration by iteration: empty placeholders are provided here and will be populated during the corresponding ADD iteration.
+
+### 7.1 Iteration 1 — Overall System Structure and Supporting Bounded Contexts
+
+#### US-1: Register Customer
 
 ```mermaid
 sequenceDiagram
-    actor GarageEmployee
-    Note over GarageEmployee: To be designed in Iteration 1
 ```
 
-### 7.2 UC-02: Register Vehicles and Associate with Owner
+#### US-2: Look Up Customer
 
 ```mermaid
 sequenceDiagram
-    actor GarageEmployee
-    Note over GarageEmployee: To be designed in Iteration 1
 ```
 
-### 7.3 UC-03: Plan and Track Maintenance Jobs
+#### US-3: Register Vehicle
 
 ```mermaid
 sequenceDiagram
-    actor GarageEmployee
-    Note over GarageEmployee: To be designed in Iteration 1 (structure) and Iteration 2 (core domain detail)
 ```
 
-### 7.4 UC-04: Send Daily Maintenance Notifications
+#### US-4: Look Up Vehicle
 
 ```mermaid
 sequenceDiagram
-    actor NotificationService
-    Note over NotificationService: To be designed in Iteration 2
 ```
 
-### 7.5 UC-05: Generate and Email Invoices
+#### QAS-O1: Docker Compose Startup Within 2 Minutes
 
 ```mermaid
 sequenceDiagram
-    actor InvoiceService
-    Note over InvoiceService: To be designed in Iteration 2
 ```
 
-### 7.6 UC-06: Record All Domain Events for Audit
+#### QAS-L1: Architecture Understandable Within 30 Minutes
 
 ```mermaid
 sequenceDiagram
-    actor AuditlogService
-    Note over AuditlogService: To be designed in Iteration 2
 ```
 
-### 7.7 QAS-D1: Local Startup via Docker Compose
+---
+
+### 7.2 Iteration 2 — Core Domain: Workshop Management
+
+#### US-5: Plan Maintenance Job
 
 ```mermaid
 sequenceDiagram
-    actor Developer
-    Note over Developer: To be designed in Iteration 1
 ```
 
-### 7.8 QAS-A1: Workshop Management Autonomy When Customer API Is Offline
+#### US-6: View Workshop Planning
 
 ```mermaid
 sequenceDiagram
-    actor GarageEmployee
-    Note over GarageEmployee: To be designed in Iteration 2
 ```
 
-### 7.9 QAS-A2: Independent Service Redeployment
+#### US-7: Finish Maintenance Job
 
 ```mermaid
 sequenceDiagram
-    actor Developer
-    Note over Developer: To be designed in Iteration 2
 ```
 
-### 7.10 QAS-R1: Database Connection Retry on Startup
+#### QAS-R1: SQL Server Slow Startup — Exponential Backoff Retry
 
 ```mermaid
 sequenceDiagram
-    participant Service
-    Note over Service: To be designed in Iteration 2
 ```
 
-### 7.11 QAS-R2: Message Broker Retry on Connection Failure
+#### QAS-R2: RabbitMQ Temporarily Unavailable — Message Retry
 
 ```mermaid
 sequenceDiagram
-    participant Service
-    Note over Service: To be designed in Iteration 2
 ```
 
-### 7.12 QAS-R3: Circuit Breaker Fallback in WebApp
+#### QAS-R3: Customer Management API Offline — Workshop Management Autonomous Operation
 
 ```mermaid
 sequenceDiagram
-    actor GarageEmployee
-    Note over GarageEmployee: To be designed in Iteration 3
 ```
 
-### 7.13 QAS-D2: Kubernetes Deployment
+#### QAS-L3: Event Sourcing Flow — Plan and Replay WorkshopPlanning Aggregate
 
 ```mermaid
 sequenceDiagram
-    actor Developer
-    Note over Developer: To be designed in Iteration 3
 ```
 
-### 7.14 QAS-D3: Health Check Endpoints
+---
+
+### 7.3 Iteration 3 — Event-Driven Supporting Services
+
+#### US-8: Receive Maintenance Notification
 
 ```mermaid
 sequenceDiagram
-    actor Operator
-    Note over Operator: To be designed in Iteration 3
 ```
 
-### 7.15 QAS-L1: Developer Understands Architecture Within 30 Minutes
+#### US-9: Receive Invoice
 
 ```mermaid
 sequenceDiagram
-    actor Developer
-    Note over Developer: To be designed in Iteration 3
 ```
 
-### 7.16 QAS-L2: Real-Time Event Trace in Seq During Live Demo
+#### QAS-R4: WebApp Circuit-Breaker — Fallback to Offline Page
 
 ```mermaid
 sequenceDiagram
-    actor Presenter
-    Note over Presenter: To be designed in Iteration 3
 ```
 
-### 7.17 QAS-L3: Event Sourcing Pattern Understandable in Isolation
+#### QAS-L2: Event Flow Visible in Real-Time via Seq
 
 ```mermaid
 sequenceDiagram
-    actor Developer
-    Note over Developer: To be designed in Iteration 3
+```
+
+#### QAS-O3: Health Check Endpoint
+
+```mermaid
+sequenceDiagram
 ```
 
 ---
 
 ## 8. Interfaces
 
-This section will define the API contracts, message schemas, and integration specifications for all containers and their interactions with external systems. It will be populated incrementally as each container's internal design is completed during the corresponding ADD iteration.
+*This section will describe the contracts between containers and with external systems, including REST API endpoints (request/response schemas), AMQP message schemas (domain event payloads), and SMTP message formats. To be completed during the ADD iteration process.*
 
 ---
 
 ## 9. Design Decisions
 
-The table below records the architectural design decisions made during the ADD process. Each decision is traced to the driver(s) that motivated it, together with the rationale and the alternatives that were considered and rejected. This table will be populated incrementally as decisions are made in each ADD iteration.
+The table below records the architectural decisions made during the ADD process. Each entry links the decision back to the driver(s) that motivated it, states what was decided, explains the rationale, and documents the alternatives that were considered and discarded.
 
-| Driver | Decision | Rationale | Discarded Alternatives |
-|--------|----------|-----------|----------------------|
+| Driver | Decision | Rationale | Discarded Alternative |
+|--------|----------|-----------|-----------------------|
 | | | | |
