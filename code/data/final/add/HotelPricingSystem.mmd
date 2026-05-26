@@ -1,0 +1,68 @@
+graph TD
+    %% External Actors
+    EndUser["Commercial User"]
+
+    %% External Systems
+    IdS["User Identity Service"]
+    CMS["Channel Management System"]
+    PMS["Property Management System"]
+    CAS["Commercial Analysis System"]
+
+    subgraph "Hotel Pricing System"
+
+        WebApp["Web Application"]
+        APIGateway["API Gateway"]
+
+        PriceMgmtSvc["Price Management Service"]
+        HotelMgmtSvc["Hotel Management Service"]
+        RateMgmtSvc["Rate Management Service"]
+        UserAuthSvc["Authentication Service"]
+        PriceQuerySvc["Price Query Service"]
+        ChannelDistSvc["Channel Distribution Service"]
+
+        MessageBroker["Event Bus"]
+
+        PriceDB[("Price Database")]
+        HotelDB[("Hotel Database")]
+        RateDB[("Rate Database")]
+        AuthDB[("Authorization Database")]
+
+        Monitoring["Observability Stack"]
+
+    end
+
+    EndUser --> WebApp
+    WebApp -->|HTTPS| APIGateway
+    APIGateway --> PriceMgmtSvc
+    APIGateway --> HotelMgmtSvc
+    APIGateway --> RateMgmtSvc
+    APIGateway --> UserAuthSvc
+    APIGateway --> PriceQuerySvc
+
+    PriceMgmtSvc --- PriceDB
+    HotelMgmtSvc --- HotelDB
+    RateMgmtSvc --- RateDB
+    UserAuthSvc --- AuthDB
+    PriceQuerySvc --- PriceDB
+    ChannelDistSvc --- MessageBroker
+
+    PriceMgmtSvc -->|publishes events| MessageBroker
+    HotelMgmtSvc -->|publishes events| MessageBroker
+    RateMgmtSvc -->|publishes events| MessageBroker
+    UserAuthSvc -->|publishes events| MessageBroker
+
+    MessageBroker -->|consumes events| PriceQuerySvc
+    MessageBroker -->|consumes events| ChannelDistSvc
+    MessageBroker -->|consumes events| PriceMgmtSvc
+
+    UserAuthSvc <-->|OAuth2 / OIDC| IdS
+    ChannelDistSvc -->|REST / future protocols| CMS
+    ChannelDistSvc -->|REST / future protocols| PMS
+    ChannelDistSvc -->|REST / future protocols| CAS
+
+    PriceMgmtSvc -->|metrics / logs| Monitoring
+    HotelMgmtSvc -->|metrics / logs| Monitoring
+    RateMgmtSvc -->|metrics / logs| Monitoring
+    UserAuthSvc -->|metrics / logs| Monitoring
+    PriceQuerySvc -->|metrics / logs| Monitoring
+    ChannelDistSvc -->|metrics / logs| Monitoring
