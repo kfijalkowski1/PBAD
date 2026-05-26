@@ -1,0 +1,60 @@
+%% based on https://github.com/EdwinVW/pitstop/blob/main/docs/arc42/03-system-scope-and-context.md
+flowchart TD
+    User([User])
+
+    WebApp[Web Application]
+
+    CustomerSvc[Customer Management API]
+    VehicleSvc[Vehicle Management API]
+    WorkshopSvc[Workshop Management API]
+
+    MQ[Message Queue]
+    Seq[Logging Service]
+    Mail[Test Mail Server]
+
+    subgraph "Per-Service Databases"
+        CustomerDB[(Customer Database)]
+        VehicleDB[(Vehicle Database)]
+        WorkshopDB[(Workshop Database)]
+        WMEHDB[(Workshop Event Handler Database)]
+        NotificationDB[(Notification Database)]
+        InvoiceDB[(Invoice Database)]
+        AuditDB[(Audit Database)]
+    end
+
+    TimeSvc[Time Service]
+    WMEH[Workshop Management Event Handler]
+    NotificationSvc[Notification Service]
+    InvoiceSvc[Invoice Service]
+    AuditSvc[Auditlog Service]
+
+    %% edges
+    User<-->WebApp
+    WebApp<-->CustomerSvc
+    WebApp<-->VehicleSvc
+    WebApp<-->WorkshopSvc
+
+    CustomerSvc<-->MQ
+    VehicleSvc<-->MQ
+    WorkshopSvc<-->MQ
+
+    CustomerSvc<-->CustomerDB
+    VehicleSvc<-->VehicleDB
+    WorkshopSvc<-->WorkshopDB
+
+    MQ<-->WMEH
+    MQ<-->NotificationSvc
+    MQ<-->InvoiceSvc
+    MQ<-->AuditSvc
+
+    WMEH<-->WMEHDB
+    NotificationSvc<-->NotificationDB
+    InvoiceSvc<-->InvoiceDB
+    AuditSvc<-->AuditDB
+
+    TimeSvc<-->MQ
+
+    NotificationSvc<-->Mail
+    InvoiceSvc<-->Mail
+
+
