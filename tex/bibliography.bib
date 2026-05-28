@@ -120,6 +120,25 @@
     year         = {2019}
 }
 
+
+@misc{schmidSoftwareArchitectureMeets2025,
+	title = {Software Architecture Meets {LLMs}: A Systematic Literature Review},
+	url = {http://arxiv.org/abs/2505.16697},
+	doi = {10.48550/arXiv.2505.16697},
+	shorttitle = {Software Architecture Meets {LLMs}},
+	abstract = {Large Language Models ({LLMs}) are used for many different software engineering tasks. In software architecture, they have been applied to tasks such as classification of design decisions, detection of design patterns, and generation of software architecture design from requirements. However, there is little overview on how well they work, what challenges exist, and what open problems remain. In this paper, we present a systematic literature review on the use of {LLMs} in software architecture. We analyze 18 research articles to answer five research questions, such as which software architecture tasks {LLMs} are used for, how much automation they provide, which models and techniques are used, and how these approaches are evaluated. Our findings show that while {LLMs} are increasingly applied to a variety of software architecture tasks and often outperform baselines, some areas, such as generating source code from architectural design, cloud-native computing and architecture, and checking conformance remain underexplored. Although current approaches mostly use simple prompting techniques, we identify a growing research interest in refining {LLM}-based approaches by integrating advanced techniques.},
+	number = {{arXiv}:2505.16697},
+	publisher = {{arXiv}},
+	author = {Schmid, Larissa and Hey, Tobias and Armbruster, Martin and Corallo, Sophie and Fuchß, Dominik and Keim, Jan and Liu, Haoyu and Koziolek, Anne},
+	urldate = {2026-03-22},
+	date = {2025-05-22},
+	eprinttype = {arxiv},
+	eprint = {2505.16697 [cs]},
+	keywords = {Computer Science - Software Engineering},
+	file = {Preprint PDF:/home/tomek/zotero/storage/8WYPYLP5/Schmid et al. - 2025 - Software Architecture Meets LLMs A Systematic Literature Review.pdf:application/pdf;Snapshot:/home/tomek/zotero/storage/PID6DC6J/2505.html:text/html;Snapshot:/home/tomek/zotero/storage/ZLBAKU2A/2505.html:text/html},
+}
+
+
 @misc{wei,
 	title = {Requirements Are {{All You Need}}: {{From Requirements}} to {{Code}} with {{LLMs}}},
 	shorttitle = {Requirements Are {{All You Need}}},
@@ -136,6 +155,44 @@
 	archiveprefix = {arXiv},
 	keywords = {Computer Science - Software Engineering}
 }
+
+
+@inproceedings{eisenreichRequirementsArchitectureAIBased2024,
+	title = {From Requirements to Architecture: An {AI}-Based Journey to Semi-Automatically Generate Software Architectures},
+	url = {http://arxiv.org/abs/2401.14079},
+	doi = {10.1145/3643660.3643942},
+	shorttitle = {From Requirements to Architecture},
+	abstract = {Designing domain models and software architectures represents a significant challenge in software development, as the resulting architectures play a vital role in fulfilling the system's quality of service. Due to time pressure, architects often model only one architecture based on their known limited domain understanding, patterns, and experience instead of thoroughly analyzing the domain and evaluating multiple candidates, selecting the best fitting. Existing approaches try to generate domain models based on requirements, but still require time-consuming manual effort to achieve good results. Therefore, in this vision paper, we propose a method to generate software architecture candidates semi-automatically based on requirements using artificial intelligence techniques. We further envision an automatic evaluation and trade-off analysis of the generated architecture candidates using, e.g., the architecture trade-off analysis method combined with large language models and quantitative analyses. To evaluate this approach, we aim to analyze the quality of the generated architecture models and the efficiency and effectiveness of our proposed process by conducting qualitative studies.},
+	pages = {52--55},
+	booktitle = {Proceedings of the 1st International Workshop on Designing Software},
+	author = {Eisenreich, Tobias and Speth, Sandro and Wagner, Stefan},
+	urldate = {2026-03-22},
+	date = {2024-04-15},
+	eprinttype = {arxiv},
+	eprint = {2401.14079 [cs]},
+	keywords = {Computer Science - Software Engineering, Computer Science - Artificial Intelligence},
+	file = {Preprint PDF:/home/tomek/zotero/storage/TKF83UK2/Eisenreich et al. - 2024 - From Requirements to Architecture An AI-Based Journey to Semi-Automatically Generate Software Archi.pdf:application/pdf;Snapshot:/home/tomek/zotero/storage/V94XBR25/2401.html:text/html},
+}
+
+
+@article{carvalhoUsefulnessAutomaticallyGenerated2024,
+	title = {On the Usefulness of Automatically Generated Microservice Architectures},
+	volume = {50},
+	issn = {1939-3520},
+	url = {https://ieeexplore.ieee.org/document/10418890},
+	doi = {10.1109/TSE.2024.3361209},
+	abstract = {The modernization of monolithic legacy systems with microservices has been a trend in recent years. As part of this modernization, identifying microservice candidates starting from legacy code is challenging, as maintainers may consider many criteria simultaneously. Multi-objective search-based approaches represent a promising state-of-the-art solution to support this decision-making process. However, the rationale to adopt each microservice candidate automatically identified by these approaches is poorly investigated in industrial cases. Furthermore, studies with these approaches have not carefully investigated how maintainers reason and make decisions when designing microservice architectures from legacy systems. To address this gap, we conducted an on-site case study with maintainers of an industrial legacy system to investigate the usefulness of automatically generated microservice architectures. We analyze design decisions pointed out by the maintainers when reasoning about microservice candidates using several criteria at the same time. Our study is the first to assess a search-based approach involving actual maintainers conceiving microservice architectures in an industrial setting. Therefore, firstly, we considered individual evaluation of microservice candidates to understand the rationale for identifying a service. Secondly, we conducted a focus group study with maintainers with the goal of investigating design decisions at an architectural level. The results show that: (i) the automated approach is able to identify useful microservices; (ii) the criteria observed by previous studies are, in fact, considered by maintainers; and (iii) the maintainer profiles, i.e., the preferred granularity for microservice, highly affect design decisions. Finally, we observed the maintainers needed little effort in adjusting the automatically identified microservices to make them adoptable. In addition to indicating a promising potential of search-based approaches to generate microservice architectures, our findings highlight the need for: (i) interactive and/or customizable approaches that enable maintainers to include their preferences during the search process, and (ii) flexible or automated selection of criteria that fits the scenario in which the modernization is taking place.},
+	pages = {651--667},
+	number = {3},
+	journaltitle = {{IEEE} Transactions on Software Engineering},
+	author = {Carvalho, Luiz and Colanzi, Thelma Elita and Assunção, Wesley K. G. and Garcia, Alessandro and Pereira, Juliana Alves and Kalinowski, Marcos and de Mello, Rafael Maiani and de Lima, Maria Julia and Lucena, Carlos},
+	urldate = {2026-03-22},
+	date = {2024-03},
+	keywords = {Aging, Codes, Computer architecture, Decision making, Interviews, legacy system, Microservice architecture, Microservice architectures, microservice identification, qualitative study, search-based software engineering, Source coding},
+	file = {PDF:/home/tomek/zotero/storage/5VQKTQU6/Carvalho et al. - 2024 - On the Usefulness of Automatically Generated Microservice Architectures.pdf:application/pdf;Snapshot:/home/tomek/zotero/storage/CKDMVWBI/10418890.html:text/html},
+}
+
+
 
 @inproceedings{maranhao,
 	title = {A {{Prompt Pattern Sequence Approach}} to {{Apply Generative AI}} in {{Assisting Software Architecture Decision-making}}},
@@ -216,6 +273,20 @@
   urldate      = {2026-03-25},
   url          = {https://www.sei.cmu.edu/library/atam-method-for-architecture-evaluation/},
   abstract     = {The report introduces the Architecture Tradeoff Analysis Method (ATAM), a scenario-based technique for evaluating software architectures with respect to quality attribute goals and identifying architectural risks early in the lifecycle.}
+}
+
+@inproceedings{kazman_saam_1944,
+author = {Kazman, Rick and Bass, Len and Webb, Mike and Abowd, Gregory},
+title = {SAAM: a method for analyzing the properties of software architectures},
+year = {1994},
+isbn = {081865855X},
+publisher = {IEEE Computer Society Press},
+address = {Washington, DC, USA},
+booktitle = {Proceedings of the 16th International Conference on Software Engineering},
+pages = {81–90},
+numpages = {10},
+location = {Sorrento, Italy},
+series = {ICSE '94}
 }
 
 @misc{bengtsson_alma_2004,

@@ -13,55 +13,136 @@
 
 \subsection{LLM-assisted architecture synthesis methods}
 
-both human in the loop and fully automatic, mostly focus on what's discussed in the paper
+% both human in the loop and fully automatic, mostly focus on what's discussed in the paper
+
+Obecna literatura dotycząca metod syntezy systemów z wykorzystaniem dużych modeli językowych skupia się głównie na bezpośrednim wytwarzaniu kodu, a nie na wysokopoziomowej architekturze systemów \cite{schmidSoftwareArchitectureMeets2025}. Prace dotyczące generowania \emph{stricte} architektury dotyczą głównie generowania mikroserwisów na podstawie tekstowych opisów wymagań \cite{carvalhoUsefulnessAutomaticallyGenerated2024}, wspomagania decyzji projektowych \cite{eisenreichRequirementsArchitectureAIBased2024}, niekiedy łączą oba poziomy i pozwalają przejść przez cały proces powstawania systemu \cite{wei}. Przeważają podejścia iteracyjne, półautomatyczne, wymagające interakcji z użytkownikiem \cite{schmidSoftwareArchitectureMeets2025}.
 
 \subsection{Software architecture evaluation}
 
-scenario-based, metrics, reliance on expert evaluation
+% scenario-based, metrics, reliance on expert evaluation
 
-\subsection{AI-generated software architecture}
+Ocena jakości architektury oprogramowania najczęściej opiera się na subiektywnej ocenie ekspertów, co wprowadza element nieobiektywności i utrudnia porównywanie różnych podejść. Klasyczne metody takie jak ATAM (\emph{Architecture Tradeoff Analysis Method}) czy SAAM (\emph{Software Architecture Analysis Method}) formułują wymagania niefunkcjonalne w postaci scenariuszy jakościowych i badają, w jaki sposób dana architektura reaguje na te scenariusze \cite{kazman_atam_2000, kazman_saam_1944}. Odrębną klasę podejść stanowią metody wyspecjalizowane w analizie modyfikowalności architektury, badające nie tylko zgodność z wymaganiami, ale także koszt rozwoju i utrzymania, czego przykładem jest podejście ALMA (\emph{Architecture-Level Modifiability Analysis}) \cite{bengtsson_alma_2004}. Ocena może być wspomagana podejściami opartymi na eksperckim przeglądzie architektury z użyciem list kontrolnych, w których wykorzystywany jest strukturyzowany zestaw pytań dotyczących m.in. powiązań z wymaganiami, modularności czy aspektów bezpieczeństwa \cite{uta_design_review_checklist, cianca_eval_arch_2000}. Wreszcie, istnieją podejścia oparte na metrykach, które próbują uchwycić jakość architektury poprzez ilościowe miary, takie jak liczba zależności między komponentami czy stopień modularności \cite{bengtsson_alma_2004, add}.\todo{@kf wspominałeś, że tutaj trzeba wstawić jakieś cytowanie z książki}
 
-microservice genration from text, adr generation, NLP vs structural metrics, current research tends to focus on code generation rather than high-level architecture
+\subsection{Assessing AI-generated software architecture}
 
-describe gaps and motivate a need for a common evaluation protocol
+% microservice genration from text, adr generation, NLP vs structural metrics, current research tends to focus on code generation rather than high-level architecture
+
+% describe gaps and motivate a need for a common evaluation protocol
+
+Ewaluacja architektury wytworzonej przez duże modele językowe wiąże się z pewnymi unikalnymi wyzwaniami. Nie istnieje obecnie heterogeniczny, powszechnie akceptowany benchmark pozwalający na porównywanie różnych metod syntezy architektury, a istniejące prace często opierają się na subiektywnych ocenach ekspertów, analizie wytworzonego kodu, bądź spełnieniu arbitralnie ustalonych w eksperymencie wymagań. Popularne jest wykorzystanie klasycznych metryk z dziedziny uczenia maszynowego (F1, \emph{precision}, \emph{recall}) do analizy opisów tekstowych wygenerowanych przez modele językowe, niekiedy w tym samym celu wykorzystuje się metryki z dziedziny przetwarzania języka naturalnego, takie jak BLEU czy BERTScore. Metryki czysto architektoniczne są również wykorzystywane, ale nie jest to widoczny standard. Większość istniejących prac porównuje wygenerowane artefakty z przygotowaną wcześniej referencyjną architekturą, jednak nie istnieje obecnie standardowy, heterogeniczny benchmarków, który pozwalałby na porównywanie różnych metod syntezy architektury \cite{schmidSoftwareArchitectureMeets2025}.
 
 \section{Study design}
 
-clear formulation of research question, high level study overview; maybe introduce some expected answers to research questions
+% clear formulation of research question, high level study overview; maybe introduce some expected answers to research questions
 
-is this section actually needed?
+% is this section actually needed?
 
 \subsection{Slection of reference systems}
 
 \subsection{Benchmark data}
 
-selection of reference microservice applications (mention the meta-analysis), inclusion criteria (distributed systems, available requirements and architecture documentation); 
+% selection of reference microservice applications (mention the meta-analysis), inclusion criteria (distributed systems, available requirements and architecture documentation); 
 
-\subsection{Architecture synthesis methods}
+W celu zbadania zgodności wytworzonej architektury z referencyjnym opisem wykorzystaliśmy wybrane publiczne dostępne aplikacje otwartoźródłowe szeroko cytowane w literaturze \cite{imranur_curated_2019, slater_quantitative_2025}. Aby zapewnić różnorodność i reprezentatywność, wybraliśmy systemy o różnej wielkości, złożoności i różnym stopniu rozbudowania opisu wymagań. Kryteria doboru obejmowały:
 
-find a better name for this section;
+\begin{itemize}
+	\item architekturę aplikacji opartą na mikroserwisach,
+	\item dostępność dokumentacji wymagań,
+	\item dostępność dokumentacji architektury,
+	\item popularność w literaturze.
+\end{itemize}
 
-Method selection criteria (minimal user interaction, requirements \rightarrow architecture flow), describe each method briefly; this is already done, only needs to be reformulated
+Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
-\section{Execution protocol}
+\paragraph{eShop (eShopOnContainers)} -- rozbudowana aplikacja referencyjna dla platformy .NET, składająca się z wielu kooperujących mikroserwisów (m.in. koszyk, katalog, tożsamość użytkownika, zamówienia). Dostarcza wysoce ustrukturyzowane wymagania w formie wypunktowanych list, z wyraźnym podziałem na wymagania funkcjonalne (np. zarządzanie koszykiem) i niefunkcjonalne (wymagana wysoka dostępność, wsparcie dla wielu klientów front-endowych). Dokumentacja zawiera szczegółowe wizualne diagramy architektoniczne, obrazują one strukturę systemu, mapowanie aplikacji klienckich przez API Gateway do serwisów docelowych oraz infrastrukturę komunikacji asynchronicznej opartej na szynie zdarzeń. \cite{noauthor_dotneteshop_2026}
 
-also find a better name;
+\paragraph{Pitstop} -- aplikacja do zarządzania warsztatem samochodowym obrazująca architekturę opartą na wzorcach Event Sourcing oraz CQRS i zaprojektowana zgodnie z metodyką BDD. Projekt nie posiada spisanych historyjek użytkownika, ale dostarcza bogaty i sformalizowany model domeny oraz wyniki warsztatów \textit{Event Storming}. Architektura dokumentowana jest diagramami ilustrującymi mapę kontekstów (ang. \textit{Context Map}) oraz schematem przepływu poszczególnych komend i zdarzeń pomiędzy serwisami za pomocą brokera wiadomości. \cite{wijk_edwinvwpitstop_2026}
+
+\paragraph{Spring Petclinic Microservices} -- rozproszona wersja klasycznej aplikacji złożona z kilku głównych domenowych mikroserwisów i infrastruktury bazującej na Spring Cloud. Projekt zawiera zwięzły opis domenowy (oparty na zarządzaniu weterynarzami oraz wizytami), z kolei wymagania niefunkcjonalne nie zostały formalnie wyodrębnione. Zawarto w nim także nieformalne scenariusze użycia pod postacią zapytań do chatbota opartego na systemach GenAI. Architektura topologiczna jest dobrze udokumentowana za pomocą czytelnego diagramu załączonego jako statyczny obraz w głównym pliku dokumentacji. \cite{noauthor_spring-petclinicspring-petclinic-microservices_2026}
+
+\paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR). \cite{slater_quantitative_2025}
+
+\paragraph{HotelPricingSystem} -- system wspierający zarządzanie cenami hotelowymi. Dostępność dokumentacji jest zbliżona do \emph{EventTicketSystem}: zawiera szczegółowy opis wymagań, atrybutów jakościowych, model domenowy, model C4 oraz ADR. Wymagania funkcjonalne i niefunkcjonalne są jasno rozdzielone, a scenariusze testowe zostały sformalizowane w postaci tabeli z przypisanymi atrybutami jakościowymi. \cite{slater_quantitative_2025}
+
+\subsection{Selected architecture synthesis methods}
+
+% find a better name for this section;
+
+% Method selection criteria (minimal user interaction, requirements \rightarrow architecture flow), describe each method briefly; this is already done, only needs to be reformulated
+
+Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako wejście wyłącznie opis wymagań w języku naturalnym oraz wymagają minimalnej interakcji użytkownika w trakcie procesu. Wybór ten miał na celu ograniczenie wpływu czynnika ludzkiego oraz zapewnienie możliwie obiektywnego porównania różnych podejść w jednolitym protokole eksperymentalnym. Do wybranych metod wprowadziliśmy pomniejsze modyfikacje pozwalające na w pełni automatyczną syntezę architektury mikroserwisowej. Wybraliśmy cztery następujące metody:
+
+
+\paragraph{Prompt Pattern Sequences} -- zaproponowane jako uporządkowana sekwencja wzorców promptów wspierających podejmowanie decyzji architektonicznych z wykorzystaniem modeli generatywnych. Autorzy wyróżniają zestaw person i wzorców (m.in.\ \emph{Software Architect Persona}, \emph{Technical Premises}, \emph{Uncertain Requirements Statement}, \emph{Quality Attribute Question}, \emph{Architectural Project Context}), które kolejno przetwarzają ten sam opis wymagań, dodając do niego kontekst techniczny oraz pytania dotyczące atrybutów jakościowych. \cite{maranhao} Zaadaptowaliśmy tę koncepcję do w pełni automatycznej syntezy architektury mikroserwisowej: zastosowaliśmy ustaloną, statyczną sekwencję promptów, w której jedynym wejściem użytkownika jest treść wymagań, a wszystkie kolejne kroki (analiza wymagań, identyfikacja usług, szkic relacji między nimi) wykonywane są przez ten sam model językowy.
+
+\paragraph{Attribute-Driven Design} -- proces podzielony na stałych etapach pracy nad architekturą: od doprecyzowania celów i atrybutów jakościowych, przez identyfikację głównych odpowiedzialności oraz wybór taktyk architektonicznych, aż po uszczegółowienie komponentów. Efektem każdego etapu są artefakty tekstowe, co pozwala śledzić pracę modelu \cite{add}. W naszym wariancie zminimalizowaliśmy rolę człowieka: model otrzymuje skondensowany opis metody ADD, listę wymagań oraz ogólną listę atrybutów jakościowych, a następnie samodzielnie przechodzi przez kolejne kroki, generując docelowy graf usług i ich zależności.
+
+\paragraph{Progressive Prompting} -- w oryginalnym ujęciu metoda ta prowadzi model przez kolejne etapy: ekstrakcję wymagań funkcjonalnych z dokumentu, konstruowanie modelu obiektowego, a następnie generację testów i kodu na podstawie tego modelu. \cite{wei} Na potrzeby niniejszego badania wykorzystaliśmy część ,,architektoniczną'' tego podejścia: zdefiniowaliśmy sekwencję promptów, w której model najpierw porządkuje i uzupełnia wymagania, następnie projektuje komponenty i ich odpowiedzialności, a w ostatnim kroku odwzorowuje projekt na architekturę mikroserwisową, reprezentowaną jako graf usług i ich powiązań.
+
+\paragraph{ARLO} (\emph{A Tailorable Approach for Transforming Natural Language Software Requirements into Architecture using LLMs}) -- wyróżnia się na tle pozostałych metod jako bardziej wyrafinowane podejściem łącząc modele językowe z programowaniem całkowitoliczbowym. ARLO wykorzystuje model językowy do identyfikacji istotnych architektonicznie wymagań oraz powiązanych z nimi atrybutów jakościowych, a następnie mapuje je na macierz decyzji architektonicznych, w której poszczególne wybory (np. typ architektury, mechanizmy komunikacji, wzorce skalowania) oceniane są względem atrybutów jakościowych. Końcową architekturę wybiera się, rozwiązując zadanie optymalizacji całkowitoliczbowej, które maksymalizuje stopień spełnienia atrybutów jakościowych przy zachowaniu ograniczeń narzuconych przez macierz decyzji. \cite{arlo} W tym wypadku nie było potrzeby modyfikacji oryginalnej metody. \todo{@bp czy to prawda?}
+
+\section{Methodology}
 
 \subsection{Synthesis procedure}
 
-synthesis procedure (step by step, how many runs, handling of stochasticity (none xd))
+% synthesis procedure (step by step, how many runs, handling of stochasticity (none xd))
+
+Zastosowaliśmy jednolity protokół eksperymentu dla wszystkich systemów referencyjnych i wszystkich technik syntezy. Punktem startowym były dostępne artefakty opisujace wymagania i kontekst działania systemu: opisy wymagań funkcjonalnych i niefunkcjonalnych, scenariusze użycia, atrybuty jakościowe, historyjki użytkowników. 
+
+Dla każdego systemu wyodrębnialiśmy fragmenty dokumentacji stanowiące opis wymagań. Otrzymany tekst był następnie włączany do szablonów promptów specyficznych dla danej metody (Prompt Pattern Sequences, ADD, Progressive Prompting, ARLO).
+
+Wszystkie wywołania realizowano przy użyciu modelu językowego Claude Sonnet 4.6 w trybie \emph{Thinking} z kontekstem o rozmiarze $1M$ tokenów w usłudze AWS Bedrock. Parametry sterujące generacją utrzymywano stałe w całym eksperymencie: $temperature=1.0, effort=high, maxTokens=64000$. \todo{@kf @bp czy faktycznie tak było?}
+
+Dla każdej pary (system referencyjny, metoda syntezy) wykonywaliśmy pojedynczy przebieg generacji architektury. Wejściem była pełna, wyekstrahowana dokumentacja wymagań, a wynikiem artefakt tekstowy zawierający proponowany podział na usługi i opis powiązań między nimi w formacie Mermaid. Generacja odbywała się bez interakcji z użytkownikiem.
 
 \subsection{Result postprocessing}
 
-name unification and graph extraction, exclusion rules (telemetry stack, deployment attributes/replication, concrete tech stack choices like Kafka vs RabbitMQ)
+% name unification and graph extraction, exclusion rules (telemetry stack, deployment attributes/replication, concrete tech stack choices like Kafka vs RabbitMQ)
+
+Aby zadbać o porównywalność rezultatów, oczyściliśmy grafy z nieistotnych pod kątem badania elementów i uspójniliśmy nazewnictwo. Ujednoliciliśmy nazwy usług w grafie, aby zachować zgodność z oryginalnymi nazwami z dokumentacji poszczególnych aplikacji. Usunęliśmy synonimy niewprowadzające istotnych różnic semantycznych, np. \emph{User Service} vs. \emph{User Management Service} czy \emph{Order Service} vs. \emph{Ordering Service}. Usunęliśmy z wygenerowanych grafów usługi pomocnicze, takie jak stos telemetrii czy komponenty infrastrukturalne. Ich zawarcie w grafie nie jest błędem, ale nie jest także istotne z punktu widzenia badania. Analogicznie, pominęliśmy niekiedy precyzowane przez model aspekty wdrożeniowe, na przykład stopień replikacji brokera wiadomości czy zastosowanie konkretnych technologii (np. \emph{Kafka} vs. \emph{RabbitMQ}). Ostatecznie otrzymaliśmy graf skierowany dla każdej pary (aplikacja, metoda), w którym węzły odpowiadają usługom, a krawędzie reprezentują komunikację synchroniczną lub asynchroniczną między nimi.
 
 \subsection{Evaluation metrics}
 
-This should probably be described earlier; 
+Pierwsza grupa stosowanych przez nas metryk obejmuje strukturalne miary grafowe obliczane wyłącznie na podstawie wygenerowanego diagramu usług, bez udziału architektury referencyjnej: średni stopień zależności (\emph{Average Dependency Degree}) oraz średni wpływ zmiany (\emph{Average Change Impact})
+
+Średni stopień zależności definiujemy jako średnią liczbę krawędzi wychodzących na węzeł w grafie usług, czyli stosunek liczby krawędzi do liczby węzłów. Niech $E$ będzie zbiorem krawędzi (ścieżek komunikacji) w grafie usług, a $V$ zbiorem węzłów (usług). Wtedy:
+
+\begin{equation}
+\text{AvgDepDeg}(E, V) = \frac{1}{|V|} \sum_{v \in V} \text{deg}^+(v).
+\end{equation}
+
+\todo{cytowanie}
+
+Średni wpływ zmiany (\emph{Average Change Impact}) to przeciętna liczba usług, które muszą zostać zmodyfikowane w typowych scenariuszach zmian funkcjonalnych. \cite{bengtsson_alma_2004} Niech $S$ będzie zbiorem rozważanych scenariuszy zmian. Wtedy:
+
+\begin{equation}
+\text{ACI}(E, V, S) = \frac{1}{|S|} \sum_{s \in S} |\{v \in V : \text{affects}(s, v)\}|.
+\end{equation}
+
+\noindent
+W praktyce aproksymujemy $\text{ACI}$ zakładając, że zmiana może nastąpić w każdej z usług. Tym samym, obliczenie $\text{ACI}$ polega na wyznaczeniu średniej liczby węzłów osiągalnych z każdego węzła źródłowego:
+
+\begin{equation}
+\text{ACI}(E, V) = \frac{1}{|V|} \sum_{v \in V} |\{u \in V : v \leadsto u\}|.
+\end{equation}
+
+Druga grupa wyraża podobieństwo grafu wygenerowanego do grafu usług referencyjnego na poziomie węzłów i krawędzi (rozpatrywanych rozłącznie), wykorzystując klasyczne miary \emph{precision}, \emph{recall} i F1. Jest to podejście bezpośrednio zaczerpnięte z literatury dotyczącej generowania architektury mikroserwisowej z wykorzystaniem modeli językowych \cite{pereiraGeneratingMicroserviceArchitectures2025}. Badamy zgodność wygenerowanego grafu z gradem referencyjnym, traktując zadanie jak problem klasyfikacji binarnej: czy dana usługa lub ścieżka komunikacji została poprawnie odtworzona. Za prawdziwe pozytywy $TP$ uznajemy wierzchołki obecne w obu zbiorach (po normalizacji nazw), za fałszywe pozytywy $FP$ wierzchołki występujące tylko w architekturze wygenerowanej przez model językowy, a za fałszywymi negatywy $FN$ -- wierzchołki obecne jedynie grafie referencyjnym. \cite{pereiraGeneratingMicroserviceArchitectures2025} W ten sposób możliwe jest obliczenie klasycznych metryk:
+
+\begin{equation}
+\text{precision} = \frac{TP}{TP + FP},
+\end{equation}
+
+\begin{equation}
+\text{recall} = \frac{TP}{TP + FN},
+\end{equation}
+
+\begin{equation}
+F_1 = 2 \cdot \frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}.
+\end{equation}
 
 \section{Results}
 
-It would be nice to have at least some
+% It would be nice to have at least some
 
 \section{Discussion}
 

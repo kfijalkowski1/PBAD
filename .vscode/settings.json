@@ -64,7 +64,8 @@
       "**/*.toc": true
     },
     "latex-workshop.intellisense.citation.backend": "biblatex",
-    "editor.wordWrap": "wordWrapColumn",
+    // "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrap": "bounded",
     "cSpell.ignorePaths": [
       ".vscode/**",
       "tex/sprawko.cls",
