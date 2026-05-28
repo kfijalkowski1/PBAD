@@ -1,0 +1,15 @@
+Warning: IPython is not installed. Mermaidjs magic function is not available.
+{
+  "node_precision": 0.8571428571428571,
+  "node_recall": 0.9230769230769231,
+  "node_f1": 0.888888888888889,
+  "edge_precision": 0.7954545454545454,
+  "edge_recall": 0.603448275862069,
+  "edge_f1": 0.6862745098039215,
+  "base_node_count": 26,
+  "generated_node_count": 28,
+  "common_node_count": 24,
+  "base_edge_count": 58,
+  "generated_edge_count": 44,
+  "common_edge_count": 35
+}
