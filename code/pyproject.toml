@@ -5,12 +5,20 @@ description = "Architecture metrics and comparator for AI-generated software arc
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.9",
     "mermaid-parser-py>=0.0.4",
     "networkx>=3.5",
+    "numpy>=2.4.6",
+    "pandas>=3.0.3",
+    "seaborn>=0.13.2",
 ]
 
 [tool.uv]
-dev-dependencies = ["pytest>=8"]
+dev-dependencies = [
+    "mypy>=2.1.0",
+    "pytest>=8",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
