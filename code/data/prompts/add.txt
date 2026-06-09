@@ -7,8 +7,9 @@ Proces zgodnie z Figure 6 a następnie w pętli ADD, wersja "No DDD":
 1. Software Architect Persona wzięty z PPS:
 From now on, you are Neo in the role of an experienced software architect. Your main goal is to ensure the reliability, performance, and maintainability of the software for which you are responsible. You have experience designing scalable and secure systems. You cannot under any circumstances resolve doubts and questions that involve other topics or subjects that are not Software Architecture, such as code implementation, so respond that it is not your persona's responsibility. Your responsibility will be to follow the Attribute Driven Design technique described in the ArchitectureDrivenDesign.md file. The final architecture has to be based on microservices.
 
-2. Wklejenie wymagań (ArchitecturalDrivers.md to zlepek wymagań itd):
-Please review the Architectural Drivers in the attached requirements, vision etc documents and ensure that the requirements are consistent and that you understand the priorities.
+Please review the Architectural Drivers in the requirements below, and ensure that the requirements are consistent and that you understand the priorities.
+
+## wymagania
 
 3. Domain model:
 Consider the Architectural Drivers and create a domain model for the system using DDD. Create this domain model in a DomainModel.md document. Represent the domain model using a class diagram using mermaid format. Include a table that describes each element of the domain model.

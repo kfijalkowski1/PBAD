@@ -1,47 +1,3 @@
-Działamy z https://chatgpt.com/g/g-bahoiKzkB-software-engineer-gpt
-1. Klikamy w "Let's get started."
-
-2. Uploadujemy dokumentację, wszystkie pliki pokroju Concerns.md, Priorities.md, QualityAttributeScenarios.md, Vision.md itd
-
-3. Let's go through each user story one by one and derive functional requirements from them.
-
-4. LLM powinien zacząć przerabiać pierwsze user story, jeżeli nie to należy go zachęcić promptem pokroju "derive functional requirements from the first user story"
-
-5. "proceed with the next user story" aż do przejścia przez wszystkie US.
-
-6. Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet.
-
-7. Create a mermaid diagram of the designed architecture.
-na tym etapie llm wypluwa mermaida.
-
-
-
-Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet, create a mermaid diagram of the designed architecture
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Knowledge Base for Software Engineer GPT
 
 ## Requirements Engineering
@@ -245,82 +201,81 @@ Then, in the second part, the developer shall work outward, and unit test the Se
 
 Finally, in the third part, the developer shall move further outward, and work on an integration test for the entire requirement at the REST Controllers layer.
 
+# Hotel Pricing System - Architecture Document
 
-functional:
+## 1. Introduction
 
-```
-4.1 Communication and Data Access
+This document describes the architecture of the Hotel Pricing System for AD&D Hotels. It presents the architectural decisions, components, and their relationships that together satisfy the functional and quality requirements of the system. The document follows the Attribute-Driven Design process and implements the C4 model for visualizing software architecture.
 
-    "(i) Microservices interact with each other through asynchronous events to carry out functionalities across multiple microservices.
+The document serves as a reference for all stakeholders involved in the development, maintenance, and evolution of the Hotel Pricing System. It provides a comprehensive view of the system, from its high-level context to its detailed components and their interactions.
 
-    "(ii) State management is divided into two categories: (a) Direct data access: Each microservice can directly access its own data (encapsulation principle); and (b) Indirect data access: Data within each microservice can only be accessed externally through predefined interfaces  or be notified about state changes through events
+## 2. Context Diagram
 
-4.2 All-or-nothing Atomicity
+The context diagram below shows the Hotel Pricing System (HPS) and its interactions with external systems and users. The HPS is at the center of AD&D Hotels' IT infrastructure, interfacing with various systems including the Property Management System, Channel Management System, Commercial Analysis System, User Identity Service, and other systems. The diagram illustrates how the HPS receives price changes from end users and distributes prices to the other systems.
 
-    "The business transactions must comply with all-or-nothing atomicity semantics." 
-
-4.3 Caching or Replication (three correctness semantics)
-
-    "(i) Eventual. Updates (price update or product delete) are processed independently, disregarding the order that they are generated at the source, i.e. Product."
-
-    "(ii) Causality at the object level. Updates on the same product are processed sequentially in accordance with the order in which they were performed at the source."
-
-    "(iii) Causality across multiple objects. All updates made by the same seller must be applied to the cart in the same order they were applied at the source, achieving read-your-write consistency."
-
-4.4 State Safety Properties
-
-Inter-microservices Properties:
-
-    "S#1: Cross-microservice referential integrity. Stock always references an existing product in Product."
-
-    "(i) Available System. A deleted product will eventually not be allowed to be reserved anymore. The transaction is considered committed after Product responds to the Delete Product request."
-
-    "(ii) Consistent System. Delete Product request is committed only when both Product and Stock have committed, therefore Product and Stock are always consistent with each other."
-
-    "S#2: No duplicate checkouts. The cart of a customer session must not be checked out more than once."
-
-Intra-microservice Properties:
-
-    "S#3: No overselling of items. The reserved quantity must never be higher than the available quantity."
-
-    "S#4: Maintenance of customer statistics. The system tracks successful and failed payments and deliveries through increments of numbers."
-
-    "S#5: Linearized product updates. Updates on each individual product's price or version in the Product state must be linearized."
-
-    "S#6: Concurrent Update Delivery transactions must execute in isolation."
+```mermaid
+flowchart TD
+    subgraph System
+        EndUser[End User] -->|Sends price changes| HPS
+        HPS -->|Prices| PropertyManagementSystem[Property Management System]
+        HPS -->|Prices| ChannelManagementSystem[Channel Management System]
+        HPS -->|Prices| CommercialAnalysisSystem[Commercial Analysis System]
+        HPS -->|User credentials| UserIdentityService[User Identity Service]
+        HPS -->|Prices| OtherSystems[Other Systems]
+    end
 ```
 
-non functional:
+## 3. Architectural Drivers
 
-```
-"(i) Ensuring all-or-nothing atomicity. The asynchronous and non-blocking nature of messages and the lack of interoperability across different data stores make distributed commit protocols difficult to implement..."
+### User Stories
 
-    "(ii) Implementing efficient and consistent data processing. While data is scattered across microservices, some workloads require querying and joining data belonging to different microservices."
+| ID | Description | Priority |
+|----|-------------|----------|
+| HPS-1 | Log In: A user provides credentials in a login window. The system checks these credentials against a user identity service and, if successful, provides access to the system. | Medium |
+| HPS-2 | Change Prices: A user selects a specific hotel and dates to make price changes to base or fixed rates. All calculated rates are updated, and changes are pushed to the Channel Management System. | High |
+| HPS-3 | Query Prices: A user or external system queries prices for a given hotel through the user interface or a query API. | High |
+| HPS-4 | Manage Hotels: An administrator adds, changes, or modifies hotel information, including tax rates, available rates, and room types. | High |
+| HPS-5 | Manage Rates: An administrator adds, changes, or modifies rates, including defining calculation business rules. | Medium |
+| HPS-6 | Manage Users: An administrator changes permissions for a given user. | Medium |
 
-    "(iii) Ensuring data replication correctness. In order to reduce the expenses associated with querying data from remote microservices, developers often resort to caching or replicating data by subscribing to events generated by other microservices. However, as these events can arrive in any order, developers face challenges in maintaining consistent replication."
+### Quality Attribute Scenarios
 
-    "(iv) Enforcing cross-microservice data integrity constraints. As the application is functionally partitioned, data integrity constraints can span multiple microservices."
+| ID | Quality Attribute | Scenario | Priority |
+|----|------------------|----------|----------|
+| QA-1 | Performance | A base rate price is changed for a specific hotel and date during normal operation, the prices for all the rates and room types for the hotel are published (ready for query) in less than 100 ms. | High |
+| QA-2 | Reliability | A user performs multiple price changes on a given hotel. 100% of the price changes are published (available for query) successfully and they are also received by the channel management system. | High |
+| QA-3 | Availability | Pricing queries uptime SLA must be 99.9% outside of maintenance windows. | High |
+| QA-4 | Scalability | The system will initially support a minimum of 100,000 price queries per day through its API and should be capable of handling up to 1,000,000 without decreasing average latency by more than 20%. | High |
+| QA-5 | Security | A user logs into the system through the front-end. The credentials of the user are validated against the User Identity Service and, once logged in, they are presented with only the functions that they are authorized to use. | High |
+| QA-6 | Modifiability | Support for a price query endpoint with a different protocol than REST (e.g. gRPC) is added to the system. The new endpoint does not require changes to be made to the core components of the system. | Medium |
+| QA-7 | Deployability | The application is moved between non-production environments as part of the development process. No changes in the code are needed. | Medium |
+| QA-8 | Monitorability | A system operator wishes to measure the performance and reliability of price publication during operation. The system provides a mechanism that allows 100% of these measures to be collected as needed. | Medium |
+| QA-9 | Testability | 100% of the system and its elements should support integration testing independently of the external systems. | Medium |
 
-    "(v) Ensuring correct event processing order. Developers leverage application-generated events to implement event-based microservice workflows. However, guaranteeing the correct processing order can be challenging due to the asynchronous nature of events. Events can arrive out of order, late, or even duplicated."
-```
+### Constraints
+
+| ID | Constraint |
+|----|------------|
+| CON-1 | Users must interact with the system through a web browser in different platforms Windows, OSX, and Linux, and different devices. |
+| CON-2 | Manage users through cloud provider identity service and host resources in the cloud. |
+| CON-3 | Code must be hosted on a proprietary Git-based platform that is already in use by other projects in the company. |
+| CON-4 | The initial release of the system must be delivered in 6 months, but an initial version of the system (MVP) must be demonstrated to internal stakeholders in at most 2 months. |
+| CON-5 | The system must interact initially with existing systems through REST APIs but may need to later support other protocols. |
+| CON-6 | A cloud-native approach should be favored when designing the system. |
+
+### Architectural Concerns
+
+| ID | Concern |
+|----|---------|
+| CRN-1 | Establish an overall initial system structure. |
+| CRN-2 | Leverage the team's knowledge about Java technologies and the Angular framework. |
+| CRN-3 | Allocate work to members of the development team. |
+| CRN-4 | Avoid introducing technical debt. |
+| CRN-5 | Set up a continuous deployment infrastructure. |
+
+
 
 
 
 Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet, create a mermaid diagram of the designed architecture
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1,0 +1,1373 @@
+# Knowledge Base for Software Engineer GPT
+
+## Requirements Engineering
+
+Requirements engineering is a coordinated set of activities for exploring, evaluating, documenting, consolidating, revising, and adapting the objectives, capabilities, qualities, constraints, and assumptions that the system-to-be should meet based on problems raised by the system-as-is and opportunities provided by new technologies.
+## Business Analyst
+A business analyst has the primary responsibility for the requirements engineering activities. A business analyst is the point person who has to forge this customer-dev collaborative partnership. The skilled analyst is patient and well organized, has effective interpersonal, communication and facilitation skills, with technical and business domain knowledge, and the right personality. The business analyst is usually a project role, not necessarily a job title. A software team may have a dedicated specialist as a business analyst, or in most cases, a team member who also performs other project functions. A business analyst is also known as requirements analyst, system analyst, requirements engineer, requirements manager, application analyst, business system analyst, IT business analyst, analyst, product manager, or product owner.
+## Requirements
+What are requirements in software engineering? Requirements are a specification of what should be implemented. They are descriptions of how the system should behave, or of a system property or attribute. They may be a constraint on the development process of the system. This definition acknowledges that diverse types of information that collectively are referred to as “the requirements”.
+
+Here are various types of requirements for a software project:
+
+- Business requirements
+- Features
+- User requirements
+- Functional requirements
+- Quality attributes, also known as non-functional requirements
+- Business rules
+- External interface requirements
+- Constraints
+- Data requirements
+
+The requirements in the above list are not on the same abstraction level. Requirements like business requirements and features are intentionally abstract, while user requirements and functional requirements are concrete and detailed. With that understanding, a business analyst needs to organize the business requirements, features, user requirements, functional requirements, and quality attributes in a requirements hierarchy where requirements at a lower-level add more details or elaborate a higher-level requirement.
+
+Business requirements are located at the top level of this hierarchy. They can be refined or elaborated by a set of features. The features support the business requirements. Each feature can then be refined into a set of user requirements if the system-to-be has a lot of user interactions. Finally, each user requirement is refined into a set of detailed and testable functional requirements and quality attributes. This refinement approach is very similar to the top-down design in programming.
+
+This requirements hierarchy provides useful context for both the customers and the development team at appropriate levels of abstraction and helps properly structure and trace requirements.
+
+### User Requirements
+
+User requirements describe goals or tasks the users must be able to perform with the system-to-be that will provide value to some stakeholders. User requirements are also known as user needs, user goals, tasks need to be done with the system-to-be. This is a user-centric and usage-centric requirements engineering approach. User requirements are usually elicited by business analysts and user representatives or a product manager depending on the type of the software (Software for internal corporate use or Software for commercial sale). They must align with the context and objectives that the business requirements and features establish.
+
+User requirements are most typically represented as use cases, scenarios, or user stories.
+
+The name of a use case corresponds to an important feature of the system-to-be. A use case describes this feature by a series of user (the primary actor) and system interactions that help users accomplish something that brings value to them. Stated differently, a use case describes how users and the system work together to realize the identified feature.
+
+Use cases are popular and efficient in user requirements specification largely because they tell stories about how the system will behave in use. They primarily capture the functional requirements of the system-to-be. So, use cases can be used to derive functional requirements, test cases, analysis models, and data requirements.
+
+What is the format of a use case? A use case has the following elements:
+
+- Use Case ID and Name: Give each use case a unique integer sequence number identifier. State a concise name for the use case that indicates the value the use case would provide to some user. Begin with an action verb, followed by an object. For example, UC-1: enroll in a course.
+- Author and Date Created: Enter the name of the person who initially wrote this use case and the date it was written.
+- Primary and Secondary Actors: An actor is a person or other entity external to the software system being specified who interacts with the system and performs use cases to accomplish tasks. Different actors often correspond to different user classes or roles, identified from the customer community that will use the system-to-be. Name the primary actor that will be initiating this use case and any other secondary actors who will participate in completing execution of the use case.
+- Trigger: Identify the business event, system event, or user action that initiates the use case. This trigger alerts the system that it should begin testing the preconditions for the use case so it can judge whether to proceed with execution.
+- Description: Provide a brief description of the reason for and outcome of this use case, or a high-level description of the sequence of actions and the outcome of executing the use case.
+- Preconditions: List any activities that must take place, or any conditions that must be true before the use case can be started. The system must be able to test each precondition. Label each postcondition in the form PRE-X, where X is a sequence number. Example: PRE-1: User’s identity has been authenticated.
+- Postconditions: Describe the state of the system at the successful conclusion of the use case execution. Label each postcondition in the form POST-X, where X is a sequence number. Example: POST-1: Price of item in the database has been updated with the new value.
+- Main Success Scenario/Normal Flow: Provide a description of the user actions and corresponding system responses that will take place during execution of the use case under normal, expected conditions. This dialog sequence will ultimately lead to accomplishing the goal stated in the use case name and description. Show a numbered list of action steps performed by the actor, alternating with responses provided by the system. An action step is either an interaction between two actors (“The Customer enters address info into the system.”) or a validation step to protect interest of a stakeholder (“The System validates the PIN code.”) or an internal change to satisfy a stakeholder (“The System deducts amount from balance.”).
+- Extensions: Extensions work this way. Each action step in the main success scenario may branch because of a particular condition. The condition can be either an alternative success scenario or an exception. Write down the condition and then write the action steps that handle it. The condition and its handling steps are called an extension. It is possible that an action step in the main success scenario may have multiple extensions.
+  - Alternative Success Scenarios: Document other successful usage scenarios that can take place within this use case. State the alternative success scenario as the condition. Number each alternative success scenario in the form “XY”, where “X” is a number that references an action step in the main success scenario and “Y” is a letter that identifies an alternative success scenario for that action step. For example, “5b” would indicate the second alternative success scenario for action step 5.
+  - Exceptions: Describe any anticipated error conditions that could occur during execution of the use case and how the system responds to those conditions. Number each exception handling flow in the form “XY”, where “X” is a number that references an action step in the main success scenario and “Y” is a letter that identifies an exception for that action step. For example, “5b” would indicate the second exception for action step 5.
+- Priority: Indicate the relative priority of implementing the functionality required to allow this use case to be executed. Use the same priority scheme as that used for the functional requirements.
+- Frequency of Use: Estimate the number of times this use case will be performed per some appropriate unit of time. This gives an early indicator of throughput, concurrent usage loads, and transaction capacity.
+- Business Rules: List any business rules that influence this use case. Don’t include the business rule text here, just its identifier so the reader can find it in another repository when needed.
+- Associated Information: Identify any additional requirements, such as quality attributes, for the use case that may need to be addressed during design or implementation. Also list any associated functional requirements that aren’t a direct part of the use case flows but which a developer needs to know about. Describe what should happen if the use case execution fails for some unanticipated or systemic reason (e.g., loss of network connectivity, timeout). If the use case results in a durable state change in a database or the outside world, state whether the change is rolled back, completed correctly, partially completed with a known state, or left in an undetermined state as a result of the exception.
+- Assumptions: List any assumptions that were made regarding this use case or how it might execute.
+
+### Functional Requirements
+
+The use case describes the system’s behavior under various conditions as it responds to a request from the user. However, software developers don’t implement user requirements. They implement functional requirements. Functional requirements are the software capabilities that must be implemented by the developers for the user to carry out a feature’s service or to perform a use case. Functional requirements often are written from the perspective of the system-to-be and in the form of the traditional “The system shall” statements. A business analyst documents these functional requirements in the Software Requirements Specification (SRS). Then how does a business analyst write functional requirements?
+
+Use cases describe tasks that users will need to perform with the system, or user-system interactions that will result in a valuable outcome for some stakeholder. That understanding leads the business analyst to derive the necessary functional requirements that must be implemented to enable each use case. Developers might implement an entire use case in a single release or iteration. Alternatively, they might implement just a portion of a particular use case initially, either for size or priority reasons, and then implement additional parts in future releases.
+
+A business analyst needs to examine each element of a given use case (main success scenarios, extensions, preconditions, postconditions) to look for pertinent functional and non-functional requirements and to derive test cases. This helps the business analyst avoid overlooking any requirements that developers must implement to let users perform the use case.
+
+A business analyst starts with examining each action step in the main success scenario and the extensions. The action steps taken by the system based on user action steps can be converted into traditional functional requirement statements about what functionality the system shall support. To accomplish this, each action step of a use case should be considered to see if there are any system functions necessary to support executing that action step. If there are, those are functional requirements. In other words, for each action step, a business analyst needs to think/specify/elaborate  enough details (e.g., data requirements, business rules, non-functional requirements) so that the developers know how to implement each action step and the testers know how to derive test cases. Many functional requirements fall right out of the dialog steps between the actor and the system. Such as, “The system shall assign a unique sequence number to each request.” Other functional requirements don’t appear in the use case description. Such as what the system shall do if a precondition is not satisfied.
+
+A business analyst needs to use the name of each use case as a feature name, and organize  functional requirements derived in this use case under this feature. The problem is the exact text from the scenarios doesn’t stand on its own very well as an itemized functional requirement. Even though the text is copied from the scenarios, a business analyst would constantly reword a little, or add some context around it.
+
+Preconditions and postconditions are also important sources of functional requirements. Preconditions define prerequisites that must be met before the system can begin executing the use case. The system should be able to test all preconditions to see if it’s possible to proceed with the use case. Postconditions describe the state of the system after the use case is executed successfully. Postconditions can describe:
+
+- Something observable to the user (“The system displays an account balance.”)
+- Physical outcomes (“The ATM has dispensed money and printed a receipt.”)
+- Internal system state changes (“The account has been debited by the amount of a cash withdrawal, plus any transaction fees.”)
+
+Many postconditions are evident to the user, because they reflect the outcome that delivers user value, for example “I’ve got my cash from the ATM.” However, no user will ever tell a business analyst that the system should reduce its record of the amount of cash remaining in the ATM by the amount the user just withdrew. Users neither know nor care about such internal housekeeping details. But developers and testers need to know about them, which means that the business analyst needs to discover those, perhaps by working with a subject matter expert, and record them as additional postconditions.
+
+Some error conditions could affect multiple use cases or multiple steps in a use case’s normal flow. Examples are a loss of network connectivity, a database failure partway through an operation, or a physical device failure such as a paper jam. Treat these as additional functional requirements to be implemented, instead of repeating them as exceptions for all the potentially affected use cases. The goal is not to force-fit all known functionality into a use case. You’re employing usage-centric elicitation to try to discover as much of the essential system functionality as you can.
+
+Granularity of functional requirements. Write individually testable functional requirements. If you can think of a small number of related test cases to verify that a requirement was correctly implemented, it is probably at an appropriate granularity. If you envision numerous and diverse tests, perhaps several requirements are combined and ought to be separated.
+
+## Requirements Document Templates
+
+Project glossary document template: https://docs.google.com/document/d/1yqUkax6duHvEfFCP50IP16yoxQGyDaMHBT-CxUA73zk/edit?usp=sharing
+
+Vision and scope document template: https://docs.google.com/document/d/1h7Bho4auvUAE5zuPNh4Jkk0TBSNfom8P8F_e11kugqY/edit?usp=sharing
+
+Use case document template: https://docs.google.com/document/d/1vaoprKQn58N4uE5gLaqLFLWtvsBYralnNWP_7rj4vJY/edit?usp=sharing
+
+## Software Development Process
+
+You need to follow an opinionated light-weight development process that incorporates software requirements analysis, object-oriented design, and testing.
+
+You start the development journey by understanding the provided glossary document, the business requirements in a vision and scope document, and the user requirements in use case format. After getting familiar with the project and requirements, you are asked to refine user requirements into detailed functional and non-functional requirements. Those requirements are critical for software design. Then, you are asked to design one or more UML sequence diagrams for each use case. The purpose of the design is to discover key objects, assign responsibilities to them, and model their interactions so that the objects can carry out the functional requirements of the use case. Finally, based on the functional requirements and sequence diagrams produced in the previous steps, you are asked to design test cases based on the test-driven development (TDD) approach.
+
+## Software Architecture
+
+In this design, we adopt a simplified Clean Architecture. The entire application is divided into layers such as controllers layer, services layer, and domain objects layer.
+
+The controllers layer converts data from the format most convenient for the services layer and domain objects layer, to the format most convenient for some external agency such as the Web, and vice versa. Objects in this layer correspond to the design classes discussed later on in the “Object-Oriented Design (OOD) Guidelines” section. Frameworks like Spring Boot have direct support to the controllers using the @Controller or @RestController annotation.
+
+Services layer: The software in this layer contains application specific business logics. It encapsulates and implements all of the use cases of the system. These services orchestrate the flow of data to and from the domain objects and direct those objects to use their enterprise-wide business logics to achieve the goals of the service (use case). Objects in this layer correspond to the design classes discussed later on in the “Object-Oriented Design (OOD) Guidelines” section. Frameworks like Spring Boot have direct support to the services using the @Service annotation.
+
+Domain objects layer is also known as entities layer. This layer contains the core business objects of the application or the problem domain. Objects in this layer correspond to the analysis classes discussed later on in the “Object-Oriented Design (OOD) Guidelines” section.
+
+## Object-Oriented Design (OOD) Guidelines
+
+You now have a list of functional requirements for object-oriented design. During object-oriented design, you need to:
+
+- identify key classes that users use to describe the problem domain and implementers use to describe the solution domain,
+- assign responsibilities to each class,
+- provide properties and operations to each class that are needed to carry out these responsibilities,
+- come up with an object collaboration so that the objects of the classes can collaborate to carry out the functional requirements of a use case.
+
+You will use classes to model abstractions that are drawn from the problem you are trying to solve or from the technology you are using to implement a solution to that problem. Each of these abstractions is a part of the vocabulary of the system, meaning that, together, they represent the things that are important to users and to implementers. For users, most abstractions are not that hard to identify because they are drawn from the things that users already use to describe their systems. For implementers, these abstractions are typically just the things in the technology that are parts of the solution.
+
+There are two broad categories of classes you need to find: analysis classes and design classes.
+
+An analysis class describes a data abstraction directly drawn from the model of the problem domain. For example, “Plane” in a traffic control system, “Paragraph” in a document processing system, “Part” in an inventory control system. Analysis classes belong to the problem domain or problem space.
+
+A design class describes a software architectural choice. Design classes represent architectural abstractions that help produce elegant, extensible, and maintainable software structures. Those classes can come from various design patterns. Examples include “command” classes in the command pattern, “state” classes in the state pattern, “controller” classes in the MVC pattern, “repository” classes and “service” classes in domain-driven design (DDD), “factory” classes in the factory pattern, “client” classes used to interact with external libraries or API, “adapter” classes in the adapter pattern and so on. Design classes belong to the solution domain or solution space.
+
+### Heuristics for finding the analysis classes
+
+Analysis classes can be found based on the important concepts from the problem domain of the system-to-be. A problem domain is the area of application that needs to be examined to solve a problem. People use software system to obtain answers to certain questions about this problem domain (as in a program that computes the solution to a specific problem), to interact with things in this problem domain (as in a process control system), or to add things to the problem domain (as in a text processing system). From the requirements document, you should pay attention to:
+
+- Terms that occur frequently.
+- Terms to which the text devotes explicit definitions.
+- Terms that are not defined precisely but taken for granted throughout the document.
+- Important abstractions of the problem domain.
+- Specific jargon of the problem domain.
+
+You must also note that classes can represent conceptual or intangible things as well as material or tangible or physical things in the problem domain.
+
+When you are assessing whether a certain notion should yield a class or not, here is the right criterion: do the objects of the system under discussion exhibit enough specific operations and properties of their own, relevant to the system and not covered by existing classes? If all of the operations and properties that you can identify for a type of objects are irrelevant in this sense or are already covered by the operations and properties of a previously identified class, the conclusion is that the class itself is irrelevant: it must not yield a class. For example, an elevator control system might not include “Floor” as a class because from the point of view of the elevator system, floors have no relevant properties other than those of the associated integer numbers, whereas a Computer Aided Design system designed for architects will have a “Floor” class - since in that case the floor has several specific properties and operations.
+
+It is easy to find tangible objects in a domain like persons, equipment, sensors, devices, airplanes, employees, paychecks, books, products, tax returns, cars, paragraphs, integrable functions. If you are new to a domain, talk to the Subject Matter Expert (SME) to understand some jargon, terminology, you can find some objects that are not obvious. Another good place to start is the glossary document or wiki of this project.
+
+Some objects in the domain may not be tangible. They can be quite abstract. For example, job satisfaction of employees. What counts is how important the concepts are to the enterprise, and what you can do with them. Here are some examples, “Seniority Rule” for a U.S. congress voting system and “Market Tendency” for a trading system.
+
+Whether material or abstract, classes represent the abstractions that specialists of the domain, be they aerospace engineers, accountants, or mathematicians, constantly use to think and talk about their domain. There is always a good chance - although not a certainty - that such an object type will yield a useful class, because typically the domain experts will have associated significant operations and properties with it.
+
+The provided requirements document is useful for finding classes. However, when faced with a new software project, you should not accept the requirements document as the alpha and omega of wisdom about the problem but should combine it with knowledge about previous developments and available software libraries. The corresponding abstractions are most likely to be found in similar existing software. Try to reuse classes useful for other existing software.
+
+### Heuristics for finding the design classes
+
+When developing a software system, besides all the things that simulate concepts in the problem domain, you need to come up with some utility classes to model the design abstractions, such as “controller” classes, “service” classes, “repository” classes, “client” classes and so on. They corresponds to the objects in the controllers layer and services layer in the clean architecture. Basically, they are utility classes responsible for interacting with databases, IO, external API, devices, UI, network, libraries, and infrastructures. The Domain-Driven Development (DDD) and the clean architecture are good approaches to follow.
+
+A few guidelines are worth noting:
+
+- Many design classes have been devised by others before. By reading books and articles that describe precise solutions to design problems, you will gain many fruitful ideas. You should consult articles written by the lead designers of various industrial projects who describe their architectural solutions in detail, providing precious guidance to others faced with similar problems in telecommunications, real-time systems, web projects, mobile projects, Computer-Aided Design, artificial intelligence, and other application areas.
+- The book on “design patterns” by Gamma et al. has started an effort of capturing proven design solutions and is now being followed by several others.
+- Reuse is preferable to invention. You can hope that many of the “patterns” currently being studied will soon cease to be mere ideas, yielding instead directly usable library classes.
+
+### Criteria for rejecting candidate classes
+
+Just as you need criteria for finding classes, you need criteria for rejecting candidate classes - concepts which initially appear promising but end up not justifying a class of their own.
+
+In this section, you will see a few signs that usually indicate a bad choice of class. Because design is not a completely formalized discipline, you should not treat these signs as proof of a bad class design; in each case one can think of some circumstances that may make the original decision legitimate. So, what you will see is not “absolute negatives” (sure-fire rules for rejecting a design) but “advisory negatives”: danger signals that alert you to the presence of a suspicious pattern and should prompt you to investigate further.
+
+This table shows the “Danger signal” and “Why suspicious”:
+
+| Danger signal                                                | Why suspicious                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Class with verbal name (infinitive or imperative)            | May be a simple subroutine, not a class.                     |
+| Fully effective class with only one exported routine         | May be a simple subroutine, not a class.                     |
+| Class described as “performing” something                    | May not be a proper data abstraction.                        |
+| Class with no routine                                        | May be an opaque piece of information, not an ADT. Or may be an ADT, the routines having just been missed. |
+| Class introducing no or very few features (but inherits features from parents) | May be a case of “taxomania”.                                |
+| Class covering several abstractions                          | Should be split into several classes, one per abstraction.   |
+
+The last signal “Class covering several abstract” is a typical imperfect design: A class whose features relate to more than one abstraction. Meilir Page-Jones uses the term connascence (defined in dictionaries as the property of being born and having grown together) to describe the relation that exists between two features when they are closely connected, based on a criterion of simultaneous change: a change to one will imply a change to the other. As he points out, you should minimize connascence across class libraries; but features that appear within a given class should all be related to the same clearly identified abstraction.
+
+All the features of a class must pertain to a single, well-identified abstraction. Here is an example: In an early release of the NeXT library, the text class also provided full visual text editing capabilities. Users complained that the class, although useful, was too big. Large class size was the symptom; the true problem was the merging of two abstractions (character  string, and interactively editable text); the solution was to separate the two abstractions, with a class NSAttributedString defining the basic string handling mechanism and various others, such as NSTextView, taking care of the user interface aspects.
+
+### Typical properties of the ideal classes
+
+Here are some of the typical properties of the ideal classes:
+
+- The class provides a crisp abstraction of something drawn from the vocabulary of the problem domain or the solution domain.
+- The class name is a noun or adjective, adequately characterizing the abstraction.
+- Embodies a small, well-defined set of responsibilities and carries them all out very well.
+- The class represents a set of possible run-time objects, its instances. (Some classes are meant to have only one instance during an execution; that is acceptable too.) 
+- Several queries are available to find out properties of an instance. 
+- Several commands are available to change the state of an instance. (In some cases, there are no commands but instead functions producing other objects of the same type, as with the operations on integers; that is acceptable too.)
+- Is understandable and simple, yet extensible and adaptable.
+
+This list describes a set of informal goals, not a strict rule. A legitimate class may have only some of the properties listed.
+
+The classes derived from the functional requirements shall conform to the SOLID design principles: Single Responsibility Principle (SRP), Open/Close Principle (OCP), Liskov Substitution Principle (LSP), Dependency Inversion Principle (DIP).
+
+## Test-driven Development (TDD)
+
+With a good understanding of the use case requirements, a set of finer-grained functional requirements, class model, and objects interaction model, a developer finally can start the test-driven development.
+
+To develop a feature, test-driven development or TDD asks a developer to write a test first for this feature, before writing any implementation code. This test will fail once being executed since there is no implementation. The developer then writes just enough implementation code to make the test pass. From there, the developer will need to come up with more tests for this feature and refactor the code to make it maintainable.
+
+In the first part, the developer shall demonstrate TDD on the requirement in the Domain Objects layer of the Clean Architecture.
+
+Then, in the second part, the developer shall work outward, and unit test the Services layer object.
+
+Finally, in the third part, the developer shall move further outward, and work on an integration test for the entire requirement at the REST Controllers layer.
+
+
+# Event Ticket Booking System - Architecture Document
+
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Context Diagram](#2-context-diagram)
+3. [Architectural Drivers](#3-architectural-drivers)
+   - [User Story Priorities](#user-story-priorities)
+   - [Quality Attribute Scenario Priorities](#quality-attribute-scenario-priorities)
+   - [Architectural Concern Priorities](#architectural-concern-priorities)
+
+7. [Sequence Diagrams](#7-sequence-diagrams)
+   - [High Priority User Stories](#71-high-priority-user-stories)
+   - [High Priority Quality Attribute Scenarios](#72-high-priority-quality-attribute-scenarios)
+   - [Additional Sequence Diagrams for Iteration 4](#73-additional-sequence-diagrams-for-iteration-4)
+
+
+## 1. Introduction
+
+This document describes the architecture of the Event Ticket Booking System. It follows the C4 model for software architecture documentation, providing different levels of abstraction to describe the system's structure and behavior. The document includes context diagrams, container diagrams, component diagrams, sequence diagrams, and design decisions that shape the system's architecture.
+
+
+## 2. Context Diagram
+
+The context diagram below shows the system's boundaries and its interactions with external actors and systems. It provides a high-level view of the system's scope and its relationships with external entities.
+
+```mermaid
+graph TD
+    subgraph "Event Ticket Booking System"
+        System[Event Ticket Booking System]
+    end
+
+    subgraph "External Actors"
+        Attendee[Event Attendee]
+        Organizer[Event Organizer]
+        PaymentGateway[Payment Gateway]
+        EmailService[Email Service]
+        Venue[Venue Management System]
+        IdP[Identity Provider]
+    end
+
+    Attendee <-->|Browse Events| System
+    Attendee <-->|Purchase Tickets| System
+    Attendee <-->|Manage Tickets| System
+    
+    Organizer <-->|Create Events| System
+    Organizer <-->|Manage Events| System
+    Organizer <-->|View Analytics| System
+    
+    System <-->|Process Payments| PaymentGateway
+    System <-->|Send Notifications| EmailService
+    System <-->|Synchronize Venue Data| Venue
+    System <-->|Authenticate Users| IdP
+    System <-->|Authorize Actions| IdP
+```
+
+### External Actors
+
+| Actor | Description |
+|-------|-------------|
+| Event Attendee | Individual users who browse, purchase, and manage event tickets |
+| Event Organizer | Users who create and manage events, view analytics, and handle ticket sales |
+| Payment Gateway | External service that processes financial transactions and payments |
+| Email Service | External service that handles the delivery of email notifications and communications |
+| Venue Management System | External system that manages venue information, seating arrangements, and capacity |
+| Identity Provider | External service that handles user authentication, authorization, and identity management |
+
+## 3. Architectural Drivers
+
+### User Story Priorities
+
+| ID | User Story Name | Feature ID | Priority |
+|----|----------------|------------|----------|
+| US001 | User Registration | F1 | High |
+| US002 | Email Verification | F1 | High |
+| US003 | User Login | F1 | High |
+| US004 | Password Reset | F1 | High |
+| US005 | Event Creation | F2 | High |
+| US006 | Event Editing | F2 | Medium |
+| US007 | Event Listing Display | F2 | High |
+| US008 | Event Status Management | F2 | Medium |
+| US009 | Inventory Creation | F3 | High |
+| US010 | Inventory Updates | F3 | High |
+| US011 | Inventory Reporting | F3 | Medium |
+| US012 | Ticket Selection | F4 | High |
+| US013 | Payment Processing | F4 | High |
+| US014 | Order Confirmation | F4 | High |
+| US015 | Ticket Generation | F5 | High |
+| US016 | Ticket Delivery | F5 | High |
+| US017 | Ticket Management | F5 | Medium |
+| US018 | Basic Event Search | F8 | High |
+| US019 | Advanced Event Filtering | F8 | Medium |
+| US020 | Event Discovery | F8 | Low |
+| US021 | User Notifications | F15 | Medium |
+| US022 | Event Organizer Notifications | F15 | Medium |
+| US023 | Notification Preferences | F15 | Low |
+
+### Quality Attribute Scenario Priorities
+
+| ID | Scenario Name | Business Priority | Technical Priority |
+|----|---------------|-------------------|-------------------|
+| QAS001 | High-Concurrency Ticket Purchase | High | High |
+| QAS002 | Search Response Time | High | Medium |
+| QAS003 | Payment Data Protection | High | High |
+| QAS004 | Authentication Security | High | High |
+| QAS005 | Event Creation Load | Medium | Medium |
+| QAS006 | Database Scaling | High | High |
+| QAS007 | Transaction Integrity | High | High |
+| QAS008 | Data Consistency | High | High |
+| QAS009 | Mobile Responsiveness | High | Medium |
+| QAS010 | Error Handling | High | Medium |
+| QAS011 | Code Deployment | Medium | Medium |
+| QAS012 | Monitoring and Debugging | High | Medium |
+| QAS013 | Payment Gateway Integration | High | High |
+| QAS014 | External Service Integration | Medium | Medium |
+| QAS015 | System Recovery from Failure | High | High |
+| QAS016 | Scheduled Maintenance | Medium | Medium |
+| QAS017 | Automated Testing | High | Medium |
+| QAS018 | Integration Testing | High | Medium |
+| QAS019 | Feature Addition | Medium | Medium |
+| QAS020 | Configuration Changes | Medium | Low |
+| QAS021 | Zero-Downtime Deployment | High | High |
+| QAS022 | Environment Consistency | High | High |
+| QAS023 | Feature Flag Management | High | Medium |
+| QAS024 | Configuration Management | High | Medium |
+| QAS025 | Deployment Verification | High | Medium |
+
+### Architectural Concern Priorities
+
+| ID | Concern | Priority |
+|----|---------|----------|
+| C001.1.1 | Data retention policies | Medium |
+| C001.1.2 | Data archiving strategies | Medium |
+| C001.1.3 | Data cleanup procedures | Medium |
+| C001.2.1 | Data migration strategy | Medium |
+| C001.2.2 | Backward compatibility | High |
+| C001.2.3 | Data validation | High |
+| C001.3.1 | Backup frequency and retention | High |
+| C001.3.2 | RPO and RTO | High |
+| C001.3.3 | Geographic distribution | Medium |
+| C002.1.1 | Third-party service failure handling | High |
+| C002.1.2 | Rate limiting and quota management | High |
+| C002.1.3 | Fallback mechanisms | High |
+| C002.1.4 | Version management | Medium |
+| C002.2.1 | API versioning strategy | High |
+| C002.2.2 | Backward compatibility | High |
+| C002.2.3 | API documentation | Medium |
+| C002.2.4 | API gateway configuration | High |
+| C003.1.1 | Encryption standards | High |
+| C003.1.2 | Key management | High |
+| C003.1.3 | Secure storage | High |
+| C003.1.4 | Data masking | Medium |
+| C003.2.1 | RBAC implementation | High |
+| C003.2.2 | Permission granularity | High |
+| C003.2.3 | Audit logging | High |
+| C003.2.4 | Session management | High |
+| C003.3.1 | GDPR compliance | High |
+| C003.3.2 | Data residency | High |
+| C003.3.3 | Compliance reporting | Medium |
+| C003.3.4 | Data subject access | Medium |
+| C004.1.1 | Logging standards | High |
+| C004.1.2 | Metrics collection | High |
+| C004.1.3 | Alerting thresholds | High |
+| C004.1.4 | Distributed tracing | Medium |
+| C004.2.1 | Disaster recovery site | High |
+| C004.2.2 | Failover procedures | High |
+| C004.2.3 | Business continuity | High |
+| C004.2.4 | Geographic redundancy | Medium |
+| C004.3.1 | Resource scaling | High |
+| C004.3.2 | Cost optimization | Medium |
+| C004.3.3 | Performance baseline | High |
+| C004.3.4 | Load testing | High |
+| C005.1.1 | Microservice boundaries | High |
+| C005.1.2 | Shared code management | Medium |
+| C005.1.3 | Dependency management | High |
+| C005.1.4 | Code reuse | Medium |
+| C005.2.1 | Branching strategy | Medium |
+| C005.2.2 | Code review | Medium |
+| C005.2.3 | CI pipeline | High |
+| C005.2.4 | Environment management | High |
+| C005.3.1 | Technical debt tracking | Medium |
+| C005.3.2 | Refactoring priorities | Medium |
+| C005.3.3 | Legacy integration | Low |
+| C005.3.4 | Documentation | Medium |
+| C006.1.1 | Business impact analysis | High |
+| C006.1.2 | Critical process identification | High |
+| C006.1.3 | SLAs | High |
+| C006.1.4 | Business metrics | Medium |
+| C006.2.1 | Cost allocation | Medium |
+| C006.2.2 | Resource optimization | Medium |
+| C006.2.3 | Budget forecasting | Low |
+| C006.2.4 | Cost monitoring | Medium |
+| C006.3.1 | Vendor selection | Medium |
+| C006.3.2 | Vendor performance | Medium |
+| C006.3.3 | Contract management | Low |
+| C006.3.4 | Service level monitoring | Medium |
+| C007.1.1 | Industry compliance | High |
+| C007.1.2 | Data protection regulations | High |
+| C007.1.3 | Financial regulations | High |
+| C007.1.4 | Reporting requirements | Medium |
+| C007.2.1 | Terms of service | Medium |
+| C007.2.2 | Privacy policy | High |
+| C007.2.3 | Intellectual property | Low |
+| C007.2.4 | Contract management | Low |
+| C008.1.1 | Technology upgrade strategy | Medium |
+| C008.1.2 | Deprecation policies | Medium |
+| C008.1.3 | Technology radar | Low |
+| C008.1.4 | Innovation adoption | Low |
+| C008.2.1 | Business model adaptability | Medium |
+| C008.2.2 | Feature expansion | Medium |
+| C008.2.3 | Market expansion | Low |
+| C008.2.4 | Partnership integration | Low |
+| C009.1.1 | WCAG compliance | High |
+| C009.1.2 | Assistive technology | Medium |
+| C009.1.3 | Internationalization | Medium |
+| C009.1.4 | User preferences | Medium |
+| C009.2.1 | Loading state management | High |
+| C009.2.2 | Progressive enhancement | Medium |
+| C009.2.3 | Offline capability | Medium |
+| C009.2.4 | Error state handling | High |
+| C010.1.1 | Test environment | High |
+| C010.1.2 | Test data management | High |
+| C010.1.3 | Test automation | High |
+| C010.1.4 | Performance testing | High |
+| C010.2.1 | Quality gates | High |
+| C010.2.2 | Code quality metrics | Medium |
+| C010.2.3 | Security scanning | High |
+| C010.2.4 | Dependency management | High |
+
+## 7. Sequence Diagrams
+
+### 7.1 High Priority User Stories
+
+#### US001: User Registration
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Auth as Authentication Service
+    participant IdP as Identity Provider
+    participant User as User Service
+    participant DB as User Database
+
+    Client->>APIGW: POST /api/v1/auth/register
+    APIGW->>Auth: Forward registration request
+    Auth->>IdP: Register user
+    IdP-->>Auth: User registered
+    Auth->>User: Create user profile
+    User->>DB: Save user data
+    DB-->>User: User saved
+    User-->>Auth: Profile created
+    Auth->>IdP: Request email verification
+    IdP-->>Auth: Email sent
+    Auth-->>APIGW: Registration successful
+    APIGW-->>Client: 201 Created
+```
+
+This sequence diagram illustrates the user registration flow, showcasing the interaction between the client and the system's authentication infrastructure. The process leverages an external Identity Provider (IdP) as decided in section 9.2, "Use OAuth2 with Identity Provider," to handle secure user registration. The Authentication Service acts as an orchestrator, coordinating between the IdP and the User Service. Note how the system follows a clear separation of concerns (per section 9.1's microservices architecture decision), with authentication handled separately from user profile management. The process concludes with an email verification request, implementing the security considerations outlined in section 9.4 and addressing the high-priority US002 (Email Verification) that follows this flow.
+
+#### US002: Email Verification
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Auth as Authentication Service
+    participant IdP as Identity Provider
+    participant User as User Service
+    participant DB as User Database
+
+    Client->>APIGW: GET /api/v1/auth/verify-email?token={token}
+    APIGW->>Auth: Forward verification request
+    Auth->>IdP: Verify email token
+    IdP-->>Auth: Token valid
+    Auth->>User: Update user verification status
+    User->>DB: Update user data
+    DB-->>User: User updated
+    User-->>Auth: Status updated
+    Auth-->>APIGW: Email verified
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram shows the email verification process that follows user registration. The system validates the verification token provided by the user through the external Identity Provider, enhancing security as outlined in section 9.4. This process implements the "Data Compliance Manager" decision from section 9.3, as email verification is a critical step for GDPR compliance. The separation between authentication concerns (handled by Auth Service) and user data management (handled by User Service) demonstrates the microservices architectural pattern described in section 9.1, ensuring each service maintains a single responsibility.
+
+#### US003: User Login
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Auth as Authentication Service
+    participant IdP as Identity Provider
+    participant User as User Service
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/auth/login
+    APIGW->>Auth: Forward login request
+    Auth->>IdP: Authenticate user
+    IdP-->>Auth: Authentication successful
+    Auth->>User: Get user profile
+    User->>Cache: Check cache
+    alt Cache hit
+        Cache-->>User: Return cached profile
+    else Cache miss
+        User->>DB: Get user data
+        DB-->>User: Return user data
+        User->>Cache: Cache profile
+    end
+    User-->>Auth: Return profile
+    Auth->>Auth: Generate JWT tokens
+    Auth-->>APIGW: Login successful
+    APIGW-->>Client: 200 OK with tokens
+```
+
+This sequence diagram demonstrates the login flow, implementing the JWT-based authentication strategy decided in section 9.2 ("Use JWT for Service Authentication"). The diagram highlights the integration with the external Identity Provider for secure authentication while showcasing the caching strategy (section 9.5, "Use Caching Layer") to optimize user profile retrieval performance. The Auth Service generates JWT tokens after successful authentication, enabling stateless authorization for subsequent requests across the distributed microservices architecture. This approach addresses both the security considerations (section 9.4) and scalability requirements (section 9.5) of the system, particularly for the high-traffic authentication flows.
+
+#### US004: Password Reset
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Auth as Authentication Service
+    participant IdP as Identity Provider
+    participant User as User Service
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/auth/reset-password/request
+    APIGW->>Auth: Forward reset request
+    Auth->>IdP: Request password reset
+    IdP-->>Auth: Reset email sent
+    Auth-->>APIGW: Reset initiated
+    APIGW-->>Client: 200 OK
+
+    Note over Client,IdP: User clicks reset link in email
+
+    Client->>APIGW: POST /api/v1/auth/reset-password/confirm
+    APIGW->>Auth: Forward reset confirmation
+    Auth->>IdP: Verify reset token
+    IdP-->>Auth: Token valid
+    Auth->>IdP: Update password
+    IdP-->>Auth: Password updated
+    Auth->>User: Invalidate user sessions
+    User->>Cache: Clear user cache
+    Cache-->>User: Cache cleared
+    User-->>Auth: Sessions invalidated
+    Auth-->>APIGW: Password reset complete
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram illustrates the password reset flow, which is implemented as a two-step process for enhanced security. The system leverages the external Identity Provider (as per section 9.2, "Implement OAuth2 with Identity Provider") to handle the secure reset token generation and verification. The diagram demonstrates the security consideration from section 9.4 by ensuring proper token validation before allowing password changes. After successful password update, the system invalidates all existing user sessions and clears cached data, implementing a critical security practice. This flow utilizes Redis for session management, as decided in section 9.2, enabling effective session invalidation across the distributed architecture.
+
+#### US005: Event Creation
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Event as Event Service
+    participant Search as Search Service
+    participant DB as Event Database
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/events
+    APIGW->>Event: Forward event creation
+    Event->>Event: Validate event data
+    Event->>DB: Save event
+    DB-->>Event: Event saved
+    Event->>Search: Index new event
+    Search-->>Event: Event indexed
+    Event->>Cache: Invalidate cache
+    Cache-->>Event: Cache cleared
+    Event-->>APIGW: Event created
+    APIGW-->>Client: 201 Created
+```
+
+This sequence diagram shows the event creation process, highlighting the interaction between the Event Service and the Search Service. Following the "Event-Driven Indexing" decision from section 9.7, the system ensures that newly created events are immediately indexed for search. The diagram illustrates the implementation of cache invalidation strategy (section 9.5, "Use Caching Layer") to maintain data consistency across the system. The Event Service performs data validation before persistence, implementing the "Event Document Validation" approach outlined in section 9.6 to ensure data integrity. This flow demonstrates how the system addresses both the functional requirement of event creation and the non-functional requirements of search performance and data consistency.
+
+#### US007: Event Listing Display
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Event as Event Service
+    participant Cache as Cache
+    participant DB as Event Database
+
+    Client->>APIGW: GET /api/v1/events
+    APIGW->>Event: Forward list request
+    Event->>Cache: Check cache
+    alt Cache hit
+        Cache-->>Event: Return cached list
+    else Cache miss
+        Event->>DB: Get events
+        DB-->>Event: Return events
+        Event->>Cache: Cache list
+    end
+    Event-->>APIGW: Return event list
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram demonstrates the event listing retrieval process, implementing the multi-level caching strategy decided in section 9.7. The system first checks the cache for event data before querying the database, significantly improving response times for this frequently accessed endpoint. This approach directly addresses the QAS002 (Search Response Time) quality attribute scenario by reducing database load and optimizing the user experience. The event list caching strategy also aligns with the scalability decisions from section 9.5, enabling the system to efficiently handle high volumes of read operations for event browsing, which is one of the most common user interactions in the system.
+
+#### US009: Inventory Creation
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Event as Event Service
+    participant Inventory as Inventory Service
+    participant DB as Inventory Database
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/inventory
+    APIGW->>Inventory: Forward inventory creation
+    Inventory->>Event: Validate event exists
+    Event-->>Inventory: Event validated
+    Inventory->>Inventory: Validate inventory data
+    Inventory->>DB: Save inventory
+    DB-->>Inventory: Inventory saved
+    Inventory->>Cache: Invalidate cache
+    Cache-->>Inventory: Cache cleared
+    Inventory-->>APIGW: Inventory created
+    APIGW-->>Client: 201 Created
+```
+
+This sequence diagram illustrates the inventory creation process, showcasing the interaction between the Event Service and Inventory Service. The flow implements the validation approach specified in section 9.9, ensuring data integrity by first validating that the associated event exists. This cross-service validation exemplifies the microservices architecture's boundary management (section 9.1). The inventory data is then validated against business rules before persistence, implementing the "Inventory Validator" component described in section 6.5. Once the inventory is created, the system invalidates relevant cache entries to maintain data consistency, aligning with the "Event Sourcing for Inventory Changes" decision from section 9.9, which emphasizes the importance of maintaining accurate inventory state.
+
+#### US010: Inventory Updates
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Inventory as Inventory Service
+    participant DB as Inventory Database
+    participant Cache as Cache
+
+    Client->>APIGW: PUT /api/v1/inventory/{id}
+    APIGW->>Inventory: Forward inventory update
+    Inventory->>Inventory: Validate update data
+    Inventory->>DB: Update inventory
+    DB-->>Inventory: Inventory updated
+    Inventory->>Cache: Invalidate cache
+    Cache-->>Inventory: Cache cleared
+    Inventory-->>APIGW: Inventory updated
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram depicts the inventory update process, implementing the data validation and cache management approaches critical for inventory management. The diagram aligns with the "Optimistic Locking" strategy from section 9.9, which helps prevent conflicts during concurrent inventory updates. Though not explicitly shown in the diagram, the inventory update uses event sourcing (section 9.9) to maintain a complete audit trail of inventory changes. The cache invalidation step is crucial for maintaining data consistency across the system, especially for inventory data that directly impacts ticket availability and sales. This approach supports the high concurrency requirements (QAS001) by ensuring that inventory updates are immediately reflected in the system.
+
+#### US012: Ticket Selection
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Inventory as Inventory Service
+    participant Order as Order Service
+    participant DB as Inventory Database
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/inventory/reserve
+    APIGW->>Inventory: Forward reservation request
+    Inventory->>Inventory: Validate availability
+    Inventory->>DB: Reserve tickets
+    DB-->>Inventory: Tickets reserved
+    Inventory->>Order: Create order
+    Order-->>Inventory: Order created
+    Inventory->>Cache: Invalidate cache
+    Cache-->>Inventory: Cache cleared
+    Inventory-->>APIGW: Reservation successful
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram illustrates the ticket selection and reservation process, a critical flow that implements the "Reservation System" decision from section 9.11. The system validates ticket availability before attempting to reserve inventory, implementing the concurrency control strategy described in section 9.9 ("Optimistic Locking") to prevent overselling during high-traffic periods. The workflow demonstrates the integration between the Inventory and Order services, following the pattern outlined in section 9.11 where inventory reservation and order creation are part of a coordinated flow. Cache invalidation ensures that subsequent availability checks reflect the updated inventory state, addressing the data consistency requirements (QAS008) identified in the architectural drivers section.
+
+#### US013: Payment Processing
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Order as Order Service
+    participant Payment as Payment Service
+    participant PG as Payment Gateway
+    participant MQ as Message Queue
+    participant Ticket as Ticket Service
+    participant DB as Payment Database
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward payment request
+    Payment->>Order: Validate order
+    Order-->>Payment: Order validated
+    Payment->>Payment: Validate payment data
+    Payment->>PG: Process payment
+    PG-->>Payment: Payment processed
+    Payment->>DB: Save payment record
+    DB-->>Payment: Payment saved
+    Payment->>Cache: Cache payment status
+    Cache-->>Payment: Status cached
+    Payment->>Order: Update order status
+    Order-->>Payment: Order updated
+    
+    %% Event Publishing
+    Payment->>MQ: Publish PaymentProcessed
+    MQ->>Ticket: PaymentProcessed event
+    Ticket->>Ticket: Handle payment success
+    
+    Payment-->>APIGW: Payment successful
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram depicts the payment processing flow, implementing several critical architectural decisions. The "Payment Service with PaymentGatewayAdapter pattern" from section 9.13 is evident in the interaction between the Payment Service and the external Payment Gateway. The system follows the data protection approach (QAS003) outlined in section 9.13 by securely handling payment information. The event-driven communication pattern is showcased through the Message Queue, which publishes payment events for asynchronous processing by the Ticket Service, aligning with the "Event-Driven Architecture" decision from section 9.10. This demonstrates how the system maintains loose coupling between services while ensuring transaction integrity (QAS007) across the payment and ticketing processes. The diagram also shows the caching strategy used to optimize payment status retrieval.
+
+#### US014: Order Confirmation
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Order as Order Service
+    participant Inventory as Inventory Service
+    participant Notification as Notification Service
+    participant DB as Order Database
+    participant Cache as Cache
+
+    Client->>APIGW: POST /api/v1/orders/{id}/confirm
+    APIGW->>Order: Forward confirmation request
+    Order->>Order: Validate order status
+    Order->>Inventory: Confirm reservation
+    Inventory-->>Order: Reservation confirmed
+    Order->>DB: Update order status
+    DB-->>Order: Order updated
+    Order->>Notification: Send confirmation
+    Notification-->>Order: Notification sent
+    Order->>Cache: Invalidate cache
+    Cache-->>Order: Cache cleared
+    Order-->>APIGW: Order confirmed
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram shows the order confirmation process, which finalizes the ticket reservation and initiates the notification flow. The system implements the "Saga Pattern" from section 9.10 to maintain transaction integrity across multiple services. The Order Service coordinates with the Inventory Service to confirm the reservation, demonstrating the distributed transaction management approach. Notification integration showcases the "Event-Driven Architecture" decision from section 9.10, where order confirmation triggers corresponding notifications. The diagram also illustrates the cache invalidation strategy essential for maintaining data consistency (QAS008) in the system. This flow is critical for ensuring that tickets are properly allocated and customers receive timely confirmation of their orders.
+
+#### US015: Ticket Generation
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Order as Order Service
+    participant Payment as Payment Service
+    participant Ticket as Ticket Service
+    participant Delivery as Delivery Service
+    participant MQ as Message Queue
+    participant DB as Ticket Database
+    participant Cache as Cache
+
+    %% Initial Request
+    Client->>APIGW: POST /api/v1/tickets/generate
+    APIGW->>Ticket: Forward generation request
+    Ticket->>Order: Validate order
+    Order-->>Ticket: Order validated
+    Ticket->>Payment: Validate payment
+    Payment-->>Ticket: Payment validated
+    
+    %% Ticket Generation
+    Ticket->>Ticket: Generate ticket content
+    Ticket->>Ticket: Create QR code
+    Ticket->>Ticket: Apply security features
+    Ticket->>DB: Save ticket
+    DB-->>Ticket: Ticket saved
+    Ticket->>Cache: Cache ticket
+    Cache-->>Ticket: Ticket cached
+    
+    %% Event Publishing
+    Ticket->>MQ: Publish TicketGenerated
+    MQ->>Delivery: TicketGenerated event
+    Delivery->>Delivery: Handle ticket generation
+    
+    Ticket-->>APIGW: Ticket generated
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram illustrates the ticket generation process, implementing the "Ticket Service with Factory and Builder patterns" decision from section 9.13. The workflow begins with important validations, checking both order and payment status before proceeding with ticket generation. The Ticket Service then follows a structured process to create the ticket content, generate secure QR codes, and apply security features as per section 9.13's security considerations. The system employs event-driven communication through the Message Queue to notify the Delivery Service about the newly generated ticket, aligning with the "Event-Driven Architecture" decision from section 9.10. This approach ensures loose coupling between the Ticket and Delivery services while maintaining a clear flow of information. The sequence also shows the implementation of caching to optimize subsequent ticket retrievals.
+
+#### US016: Ticket Delivery
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Ticket as Ticket Service
+    participant Delivery as Delivery Service
+    participant Email as Email Service
+    participant Mobile as Mobile Service
+    participant MQ as Message Queue
+    participant Notification as Notification Service
+    participant DB as Delivery Database
+    participant Cache as Cache
+
+    %% Initial Request
+    Client->>APIGW: POST /api/v1/delivery/send
+    APIGW->>Delivery: Forward delivery request
+    Delivery->>Ticket: Get ticket
+    Ticket-->>Delivery: Ticket data
+    Delivery->>Delivery: Validate delivery data
+    Delivery->>Delivery: Select delivery channel
+    
+    %% Event Publishing - Delivery Initiated
+    Delivery->>MQ: Publish DeliveryInitiated
+    MQ->>Notification: DeliveryInitiated event
+    
+    %% Channel-specific Delivery
+    alt Email Delivery
+        Delivery->>Email: Send ticket email
+        Email-->>Delivery: Email sent
+    else Mobile Delivery
+        Delivery->>Mobile: Send mobile notification
+        Mobile-->>Delivery: Notification sent
+    end
+    
+    Delivery->>DB: Save delivery record
+    DB-->>Delivery: Delivery saved
+    Delivery->>Cache: Cache delivery status
+    Cache-->>Delivery: Status cached
+    
+    %% Event Publishing - Delivery Completed
+    Delivery->>MQ: Publish DeliveryCompleted
+    MQ->>Notification: DeliveryCompleted event
+    Notification->>Notification: Handle delivery completion
+    
+    Delivery-->>APIGW: Delivery initiated
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram depicts the ticket delivery process, implementing the "Delivery Service with Strategy pattern" decision from section 9.13. The flow begins with the Delivery Service retrieving ticket data and validating it before selecting the appropriate delivery channel. The system demonstrates the Strategy pattern by dynamically choosing between email and mobile delivery channels based on user preferences or ticket type. Event-driven communication is employed throughout the process, with events published to the Message Queue at key points (delivery initiated and completed), enabling asynchronous notification processing. This approach aligns with the "Event-Driven Architecture" decision from section 9.10, maintaining loose coupling between services. The diagram also illustrates the data persistence and caching strategies employed to track delivery status and optimize performance, supporting the scalability considerations from section 9.5.
+
+#### US018: Basic Event Search
+
+### 7.2 High Priority Quality Attribute Scenarios
+
+#### QAS001: High-Concurrency Ticket Purchase
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Inventory as Inventory Service
+    participant Order as Order Service
+    participant DB as Inventory Database
+    participant Cache as Cache
+    participant MQ as Message Queue
+
+    Note over Client,MQ: Multiple concurrent requests
+    
+    par Concurrent Requests
+        Client->>APIGW: POST /api/v1/inventory/reserve
+        APIGW->>Inventory: Forward reservation request
+        Inventory->>Cache: Check availability
+        alt Cache hit
+            Cache-->>Inventory: Return cached availability
+        else Cache miss
+            Inventory->>DB: Get current inventory
+            DB-->>Inventory: Return inventory
+            Inventory->>Cache: Cache availability
+        end
+        Inventory->>Inventory: Validate availability
+        Inventory->>DB: Reserve tickets (optimistic locking)
+        DB-->>Inventory: Reservation result
+        Inventory->>Order: Create order
+        Order-->>Inventory: Order created
+        Inventory->>Cache: Invalidate cache
+        Inventory->>MQ: Publish InventoryUpdated
+        Inventory-->>APIGW: Reservation successful
+        APIGW-->>Client: 200 OK
+    end
+```
+
+This sequence diagram illustrates the implementation of the High-Concurrency Ticket Purchase quality attribute scenario (QAS001), demonstrating how the system handles multiple simultaneous ticket purchase attempts during high-demand events. The diagram implements the "Optimistic Locking" strategy from section 9.9, preventing inventory conflicts and overselling when many users attempt to purchase the same tickets concurrently. The multi-level caching approach is employed to reduce database load, with inventory availability first checked in cache before falling back to the database. After ticket reservation, the system proactively invalidates the cache and publishes an event to notify other services of the inventory change, implementing the "Event-Driven Architecture" decision from section 9.10. This approach directly addresses the scalability requirements identified in the architectural drivers section, ensuring that the system maintains data consistency and responsiveness even during peak traffic periods like concert ticket sales.
+
+#### QAS003: Payment Data Protection
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Payment as Payment Service
+    participant Security as PaymentSecurityManager
+    participant KeyMgr as PaymentKeyManager
+    participant PG as Payment Gateway
+    participant DB as Payment Database
+
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward payment request
+    Payment->>Security: Encrypt sensitive data
+    Security->>KeyMgr: Get encryption key
+    KeyMgr-->>Security: Return key
+    Security->>Security: Encrypt data
+    Security-->>Payment: Return encrypted data
+    Payment->>PG: Process payment (encrypted)
+    PG-->>Payment: Payment processed
+    Payment->>Security: Mask sensitive data
+    Security-->>Payment: Return masked data
+    Payment->>DB: Store payment record (encrypted)
+    DB-->>Payment: Record stored
+    Payment-->>APIGW: Payment successful
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram demonstrates the implementation of the Payment Data Protection quality attribute scenario (QAS003), addressing the critical security requirements for handling sensitive payment information. The diagram implements the "PaymentSecurityManager and PaymentKeyManager" components described in section 9.13, showing a comprehensive security approach with proper encryption key management. The system applies multiple layers of security: encrypting sensitive data before transmission to the payment gateway, masking data for display purposes, and storing encrypted data in the database. This approach aligns with the "encryption at rest with key rotation" decision from section 9.13, ensuring that payment data is protected throughout its lifecycle. The separation of concerns between the Payment Service and security-specific components demonstrates the microservices architecture pattern from section 9.1, focusing on clear component responsibilities.
+
+#### QAS004: Authentication Security
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Auth as Authentication Service
+    participant Security as SecurityManager
+    participant IdP as Identity Provider
+    participant Cache as Cache
+    participant MQ as Message Queue
+
+    Client->>APIGW: POST /api/v1/auth/login
+    APIGW->>Auth: Forward login request
+    Auth->>Security: Check brute force attempts
+    Security->>Cache: Get attempt count
+    alt Attempts < 5
+        Cache-->>Security: Return count
+        Security->>Auth: Proceed with authentication
+        Auth->>IdP: Authenticate user
+        IdP-->>Auth: Authentication result
+        alt Authentication successful
+            Auth->>Security: Reset attempt count
+            Security->>Cache: Clear attempts
+            Auth->>Auth: Generate JWT tokens
+            Auth-->>APIGW: Login successful
+            APIGW-->>Client: 200 OK with tokens
+        else Authentication failed
+            Auth->>Security: Increment attempt count
+            Security->>Cache: Update count
+            Auth->>MQ: Publish FailedLoginAttempt
+            Auth-->>APIGW: Login failed
+            APIGW-->>Client: 401 Unauthorized
+        end
+    else Attempts >= 5
+        Cache-->>Security: Return count
+        Security->>Auth: Block account
+        Auth->>MQ: Publish AccountLocked
+        Auth-->>APIGW: Account locked
+        APIGW-->>Client: 429 Too Many Requests
+    end
+```
+
+This sequence diagram demonstrates the implementation of the Authentication Security quality attribute scenario (QAS004), showcasing the system's defense against brute force attacks and unauthorized access attempts. The diagram illustrates the "Role-Based Access Control" decision from section 9.4, with the SecurityManager handling security-specific concerns like tracking failed login attempts. The system uses Redis for session management (section 9.2) to efficiently track authentication attempts across distributed services. The flow implements several security best practices: limiting login attempts, temporarily locking accounts after multiple failures, and publishing security events for monitoring and audit purposes. The JWT token generation after successful authentication implements the JWT-based authentication strategy from section 9.2, enabling secure, stateless authorization across microservices. This comprehensive security approach directly addresses the high-priority Authentication Security scenario identified in the architectural drivers section.
+
+#### QAS006: Database Scaling
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Payment as Payment Service
+    participant DBManager as PaymentDatabaseManager
+    participant Primary as Primary Database
+    participant Replica as Read Replica
+    participant Cache as Cache
+
+    Client->>APIGW: GET /api/v1/payments/history
+    APIGW->>Payment: Forward request
+    Payment->>Cache: Check cache
+    alt Cache hit
+        Cache-->>Payment: Return cached data
+    else Cache miss
+        Payment->>DBManager: Get payment history
+        DBManager->>Replica: Read from replica
+        Replica-->>DBManager: Return data
+        DBManager-->>Payment: Return history
+        Payment->>Cache: Cache results
+    end
+    Payment-->>APIGW: Return payment history
+    APIGW-->>Client: 200 OK
+
+    Note over Client,Primary: Write operations go to primary
+    Note over Client,Replica: Read operations go to replicas
+```
+
+This sequence diagram illustrates the implementation of the Database Scaling quality attribute scenario (QAS006), showcasing how the system handles high transaction volumes and data growth. The diagram demonstrates the "DatabaseManager components with read replicas and sharding" decision from section 9.13, showing the separation of read and write operations across different database instances. Read operations are directed to replicas, reducing load on the primary database and improving read performance. The multi-level caching strategy is also employed, as described in section 9.5, further reducing database load by serving frequently accessed data from cache. This approach directly supports the performance requirements in the architectural drivers section, ensuring that the system maintains responsiveness even under high load. The clear separation of database access through the DatabaseManager component aligns with the microservices architecture pattern from section 9.1.
+
+#### QAS007: Transaction Integrity
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Order as Order Service
+    participant Payment as Payment Service
+    participant Inventory as Inventory Service
+    participant MQ as Message Queue
+    participant DB as Order Database
+
+    Client->>APIGW: POST /api/v1/orders
+    APIGW->>Order: Forward order creation
+    Order->>Order: Start transaction
+    Order->>Inventory: Reserve tickets
+    Inventory-->>Order: Tickets reserved
+    Order->>Payment: Process payment
+    Payment-->>Order: Payment processed
+    Order->>DB: Save order
+    DB-->>Order: Order saved
+    Order->>MQ: Publish OrderCreated
+    Order->>Order: Commit transaction
+    Order-->>APIGW: Order created
+    APIGW-->>Client: 201 Created
+
+    Note over Client,DB: If any step fails
+    Order->>Order: Rollback transaction
+    Order->>Inventory: Release tickets
+    Order->>Payment: Reverse payment
+    Order->>MQ: Publish OrderFailed
+    Order-->>APIGW: Order failed
+    APIGW-->>Client: 500 Internal Server Error
+```
+
+This sequence diagram illustrates the implementation of the Transaction Integrity quality attribute scenario (QAS007), showing how the system maintains data consistency across distributed services during the order creation process. The diagram implements the "Saga Pattern" from section 9.10, which coordinates a series of local transactions with compensating actions in case of failures. The Order Service orchestrates the entire flow, first reserving tickets with the Inventory Service, then processing payment, and finally saving the order. If any step fails, the system executes compensating transactions to rollback the entire operation, releasing reserved tickets and reversing payments. This approach ensures that the system maintains ACID properties in a distributed environment without using distributed transactions. The message queue is used to publish events about the transaction outcome, implementing the "Event-Driven Architecture" decision from section 9.10 and enabling other services to react appropriately to order status changes.
+
+#### QAS008: Data Consistency
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Inventory as Inventory Service
+    participant Order as Order Service
+    participant Search as Search Service
+    participant MQ as Message Queue
+    participant DB as Inventory Database
+    participant Cache as Cache
+
+    Client->>APIGW: PUT /api/v1/inventory/{id}
+    APIGW->>Inventory: Forward inventory update
+    Inventory->>Inventory: Start transaction
+    Inventory->>DB: Update inventory
+    DB-->>Inventory: Inventory updated
+    Inventory->>Cache: Invalidate cache
+    Inventory->>MQ: Publish InventoryUpdated
+    Inventory->>Inventory: Commit transaction
+    
+    par Event Processing
+        MQ->>Search: InventoryUpdated event
+        Search->>Search: Update search index
+        Search-->>MQ: Index updated
+        
+        MQ->>Order: InventoryUpdated event
+        Order->>Order: Update order status
+        Order-->>MQ: Order updated
+    end
+    
+    Inventory-->>APIGW: Inventory updated
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram demonstrates the implementation of the Data Consistency quality attribute scenario (QAS008), showing how the system maintains consistency across multiple services when inventory data changes. The diagram implements the "Eventual Consistency" approach from section 9.11, using an event-driven architecture to propagate changes asynchronously. When inventory is updated, the Inventory Service first completes its local transaction, then invalidates relevant cache entries and publishes an event to notify other services. The parallel event processing section shows how multiple services (Search and Order) consume these events and update their own data stores accordingly. This pattern ensures that all services eventually have consistent views of the inventory data without requiring distributed transactions. The approach aligns with the "Event-Driven Architecture" decision from section 9.10 and addresses the scalability requirements identified in the architectural drivers section by allowing services to process updates at their own pace while maintaining system responsiveness.
+
+#### QAS013: Payment Gateway Integration
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Payment as Payment Service
+    participant Gateway as PaymentGatewayAdapter
+    participant Circuit as Circuit Breaker
+    participant PG as Payment Gateway
+    participant MQ as Message Queue
+    participant DB as Payment Database
+
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward payment request
+    Payment->>Gateway: Process payment
+    Gateway->>Circuit: Check circuit status
+    alt Circuit Closed
+        Circuit->>PG: Process payment
+        alt Payment Success
+            PG-->>Circuit: Payment successful
+            Circuit-->>Gateway: Return success
+            Gateway->>DB: Save payment record
+            Gateway->>MQ: Publish PaymentProcessed
+            Gateway-->>Payment: Payment successful
+        else Payment Failure
+            PG-->>Circuit: Payment failed
+            Circuit->>Circuit: Increment failure count
+            alt Failure Threshold Reached
+                Circuit->>Circuit: Open circuit
+            end
+            Circuit-->>Gateway: Return failure
+            Gateway->>MQ: Publish PaymentFailed
+            Gateway-->>Payment: Payment failed
+        end
+    else Circuit Open
+        Circuit-->>Gateway: Circuit open
+        Gateway->>MQ: Publish PaymentFailed
+        Gateway-->>Payment: Payment failed
+    end
+    Payment-->>APIGW: Return result
+    APIGW-->>Client: Return response
+```
+
+This sequence diagram illustrates the implementation of the Payment Gateway Integration quality attribute scenario (QAS013), showing how the system integrates with external payment providers while ensuring resilience. The diagram demonstrates the "Payment Service with PaymentGatewayAdapter pattern" decision from section 9.13, which abstracts the integration with payment gateways behind an adapter. The Circuit Breaker pattern from section 9.2 is employed to handle external service failures gracefully, preventing cascading failures when the payment gateway experiences issues. When the circuit is open (indicating recent failures), the system avoids sending requests to the failing service and immediately responds with a failure, improving user experience by providing faster feedback. Successful payments are recorded in the database and events are published to the message queue, implementing the event-driven architecture pattern from section 9.10. This approach directly addresses the integration requirements identified in the architectural drivers section, ensuring reliable payment processing even when external services are unstable.
+
+#### QAS015: System Recovery from Failure
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Payment as Payment Service
+    participant Recovery as PaymentRecoveryManager
+    participant Primary as Primary Region
+    participant Backup as Backup Region
+    participant MQ as Message Queue
+
+    Note over Client,Backup: Normal Operation
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward payment request
+    Payment->>Primary: Process payment
+    Primary-->>Payment: Payment processed
+    Payment->>MQ: Publish payment event
+    MQ->>Backup: Replicate data
+
+    Note over Client,Backup: Primary Region Failure
+    Primary-->>Recovery: Region failure detected
+    Recovery->>Recovery: Initiate failover
+    Recovery->>Backup: Activate backup region
+    Backup-->>Recovery: Backup activated
+    Recovery->>APIGW: Update routing
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward to backup
+    Payment->>Backup: Process payment
+    Backup-->>Payment: Payment processed
+    Payment-->>APIGW: Payment successful
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram demonstrates the implementation of the System 
+Recovery from Failure quality attribute scenario (QAS015), showing 
+how the system maintains availability during infrastructure 
+failures. The diagram illustrates the "RecoveryManager components 
+with failover and backup strategies" decision from section 9.13 and 
+the "multi-region deployment with automated failover" approach from 
+section 9.13. The system continuously replicates data from the 
+primary to backup regions during normal operation through the 
+message queue, ensuring that the backup region has current data in 
+case of failover. When a failure is detected, the RecoveryManager 
+initiates an automated failover process, activating the backup 
+region and updating routing configurations to direct traffic to the 
+new active region. This approach directly addresses the business 
+continuity requirements described in the architectural drivers 
+section, minimizing downtime and data loss during infrastructure 
+failures.
+
+#### QAS021: Zero-Downtime Deployment
+
+```mermaid
+sequenceDiagram
+    participant Dev as Development Team
+    participant CI as CI/CD Pipeline
+    participant LB as Load Balancer
+    participant App as Application Instance
+    participant DB as Database
+    participant Cache as Cache
+    participant MQ as Message Queue
+
+    Dev->>CI: Push new version
+    CI->>CI: Build and test
+    CI->>LB: Deploy to new instance
+    
+    par Rolling Update
+        LB->>App: Route traffic to new instance
+        App->>DB: Migrate database
+        DB-->>App: Migration complete
+        App->>Cache: Warm cache
+        Cache-->>App: Cache ready
+        App->>MQ: Connect to message queue
+        MQ-->>App: Connection established
+        App-->>LB: Health check passed
+        LB->>LB: Update routing
+    end
+    
+    Note over Dev,MQ: If deployment fails
+    CI->>LB: Rollback to previous version
+    LB->>LB: Restore routing
+    CI-->>Dev: Deployment failed
+```
+
+This sequence diagram demonstrates the implementation of the Zero-Downtime Deployment quality attribute scenario (QAS021), showcasing how the system enables deployment of new versions without service interruption. The diagram implements the rolling update strategy where new instances are deployed alongside existing ones, with traffic gradually shifted once the new instances are healthy. This approach directly aligns with the "multi-region deployment with automated failover" decision from section 9.13. The sequence shows several critical steps in the deployment process: database migrations are performed with backward compatibility, cache warming ensures performance doesn't degrade after deployment, and connectivity to the message queue is verified. The system performs health checks before routing traffic to new instances, and maintains the ability to rollback quickly if issues are detected. This deployment approach supports the business requirement for continuous availability identified in the architectural drivers section, allowing the system to evolve without impacting users.
+
+#### QAS022: Environment Consistency
+
+```mermaid
+sequenceDiagram
+    participant Dev as Development Team
+    participant CI as CI/CD Pipeline
+    participant Config as Configuration Manager
+    participant DevEnv as Development Environment
+    participant StagingEnv as Staging Environment
+    participant ProdEnv as Production Environment
+    participant DB as Database
+    participant Cache as Cache
+
+    Dev->>CI: Push configuration changes
+    CI->>Config: Validate configuration
+    Config->>Config: Check environment consistency
+    
+    par Environment Deployment
+        Config->>DevEnv: Apply configuration
+        DevEnv->>DB: Update database
+        DB-->>DevEnv: Update complete
+        DevEnv->>Cache: Update cache
+        Cache-->>DevEnv: Cache updated
+        DevEnv-->>Config: Deployment complete
+        
+        Config->>StagingEnv: Apply configuration
+        StagingEnv->>DB: Update database
+        DB-->>StagingEnv: Update complete
+        StagingEnv->>Cache: Update cache
+        Cache-->>StagingEnv: Cache updated
+        StagingEnv-->>Config: Deployment complete
+        
+        Config->>ProdEnv: Apply configuration
+        ProdEnv->>DB: Update database
+        DB-->>ProdEnv: Update complete
+        ProdEnv->>Cache: Update cache
+        Cache-->>ProdEnv: Cache updated
+        ProdEnv-->>Config: Deployment complete
+    end
+    
+    Config->>Config: Verify consistency
+    Config-->>CI: Deployment complete
+    CI-->>Dev: All environments updated
+```
+
+### 7.3 Additional Sequence Diagrams for Iteration 4
+
+#### Payment Processing with Retry and Circuit Breaker
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Payment as Payment Service
+    participant Circuit as Circuit Breaker
+    participant PG as Payment Gateway
+    participant MQ as Message Queue
+
+    Client->>APIGW: POST /api/v1/payments
+    APIGW->>Payment: Forward payment request
+    Payment->>Circuit: Check circuit status
+    alt Circuit Closed
+        Circuit->>PG: Process payment
+        alt Payment Success
+            PG-->>Circuit: Payment successful
+            Circuit-->>Payment: Return success
+            Payment->>MQ: Publish PaymentProcessed
+        else Payment Failure
+            PG-->>Circuit: Payment failed
+            Circuit->>Circuit: Increment failure count
+            alt Failure Threshold Reached
+                Circuit->>Circuit: Open circuit
+            end
+            Circuit-->>Payment: Return failure
+            Payment->>MQ: Publish PaymentFailed
+        end
+    else Circuit Open
+        Circuit-->>Payment: Circuit open
+        Payment->>MQ: Publish PaymentFailed
+    end
+    Payment-->>APIGW: Return result
+    APIGW-->>Client: Return response
+```
+
+This sequence diagram illustrates the implementation of the Circuit Breaker pattern, a critical resilience mechanism decided in section 9.2 ("Use Circuit Breaker Pattern") and further detailed in section 9.10. The diagram shows how the system handles payment gateway integration with built-in fault tolerance. When the circuit is closed (normal operation), payment requests are forwarded to the payment gateway. However, the system tracks failures and automatically opens the circuit when a failure threshold is reached, preventing further requests to the failing service and avoiding cascading failures. This approach directly addresses the "Third-party service failure handling" concern (C002.1.1) by providing graceful degradation during external service outages. The event-driven communication pattern is also demonstrated through the message queue, which aligns with the "Event-Driven Architecture" decision from section 9.10, allowing other services to react to payment events asynchronously.
+
+#### Ticket Generation with Format Handling
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Ticket as Ticket Service
+    participant Generator as TicketGenerator
+    participant Security as TicketSecurityManager
+    participant DB as Ticket Database
+    participant MQ as Message Queue
+
+    Client->>APIGW: POST /api/v1/tickets/generate
+    APIGW->>Ticket: Forward generation request
+    Ticket->>Generator: Create ticket
+    Generator->>Generator: Generate QR code
+    Generator->>Security: Apply security features
+    Security-->>Generator: Return secured ticket
+    Generator->>Generator: Format ticket
+    Generator-->>Ticket: Return formatted ticket
+    Ticket->>DB: Store ticket
+    DB-->>Ticket: Ticket stored
+    Ticket->>MQ: Publish TicketGenerated
+    Ticket-->>APIGW: Return ticket
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram showcases the detailed ticket generation process, implementing the "Ticket Service with Factory and Builder patterns" decision from section 9.13. The diagram illustrates the separation of concerns within the Ticket Service, with specialized components handling different aspects of ticket creation: the TicketGenerator component manages content generation and formatting, while the TicketSecurityManager applies security features. This approach addresses both the functional requirement of ticket generation and the security considerations outlined in section 9.13. The system follows the event-driven architecture by publishing a TicketGenerated event to the message queue upon successful ticket creation, enabling loosely coupled integration with other services like Delivery. This pattern aligns with the "Event-Driven Architecture" decision from section 9.10, ensuring that ticket generation can be scaled independently of downstream processes.
+
+#### Ticket Delivery with Multiple Channels
+
+```mermaid
+sequenceDiagram
+    participant Client as Web/Mobile Client
+    participant APIGW as API Gateway
+    participant Delivery as Delivery Service
+    participant Channel as DeliveryChannel
+    participant Email as Email Service
+    participant Mobile as Mobile Service
+    participant MQ as Message Queue
+
+    Client->>APIGW: POST /api/v1/delivery/send
+    APIGW->>Delivery: Forward delivery request
+    Delivery->>Delivery: Select delivery channel
+    alt Email Delivery
+        Delivery->>Email: Send ticket email
+        Email-->>Delivery: Email sent
+    else Mobile Delivery
+        Delivery->>Mobile: Send mobile notification
+        Mobile-->>Delivery: Notification sent
+    end
+    Delivery->>MQ: Publish DeliveryCompleted
+    Delivery-->>APIGW: Delivery successful
+    APIGW-->>Client: 200 OK
+```
+
+This sequence diagram demonstrates the implementation of the "Delivery Service with Strategy pattern" decision from section 9.13, showing how the system dynamically selects and utilizes different delivery channels based on context. The Strategy pattern enables the system to encapsulate each delivery method (email and mobile) while providing a consistent interface for the Delivery Service. This approach addresses the flexibility requirement identified in the architectural drivers section, allowing the system to adapt to different user preferences and ticket types without changing the core delivery flow. After successful delivery, the system publishes a DeliveryCompleted event to the message queue, enabling asynchronous notification and tracking. This pattern aligns with the "Event-Driven Architecture" decision from section 9.10, maintaining loose coupling between the Delivery Service and downstream consumers of delivery events.
+
+
+
+
+
+Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet, create a mermaid diagram of the designed architecture
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

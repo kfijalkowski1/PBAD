@@ -1,47 +1,3 @@
-Działamy z https://chatgpt.com/g/g-bahoiKzkB-software-engineer-gpt
-1. Klikamy w "Let's get started."
-
-2. Uploadujemy dokumentację, wszystkie pliki pokroju Concerns.md, Priorities.md, QualityAttributeScenarios.md, Vision.md itd
-
-3. Let's go through each user story one by one and derive functional requirements from them.
-
-4. LLM powinien zacząć przerabiać pierwsze user story, jeżeli nie to należy go zachęcić promptem pokroju "derive functional requirements from the first user story"
-
-5. "proceed with the next user story" aż do przejścia przez wszystkie US.
-
-6. Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet.
-
-7. Create a mermaid diagram of the designed architecture.
-na tym etapie llm wypluwa mermaida.
-
-
-
-Having derived all functional requirements I would like you to create a microservice-based architecture for the system, without going into the code yet, create a mermaid diagram of the designed architecture
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Knowledge Base for Software Engineer GPT
 
 ## Requirements Engineering
@@ -246,63 +202,60 @@ Then, in the second part, the developer shall work outward, and unit test the Se
 Finally, in the third part, the developer shall move further outward, and work on an integration test for the entire requirement at the REST Controllers layer.
 
 
-functional:
+## 1.1 Requirements Overview
 
-```
-4.1 Communication and Data Access
+Pitstop is a sample application based on a **Garage Management System** for a fictitious garage / car repair shop. It targets the garage employees and supports their daily tasks:
 
-    "(i) Microservices interact with each other through asynchronous events to carry out functionalities across multiple microservices.
+- **Manage customers** — Register and look up customers.
+- **Manage vehicles** — Register vehicles and associate them with customers.
+- **Manage workshop planning** — Plan and track maintenance jobs for vehicles on specific days.
+- **Send notifications** — Automatically notify customers when their vehicle has a maintenance job scheduled for the current day.
+- **Send invoices** — Generate and email invoices for finished maintenance jobs.
+- **Audit logging** — Record all domain events for later reference.
 
-    "(ii) State management is divided into two categories: (a) Direct data access: Each microservice can directly access its own data (encapsulation principle); and (b) Indirect data access: Data within each microservice can only be accessed externally through predefined interfaces  or be notified about state changes through events
+> The functional scope is intentionally limited (only create and read — no update or delete). The primary goal is to demonstrate architectural concepts, not to build a full-fledged business application.
 
-4.2 All-or-nothing Atomicity
+## 1.2 Quality Goals
 
-    "The business transactions must comply with all-or-nothing atomicity semantics." 
+| Priority | Quality Goal        | Description |
+|----------|---------------------|-------------|
+| 1        | **Learnability**    | The solution must be easy to understand for .NET developers who want to learn about microservices architecture, event-driven systems, DDD, CQRS, and event sourcing. |
+| 2        | **Demonstrability** | The system must be easy to run locally (Docker Compose) and on Kubernetes, so it can be used in conference talks and workshops. |
+| 3        | **Autonomy**        | Each service must be independently deployable and able to continue operating even when other services are temporarily unavailable. |
+| 4        | **Resilience**      | The system must handle transient failures gracefully using retry and circuit-breaker patterns. |
 
-4.3 Caching or Replication (three correctness semantics)
+## 1.3 Stakeholders
 
-    "(i) Eventual. Updates (price update or product delete) are processed independently, disregarding the order that they are generated at the source, i.e. Product."
+| Role/Name             | Expectations |
+|-----------------------|--------------|
+| **Conference audience**      | Understand microservices, DDD, CQRS, event sourcing, and container technologies from a working reference implementation. |
+| **Workshop participants**    | Be able to run the system locally, walk through the code, and experiment with changes. |
+| **.NET developers**          | Learn best-practice patterns for building event-driven microservice systems with .NET and ASP.NET Core. |
+| **DevOps engineers**         | Understand containerisation with Docker, orchestration with Kubernetes, and service-mesh capabilities (Istio, Linkerd). |
 
-    "(ii) Causality at the object level. Updates on the same product are processed sequentially in accordance with the order in which they were performed at the source."
 
-    "(iii) Causality across multiple objects. All updates made by the same seller must be applied to the cart in the same order they were applied at the source, achieving read-your-write consistency."
+| Constraint | Description |
+|------------|-------------|
+| **.NET / C#** | All services are implemented in .NET and C#. This keeps the solution accessible to the target audience (.NET developers) and enables shared libraries via NuGet. See [ADR-0002](../ADRs/0002-dotnet-as-implementation-platform.md). |
+| **Docker** | Every service and all infrastructure components run as Linux Docker containers. Docker Compose is the primary local orchestration tool. |
+| **SQL Server** | A single SQL Server instance is used as the database platform for all services. This is a deliberate simplification; production deployments would use separate instances. See [ADR-0007](../ADRs/0007-sql-server-as-single-database-platform.md). |
+| **RabbitMQ** | RabbitMQ is the sole message broker for all asynchronous inter-service communication. See [ADR-0003](../ADRs/0003-rabbitmq-as-message-broker.md). |
 
-4.4 State Safety Properties
+## 2.2 Organisational Constraints
 
-Inter-microservices Properties:
+| Constraint | Description |
+|------------|-------------|
+| **Educational purpose** | The solution is a reference implementation for conference talks and workshops. Architectural decisions prioritise demonstrability and clarity over production readiness. |
+| **Single developer** | The project is maintained by a single developer, which limits the breadth of technology choices and favours simplicity. |
+| **Open source** | The code is publicly available on GitHub. No proprietary dependencies or licences are used (except Seq, which has a free tier for development). |
 
-    "S#1: Cross-microservice referential integrity. Stock always references an existing product in Product."
+## 2.3 Conventions
 
-    "(i) Available System. A deleted product will eventually not be allowed to be reserved anymore. The transaction is considered committed after Product responds to the Delete Product request."
-
-    "(ii) Consistent System. Delete Product request is committed only when both Product and Stock have committed, therefore Product and Stock are always consistent with each other."
-
-    "S#2: No duplicate checkouts. The cart of a customer session must not be checked out more than once."
-
-Intra-microservice Properties:
-
-    "S#3: No overselling of items. The reserved quantity must never be higher than the available quantity."
-
-    "S#4: Maintenance of customer statistics. The system tracks successful and failed payments and deliveries through increments of numbers."
-
-    "S#5: Linearized product updates. Updates on each individual product's price or version in the Product state must be linearized."
-
-    "S#6: Concurrent Update Delivery transactions must execute in isolation."
-```
-
-non functional:
-
-```
-"(i) Ensuring all-or-nothing atomicity. The asynchronous and non-blocking nature of messages and the lack of interoperability across different data stores make distributed commit protocols difficult to implement..."
-
-    "(ii) Implementing efficient and consistent data processing. While data is scattered across microservices, some workloads require querying and joining data belonging to different microservices."
-
-    "(iii) Ensuring data replication correctness. In order to reduce the expenses associated with querying data from remote microservices, developers often resort to caching or replicating data by subscribing to events generated by other microservices. However, as these events can arrive in any order, developers face challenges in maintaining consistent replication."
-
-    "(iv) Enforcing cross-microservice data integrity constraints. As the application is functionally partitioned, data integrity constraints can span multiple microservices."
-
-    "(v) Ensuring correct event processing order. Developers leverage application-generated events to implement event-based microservice workflows. However, guaranteeing the correct processing order can be challenging due to the asynchronous nature of events. Events can arrive out of order, late, or even duplicated."
-```
+| Convention | Description |
+|------------|-------------|
+| **Per-service database** | Each service owns its data and accesses it through its own database schema. No shared databases between services (logical separation on a single SQL Server instance). |
+| **Asynchronous communication** | Services communicate exclusively through events via RabbitMQ. There are no synchronous service-to-service calls (only the WebApp calls APIs synchronously). |
+| **Infrastructure.Messaging abstraction** | All message-broker interaction goes through the `IMessagePublisher` / `IMessageHandler` interfaces. No service directly depends on `RabbitMQ.Client`. See [ADR-0009](../ADRs/0009-infrastructure-messaging-abstraction.md). |
 
 
 
