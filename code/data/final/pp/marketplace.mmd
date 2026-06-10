@@ -1,0 +1,59 @@
+graph TD
+    classDef actor fill:#f4e2d8,stroke:#c0785a,color:#000
+    classDef svc fill:#dce8f5,stroke:#4a7fb5,color:#000
+    classDef db fill:#e8f5e9,stroke:#388e3c,color:#000
+    classDef topic fill:#fff8e1,stroke:#e65100,color:#000
+    classDef gw fill:#ede7f6,stroke:#673ab7,color:#000
+
+    Seller([Seller]):::actor
+    Customer([Buyer]):::actor
+    GW[API Gateway]:::gw
+
+    subgraph microservices["Microservices"]
+        PS["Product Service"]:::svc
+        SS["Stock Service"]:::svc
+        CS["Cart Service"]:::svc
+        OS["Order Service"]:::svc
+        PMS["Payment Service"]:::svc
+        DS["Shipment Service"]:::svc
+        CUS["Customer Service"]:::svc
+    end
+
+    subgraph datastores["Private Data Stores  (Database-per-Service)"]
+        PDB[(Product DB)]:::db
+        SDB[(Stock DB)]:::db
+        CDB[("Cart DB")]:::db
+        PC[("Product Cache")]:::db
+        ODB[(Order DB)]:::db
+        PMDB[(Payment DB)]:::db
+        DDB[(Delivery DB)]:::db
+        CUDB[(Customer DB)]:::db
+    end
+
+    bus["Event Bus"]
+
+    %% ── Entry points ──────────────────────────────────────────────
+    Seller & Customer --> GW
+    GW --> PS & SS & CS & OS & CUS
+
+    %% ── Private DB bindings ───────────────────────────────────────
+    PS --- PDB
+    SS --- SDB
+    CS --- CDB
+    CS --- PC
+    OS --- ODB
+    PMS --- PMDB
+    DS --- DDB
+    CUS --- CUDB
+
+    %% ── Product propagation (4.3 replication correctness) ─────────
+    PS ----> bus
+    bus ----> CS
+
+    %% ── Checkout saga start ───────────────────────────────────────
+    bus ----> OS
+
+    bus ----> SS & PMS & DS
+
+    %% ── Saga reply events ─────────────────────────────────────────
+    bus ----> CUS

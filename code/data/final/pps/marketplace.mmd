@@ -1,0 +1,51 @@
+graph TB
+    Client([Buyer])
+    GW["API Gateway"]
+
+    subgraph BIZ["Business Services"]
+        PS[Product Service]
+        SS[Stock Service]
+        CS[Cart Service]
+        OS[Order Service]
+        PAY[Payment Service]
+        DEL[Delivery Service]
+        CUS[Customer Service]
+    end
+
+    subgraph EVT["Event Backbone"]
+        KAFKA[("Event Bus")]
+    end
+
+    subgraph INFRA["Infrastructure"]
+        REDIS[("Cache")]
+        TEMPORAL["Saga Orchestrator"]
+        DEBEZIUM["CDC"]
+        PSDB[(Product DBDB)]
+        SSDB[(Stock DB)]
+        CSDB[(Cart DB)]
+        OSDB[(Order DB)]
+        PAYDB[(Payment DB)]
+        DELDB[(Delivery DB)]
+        CUSDB[(Customer DB)]
+        MESH["Kubernetes"]
+    end
+
+    Client --> GW
+    GW --> PS & SS & CS & OS & PAY & DEL & CUS
+
+    PS & SS & CS & PAY & DEL -.->|"async events\n(Outbox → Debezium → Kafka)"| KAFKA
+    KAFKA -.->|subscriptions| SS & CS & CUS
+
+    OS --> TEMPORAL
+    TEMPORAL -->|"saga commands"| PS & SS & PAY & DEL
+
+    CS & SS --> REDIS
+    DEBEZIUM -->|CDC| KAFKA
+
+    PS --> PSDB
+    SS --> SSDB
+    CS --> CSDB
+    OS --> OSDB
+    PAY --> PAYDB
+    DEL --> DELDB
+    CUS --> CUSDB
