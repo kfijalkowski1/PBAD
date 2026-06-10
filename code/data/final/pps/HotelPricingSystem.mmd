@@ -1,0 +1,62 @@
+flowchart TD
+    subgraph ClientTier["Client Tier"]
+        SPA["Web Application"]
+    end
+
+    subgraph GatewayTier["Gateway Tier"]
+        APIGW["API Gateway"]
+    end
+
+    subgraph ServiceTier["Microservices  —  Java / Spring Boot  —  AWS EKS (Kubernetes)"]
+        AUTH["Authentication Service"]
+        PRICING["Price Management Service"]
+        QUERY["Price Query Service"]
+        HOTELRATE1["Hotel Management Service"]
+        HOTELRATE2["Rate Management Service"]
+        USERMGMT["User Identity Service"]
+        DIST["Distribution Service"]
+    end
+
+    subgraph InfraTier["Infrastructure  —  AWS Managed Services"]
+        BROKER["Event Bus"]
+        CACHE["Redis Cache"]
+        PDB[("Price Database")]
+        HRDB1[("Hotel Database")]
+        HRDB2[("Rate Database")]
+        UMDB[("User Database")]
+        OBS["Observability Stack"]
+    end
+
+    subgraph ExternalSystems["External Systems"]
+        IDP["Cloud Identity Provider"]
+        PMS["Property Management System"]
+        CMS["Channel Management System"]
+        CAS["Commercial Analysis System"]
+    end
+
+    SPA        -->|HTTPS| APIGW
+    APIGW      --> AUTH
+    APIGW      --> PRICING
+    APIGW      --> QUERY
+    APIGW      --> HOTELRATE1
+    APIGW      --> HOTELRATE2
+    APIGW      --> USERMGMT
+
+    AUTH       -->|Validate credentials| IDP
+    USERMGMT   -->|Manage identities| IDP
+
+    PRICING    -->|Write + Outbox TX| PDB
+    PRICING    -->|Write-through| CACHE
+    PRICING    -->|Publish PriceChangedEvent| BROKER
+
+    QUERY      -->|Read| CACHE
+    QUERY      -->|Fallback| PDB
+
+    HOTELRATE1  --> HRDB1
+    HOTELRATE2  --> HRDB2
+    USERMGMT   --> UMDB
+
+    BROKER     -->|Consume events| DIST
+    DIST       -->|REST + retry + DLQ| PMS
+    DIST       -->|REST + retry + DLQ| CMS
+    DIST       -->|REST + retry + DLQ| CAS

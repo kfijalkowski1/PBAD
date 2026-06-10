@@ -1,0 +1,96 @@
+graph TD
+    %% External Actors
+    WebClient["Web Application"]
+    MobileClient["Mobile Application"]
+    Organizer["Event Organizer"]
+    Attendee["Event Attendee"]
+
+    %% External Systems
+    IdP["Identity Provider"]
+    PayGW["Payment Gateway"]
+    EmailSvc["Email Service"]
+    VenueSys["Venue Management System"]
+
+    subgraph "Event Ticket Booking System"
+
+        APIGW["API Gateway"]
+
+        AuthSvc["Authentication Service"]
+        UserSvc["User Service"]
+        EventSvc["Event Service"]
+        InventorySvc["Inventory Service"]
+        OrderSvc["Order Service"]
+        PaymentSvc["Payment Service"]
+        TicketSvc["Ticket Service"]
+        NotificationSvc["Notification Service"]
+        SearchSvc["Search Service"]
+
+        MQ["Message Queue"]
+        Cache["Cache"]
+
+        UserDB[("User Database")]
+        EventDB[("Event Database")]
+        InventoryDB[("Inventory Database")]
+        OrderDB[("Order Database")]
+        PaymentDB[("Payment Database")]
+        TicketDB[("Ticket Database")]
+        NotificationDB[("Notification Database")]
+        SearchIndex[("Search Index")]
+
+    end
+
+    %% Client to Gateway
+    Attendee --> WebClient
+    Attendee --> MobileClient
+    Organizer --> WebClient
+    WebClient -->|HTTPS| APIGW
+    MobileClient -->|HTTPS| APIGW
+
+    %% Gateway to Services
+    APIGW --> AuthSvc
+    APIGW --> UserSvc
+    APIGW --> EventSvc
+    APIGW --> InventorySvc
+    APIGW --> OrderSvc
+    APIGW --> PaymentSvc
+    APIGW --> TicketSvc
+    APIGW --> SearchSvc
+
+    %% Service to Database
+    AuthSvc --- UserDB
+    UserSvc --- UserDB
+    EventSvc --- EventDB
+    InventorySvc --- InventoryDB
+    OrderSvc --- OrderDB
+    PaymentSvc --- PaymentDB
+    TicketSvc --- TicketDB
+    NotificationSvc --- NotificationDB
+    SearchSvc --- SearchIndex
+
+    %% Services to Cache
+    AuthSvc --- Cache
+    UserSvc --- Cache
+    EventSvc --- Cache
+    InventorySvc --- Cache
+    OrderSvc --- Cache
+    PaymentSvc --- Cache
+    TicketSvc --- Cache
+
+    %% Services to Message Broker
+    InventorySvc -->|publishes| MQ
+    OrderSvc -->|publishes| MQ
+    PaymentSvc -->|publishes| MQ
+    TicketSvc -->|publishes| MQ
+    EventSvc -->|publishes| MQ
+    AuthSvc -->|publishes| MQ
+    MQ -->|consumes| NotificationSvc
+    MQ -->|consumes| SearchSvc
+    MQ -->|consumes| TicketSvc
+    MQ -->|consumes| OrderSvc
+    MQ -->|consumes| InventorySvc
+
+    %% External integrations
+    AuthSvc <-->|OAuth2 / OIDC| IdP
+    PaymentSvc <-->|Payment API| PayGW
+    NotificationSvc -->|SMTP / API| EmailSvc
+    EventSvc <-->|Venue Data API| VenueSys

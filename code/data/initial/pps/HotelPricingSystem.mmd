@@ -1,0 +1,59 @@
+flowchart TD
+
+    User[Web Application]
+    APIGW[API Gateway]
+
+    subgraph Write Path Critical under 100ms
+        CmdSvc[Pricing Management Service]
+        Cache[In-Memory Cache]
+        Outbox[Outbox Table]
+    end
+
+    subgraph Event Backbone
+        EventBus[Event Bus]
+    end
+
+    subgraph Read Path High Scale
+        ProjSvc[Pricing Projection Service]
+        QueryDB[Read Model DB]
+        CacheLayer[Distributed Cache]
+    end
+
+    subgraph Supporting Services
+        RateSvc[Rate Service]
+        HotelSvc[Hotel Management Service]
+        IdentitySvc[User Identity Service]
+        DistSvc[Distribution Service]
+    end
+
+    ExternalCMS[Property Management System]
+    ExternalPMS[Channel Management System]
+
+    %% User flow
+    User --> APIGW
+    APIGW --> CmdSvc
+    APIGW --> ProjSvc
+
+    %% Security
+    APIGW --> IdentitySvc
+
+    %% Write path optimization
+    CmdSvc --> Cache
+    Cache --> RateSvc
+    Cache --> HotelSvc
+
+    %% Event publishing
+    CmdSvc --> Outbox
+    Outbox --> EventBus
+
+    %% Event consumption
+    EventBus --> ProjSvc
+    EventBus --> DistSvc
+
+    %% Read path
+    ProjSvc --> QueryDB
+    QueryDB --> CacheLayer
+    CacheLayer --> APIGW
+
+    %% External integration
+    DistSvc --> External

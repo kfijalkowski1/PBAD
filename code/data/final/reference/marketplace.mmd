@@ -1,0 +1,31 @@
+flowchart LR
+
+    buyer["Buyer"]
+    seller_person["Seller"]
+
+    subgraph system["Marketplace"]
+        cart["Cart Service"]
+        product["Product Service"]
+        stock["Stock Service"]
+        order["Order Service"]
+        payment["Payment Service"]
+        seller["Seller Service"]
+        customer["Customer Service"]
+        shipment["Shipment Service"]
+
+        bus["Event Bus"]
+    end
+
+    buyer <--> cart
+    seller_person <--> product
+    seller_person <--> seller
+    seller_person <--> shipment
+
+    product <--> bus
+    bus <--> cart
+    stock <--> bus
+    order <--> bus
+    payment <--> bus
+    shipment <--> bus
+    bus <--> seller
+    bus <--> customer

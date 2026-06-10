@@ -1,0 +1,18 @@
+[submodule "submodules/HotelPricingSystem"]
+	path = submodules/HotelPricingSystem
+	url = git@github.com:tjlcast/HotelPricingSystem.git
+[submodule "submodules/train-ticket"]
+	path = submodules/train-ticket
+	url = git@github.com:FudanSELab/train-ticket.git
+[submodule "submodules/eShop"]
+	path = submodules/eShop
+	url = git@github.com:dotnet/eShop.git
+[submodule "submodules/pitstop"]
+	path = submodules/pitstop
+	url = git@github.com:EdwinVW/pitstop.git
+[submodule "submodules/spring-petclinic-microservices"]
+	path = submodules/spring-petclinic-microservices
+	url = git@github.com:spring-petclinic/spring-petclinic-microservices.git
+[submodule "submodules/EventTicketSystem"]
+	path = submodules/EventTicketSystem
+	url = git@github.com:otrebmuh/EventTicketSystem.git

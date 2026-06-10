@@ -1,0 +1,47 @@
+graph TB
+    subgraph Clients["Client Layer"]
+        WebSPA["Web Application"]
+        Mobile["Mobile Application"]
+    end
+
+    subgraph Ingress["Ingress Layer"]
+        LB["Load Balancer"]
+        APIGW["API Gateway"]
+    end
+
+    subgraph Services["Core Services"]
+        Identity["Identity API"]
+        Catalog["Catalog API"]
+        Basket["Basket API"]
+        Order["Order API"]
+    end
+
+    subgraph Messaging["Async Messaging"]
+        MQ[("Event Bus")]
+    end
+
+    subgraph Async["Async Services"]
+        Payment["Payment Processor"]
+        Notif["Notification Service"]
+    end
+
+    subgraph Data["Data Layer (per-service)"]
+        IdentityDB[("Identity DB")]
+        CatalogDB[("Catalog DB")]
+        BasketCache[("Redis")]
+        OrderDB[("Order DB")]
+        PaymentDB[("Payment DB")]
+    end
+
+    Observability["Observability Stack"]
+
+    WebSPA & Mobile --> LB --> APIGW
+    APIGW --> Identity & Catalog & Basket & Order
+    Basket & Order --> MQ
+    MQ --> Payment & Notif
+    Identity --> IdentityDB
+    Catalog --> CatalogDB
+    Basket --> BasketCache
+    Order --> OrderDB
+    Payment --> PaymentDB
+    Services --> Observability

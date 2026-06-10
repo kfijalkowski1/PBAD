@@ -1,0 +1,63 @@
+flowchart LR
+
+    customer["Buyer"]
+    seller["Seller"]
+
+    paymentGateway["Payment Gateway"]
+    deliveryProvider["Delivery Service"]
+
+    subgraph system["Marketplace Platform"]
+        webApp["Web Application"]
+        apiGateway["API Gateway"]
+        messageBroker["Event Bus"]
+
+        productService["Product Service"]
+        productDb["Product DB"]
+
+        inventoryService["Inventory Service"]
+        inventoryDb["Inventory DB"]
+
+        cartService["Cart Service"]
+        cartDb["Cart DB"]
+
+        orderService["Order Service"]
+        orderDb["Order DB"]
+
+        paymentService["Payment Service"]
+        paymentDb["Payment DB"]
+
+        deliveryService["Shipment Service"]
+        deliveryDb["Shipment DB"]
+
+        customerService["Customer Service"]
+        customerDb["Customer DB"]
+    end
+
+    customer <--> webApp
+    seller <--> webApp
+    webApp <--> apiGateway
+
+    apiGateway <--> productService
+    apiGateway <--> inventoryService
+    apiGateway <--> cartService
+    apiGateway <--> orderService
+    apiGateway <--> customerService
+
+    productService <--> productDb
+    inventoryService <--> inventoryDb
+    cartService <--> cartDb
+    orderService <--> orderDb
+    paymentService <--> paymentDb
+    deliveryService <--> deliveryDb
+    customerService <--> customerDb
+
+    productService <--> messageBroker
+    inventoryService <--> messageBroker
+    cartService <--> messageBroker
+    orderService <--> messageBroker
+    paymentService <--> messageBroker
+    deliveryService <--> messageBroker
+    customerService <--> messageBroker
+
+    paymentService <--> paymentGateway
+    deliveryService <--> deliveryProvider

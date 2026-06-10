@@ -1,0 +1,77 @@
+flowchart TD
+    %% External systems and users
+    User([Commercial User])
+    Admin([Administrator])
+    PMS([Property Management System])
+    CMS([Channel Management System])
+    CAS([Commercial Analysis System])
+    IdS([User Identity Service])
+    Other([Other Systems])
+
+    %% Frontend applications
+    WebApp[Web Application]
+    AdminPortal[Admin Portal]
+
+    %% API Gateway
+    APIGateway[API Gateway]
+
+    %% Backend services
+    AuthService[Authentication Service]
+    HotelService[Hotel Management Service]
+    RateService[Rate Management Service]
+    PriceService[Price Management Service]
+    QueryService[Price Query Service]
+
+    %% Event Bus
+    EventBus[Event Bus]
+
+    %% Databases
+    HotelDB[(Hotel Database)]
+    RateDB[(Rate Database)]
+    PriceDB[(Price Database)]
+    QueryDB[(Query Database)]
+
+    %% User interactions
+    User -->|Uses| WebApp
+    Admin -->|Uses| AdminPortal
+
+    %% Frontend to API Gateway
+    WebApp -->|HTTPS| APIGateway
+    AdminPortal -->|HTTPS| APIGateway
+
+    %% External systems to API Gateway
+    PMS -->|REST| APIGateway
+    CMS -->|REST| APIGateway
+    CAS -->|REST| APIGateway
+    Other -->|REST| APIGateway
+
+    %% API Gateway to Services
+    APIGateway -->|REST| AuthService
+    APIGateway -->|REST| HotelService
+    APIGateway -->|REST| RateService
+    APIGateway -->|REST| PriceService
+    APIGateway -->|REST| QueryService
+
+    %% Authentication
+    AuthService -->|OAuth2/OIDC| IdS
+
+    %% Services to Databases
+    HotelService -->|JDBC| HotelDB
+    RateService -->|JDBC| RateDB
+    PriceService -->|JDBC| PriceDB
+    QueryService -->|JDBC| QueryDB
+
+    %% Event-driven communication
+    HotelService -->|Publish| EventBus
+    RateService -->|Publish| EventBus
+    PriceService -->|Publish| EventBus
+
+    EventBus -->|Subscribe| PriceService
+    EventBus -->|Subscribe| QueryService
+
+    %% Service-to-Service communication (when needed)
+    PriceService -->|REST| QueryService
+    HotelService -->|REST| RateService
+
+    %% Publication to external systems
+    PriceService -->|REST| CMS

@@ -1,0 +1,67 @@
+flowchart TD
+    GarageEmployee([User])
+    MailDev([Test Mail Server])
+
+    subgraph Pitstop["Pitstop Garage Management System"]
+
+        WebApp["Web Application"]
+
+        CustomerAPI["Customer Management API"]
+        VehicleAPI["Vehicle Management API"]
+        WorkshopAPI["Workshop Management API"]
+
+        MQ["Message Queue"]
+
+        WMEH["Workshop Management Event Handler"]
+        NotificationSvc["Notification Service"]
+        InvoiceSvc["Invoice Service"]
+        TimeSvc["Time Service"]
+        AuditSvc["Auditlog Service"]
+
+        CustomerDB[("Customer Database")]
+        VehicleDB[("Vehicle Database")]
+        WorkshopEventStore[("Workshop Event Handler Database")]
+        WorkshopReadDB[("Workshop Database")]
+        NotificationDB[("Notification Database")]
+        InvoiceDB[("Invoice Database")]
+        AuditDB[("Auditlog Database")]
+
+        Seq["Logging Service"]
+    end
+
+    GarageEmployee -- HTTP/Browser --> WebApp
+    WebApp -- HTTP/REST --> CustomerAPI
+    WebApp -- HTTP/REST --> VehicleAPI
+    WebApp -- HTTP/REST --> WorkshopAPI
+
+    CustomerAPI -- AMQP --> MQ
+    VehicleAPI -- AMQP --> MQ
+    WorkshopAPI -- AMQP --> MQ
+    TimeSvc -- AMQP --> MQ
+
+    MQ -- AMQP --> WMEH
+    MQ -- AMQP --> NotificationSvc
+    MQ -- AMQP --> InvoiceSvc
+    MQ -- AMQP --> AuditSvc
+
+    CustomerAPI --- CustomerDB
+    VehicleAPI --- VehicleDB
+    WorkshopAPI --- WorkshopEventStore
+    WMEH --- WorkshopReadDB
+    WorkshopAPI --- WorkshopReadDB
+    NotificationSvc --- NotificationDB
+    InvoiceSvc --- InvoiceDB
+    AuditSvc --- AuditDB
+
+    NotificationSvc -- SMTP --> MailDev
+    InvoiceSvc -- SMTP --> MailDev
+
+    CustomerAPI -. HTTP .-> Seq
+    VehicleAPI -. HTTP .-> Seq
+    WorkshopAPI -. HTTP .-> Seq
+    WMEH -. HTTP .-> Seq
+    NotificationSvc -. HTTP .-> Seq
+    InvoiceSvc -. HTTP .-> Seq
+    AuditSvc -. HTTP .-> Seq
+    TimeSvc -. HTTP .-> Seq
+    WebApp -. HTTP .-> Seq

@@ -1,0 +1,34 @@
+Opis ADD dla LLMa zapisany w pliku ArchitectureDrivenDesign.md
+
+----------
+
+Proces zgodnie z Figure 6 a następnie w pętli ADD, wersja "No DDD":
+
+1. Software Architect Persona wzięty z PPS:
+From now on, you are Neo in the role of an experienced software architect. Your main goal is to ensure the reliability, performance, and maintainability of the software for which you are responsible. You have experience designing scalable and secure systems. You cannot under any circumstances resolve doubts and questions that involve other topics or subjects that are not Software Architecture, such as code implementation, so respond that it is not your persona's responsibility. Your responsibility will be to follow the Attribute Driven Design technique described in the ArchitectureDrivenDesign.md file. The final architecture has to be based on microservices.
+
+Please review the Architectural Drivers in the requirements below, and ensure that the requirements are consistent and that you understand the priorities.
+
+## wymagania
+
+3. Domain model:
+Consider the Architectural Drivers and create a domain model for the system using DDD. Create this domain model in a DomainModel.md document. Represent the domain model using a class diagram using mermaid format. Include a table that describes each element of the domain model.
+
+4. Architecture document:
+Create an skeleton of the architecture document, the structure of the document is as follows and inside there are instructions of what you should include for this initial version:
+1. - Introduction - create a description of the document
+2. - Context diagram - include the context diagram from the ArchitecturalDrivers.md document. Include a paragraph at the beginning that describes what this diagram shows.
+3. - Architectural drivers - include a summary of the drivers described in ArchitecturalDrivers.md, including their priorities. You should separate user stories, quality attribute scenarios, concerns and constraints in separate tables.
+4. - Domain model - include the domain model you created in DomainModel.md
+5. - Container diagram - this section contains the main container diagram, according to the C4 approach. Containers include high-level applications or data stores that run within your system, including frontends, databases, message queues, web applications microservices. Create an empty diagram, include a paragraph at the beginning that describes what this diagram is. This section should also include a table with the name of the container and its responsibilities.
+6. - Component diagrams - only include a paragraph that explains that for each container from the previous section that we will develop, we will include a subsection with a component diagram that will detail the internal design of the container. Each component diagram should have an associated table with the name of the components and their responsibilities. Don't include anything else in the document right now.
+7. - Sequence diagrams - for each use case or quality attribute scenario we will create a sequence diagram. Create a subsection for each of the use case and quality attribute scenario drivers that are mentioned in a file called IterationPlan.md. Include empty sequence diagrams for the moment being.
+8. - Interfaces - this section will include details about contracts, leave empty for the moment being.  9. - Design decisions - this section describes the relevant design decisions that resulted in this design.  The section should only include an empty table with the columns driver, decision, rationale and discarded alternative.
+
+5. Wejście w pętlę ADD:
+Lets proceed with the design using ADD as described in AttributeDrivenDesign.md. Consider the IterationPlan.md, the DomainModel.md and the requirements ArchitecturalDrivers.md considered to be the goal of this iteration. Create a document for the iteration named Iteration1.md. When the ADD process mentions changes in the iteration document, it is referring to this file you just created. When it mentions changes in the Architecture document, it is referring to Architecture.md. We will go step by step in the ADD process. At the end of each step you will pause and wait for me to review and confirm we can continue.
+
+6. proceed to step n i tak w kółko
+
+7. let's proceed with the next iteration
+w paperze opisującym tą metodę wykonano 4 iteracje
