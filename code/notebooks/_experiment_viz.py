@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
+import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import pandas as pd
 import seaborn as sns
 from IPython.display import Markdown, display
@@ -217,6 +219,7 @@ def _apply_x_tick_layout(ax: plt.Axes, labels: pd.Series | list[str]) -> None:
 
 def _apply_y_grid(ax: plt.Axes) -> None:
     ax.minorticks_on()
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
     ax.grid(which="major", axis="y", linestyle="-", linewidth=0.6, alpha=0.6)
     ax.grid(which="minor", axis="y", linestyle=":", linewidth=0.4, alpha=0.35)
     ax.set_axisbelow(True)
@@ -462,6 +465,107 @@ def show_results_table(table: pd.DataFrame, caption: str) -> None:
     print(latex)
 
 
+COMPARISON_METRICS: list[str] = [
+    "average_change_impact",
+    "dep_avg",
+    "node_precision",
+    "node_recall",
+    "node_f1",
+    "edge_precision",
+    "edge_recall",
+    "edge_f1",
+]
+
+
+def _comparison_metric_label(metric: str, short_labels: dict[str, str]) -> str:
+    if metric in short_labels:
+        return short_labels[metric]
+    base = format_label(metric, "metric", short_labels)
+    if metric.startswith("node_"):
+        return f"Node {base.title() if base.isupper() else base}"
+    if metric.startswith("edge_"):
+        return f"Edge {base.title() if base.isupper() else base}"
+    return format_label(metric, "metric", short_labels)
+
+
+def mean_by_group_table(
+    df: pd.DataFrame,
+    metrics: list[str],
+    group_by: GroupBy,
+    short_labels: dict[str, str],
+) -> pd.DataFrame:
+    group_col = "method" if group_by == "method" else "app"
+    label_col = f"{group_col}_label"
+    kind: Literal["method", "app"] = group_by
+
+    means = df.groupby(group_col, as_index=False)[metrics].mean()
+    means[label_col] = means[group_col].map(
+        lambda value: format_label(str(value), kind, short_labels)
+    )
+    out = means[[label_col, *metrics]].copy()
+    out = out.rename(
+        columns={
+            label_col: kind.title(),
+            **{
+                metric: _comparison_metric_label(metric, short_labels)
+                for metric in metrics
+            },
+        }
+    )
+    return out.round(3)
+
+
+def plot_mean_comparison(
+    df: pd.DataFrame,
+    metrics: list[str],
+    group_by: GroupBy,
+    short_labels: dict[str, str],
+) -> None:
+    table = mean_by_group_table(df, metrics, group_by, short_labels)
+    label_col = "Method" if group_by == "method" else "App"
+    plot_df = table.melt(
+        id_vars=[label_col],
+        var_name="metric_label",
+        value_name="value",
+    )
+    capped_scores = all(_is_score_metric(metric) for metric in metrics)
+    fig, ax = plt.subplots(figsize=FIGURE_SIZE)
+    sns.barplot(
+        data=plot_df,
+        x=label_col,
+        y="value",
+        hue="metric_label",
+        ax=ax,
+    )
+    x_title = label_col
+    ax.set_ylabel("Score" if capped_scores else "Value", fontsize=AXIS_LABEL_SIZE)
+    if capped_scores:
+        ax.set_ylim(0, 1)
+    _decorate_axes(ax, capped_scores)
+    _finalize_single_axes(fig, ax, plot_df[label_col].unique(), x_title)
+    plt.show()
+
+
+def render_comparison_summary(
+    df: pd.DataFrame,
+    short_labels: dict[str, str],
+) -> None:
+    display(Markdown("## Comparison Summary (Mean over Apps / Methods)"))
+
+    for group_by in ("method", "app"):
+        if group_by == "method":
+            heading = "### By Method — mean over apps"
+            caption = "Comparison — By Method (Mean over Apps)"
+        else:
+            heading = "### By App — mean over methods"
+            caption = "Comparison — By App (Mean over Methods)"
+
+        display(Markdown(heading))
+        plot_mean_comparison(df, COMPARISON_METRICS, group_by, short_labels)
+        table = mean_by_group_table(df, COMPARISON_METRICS, group_by, short_labels)
+        show_results_table(table, caption)
+
+
 def render_section(
     df: pd.DataFrame,
     section: MetricSection,
@@ -487,3 +591,305 @@ def all_required_metrics(sections: list[MetricSection]) -> list[str]:
         for metric in section["metrics"]:
             seen[metric] = None
     return list(seen.keys())
+
+
+class PresentationMetric(TypedDict):
+    metric: str
+    ylabel: str
+    slug: str
+    italic_ylabel: NotRequired[bool]
+
+
+PRESENTATION_METRICS: list[PresentationMetric] = [
+    {
+        "metric": "average_change_impact",
+        "ylabel": "Change Impact",
+        "slug": "change_impact",
+        "italic_ylabel": True,
+    },
+    {
+        "metric": "dep_avg",
+        "ylabel": "Maintainability Index",
+        "slug": "maintainability_index",
+        "italic_ylabel": True,
+    },
+    {"metric": "node_f1", "ylabel": "F1 (usługi)", "slug": "node_f1"},
+    {"metric": "edge_f1", "ylabel": "F1 (krawędzie)", "slug": "edge_f1"},
+]
+
+PRES_WIDTH_METHOD = 3.2
+PRES_WIDTH_APP = 12.0
+PRES_HEIGHT = 4.2
+PRES_DPI = 200
+PRES_XLABEL_APP = "Aplikacja"
+PRES_XLABEL_METHOD = "Metoda"
+PRES_BAR_LABEL_SIZE = 10
+PRES_MARGIN_LEFT = 0.14
+PRES_MARGIN_BOTTOM = 0.18
+PRES_MARGIN_TOP = 0.92
+PRES_MARGIN_RIGHT = 0.94
+PRES_MARGIN_RIGHT_LEGEND = 0.78
+PRES_LABEL_PAD_FRACTION = 0.12
+PRES_LABEL_PAD_MIN = 0.03
+VERDANA_FONT_DIR = Path("/usr/share/fonts/truetype/msttcorefonts")
+
+
+def _register_verdana_fonts() -> None:
+    if not VERDANA_FONT_DIR.is_dir():
+        return
+    for filename in (
+        "Verdana.ttf",
+        "Verdana_Italic.ttf",
+        "verdana.ttf",
+        "verdanai.ttf",
+    ):
+        font_path = VERDANA_FONT_DIR / filename
+        if font_path.is_file():
+            fm.fontManager.addfont(str(font_path))
+
+
+def setup_presentation_style() -> None:
+    _register_verdana_fonts()
+    sns.set_theme(style="whitegrid", context="talk")
+    sns.set_palette("Set2")
+    plt.rcParams.update(
+        {
+            "font.family": "Verdana",
+            "font.size": 11,
+            "axes.labelsize": 12,
+            "axes.titlesize": 12,
+            "xtick.labelsize": 11,
+            "ytick.labelsize": 11,
+            "legend.fontsize": 10,
+        }
+    )
+
+
+def _set_presentation_ylabel(ax: plt.Axes, ylabel: str, *, italic: bool = False) -> None:
+    ax.set_ylabel(ylabel, fontstyle="italic" if italic else "normal")
+
+
+def _label_bars_exact(ax: plt.Axes, fmt: str = "%.3f") -> None:
+    for container in ax.containers:
+        ax.bar_label(
+            container,
+            fmt=fmt,
+            padding=3,
+            fontsize=PRES_BAR_LABEL_SIZE,
+        )
+
+
+def _expand_presentation_ylim(ax: plt.Axes, capped_scores: bool) -> None:
+    ymin, _ = ax.get_ylim()
+    if capped_scores:
+        ymin = 0.0
+
+    fig = ax.figure
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    content_top = ymin
+    for container in ax.containers:
+        for patch in container:
+            top = patch.get_xy()[1] + patch.get_height()
+            content_top = max(content_top, top)
+
+    label_top = content_top
+    for text in ax.texts:
+        bbox = text.get_window_extent(renderer=renderer)
+        label_top = max(label_top, bbox.transformed(ax.transData.inverted()).y1)
+
+    if label_top <= ymin:
+        ax.set_ylim(ymin, ymin + 1.0)
+        return
+
+    span = label_top - ymin
+    pad = max(span * PRES_LABEL_PAD_FRACTION, PRES_LABEL_PAD_MIN)
+    new_ymax = label_top + pad
+    if capped_scores and content_top > 0.85:
+        new_ymax = max(new_ymax, 1.08)
+
+    ax.set_ylim(ymin, new_ymax)
+    ax.minorticks_on()
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
+
+
+def _decorate_presentation_axes(ax: plt.Axes, capped_scores: bool) -> None:
+    _apply_y_grid(ax)
+    _label_bars_exact(ax)
+    _expand_presentation_ylim(ax, capped_scores)
+    sns.despine(trim=True)
+
+
+def _finalize_presentation_layout(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    *,
+    legend_right: bool = False,
+) -> None:
+    for label in ax.get_xticklabels():
+        label.set_rotation(0)
+        label.set_ha("center")
+    if legend_right:
+        _move_legend_right(ax)
+    fig.subplots_adjust(
+        left=PRES_MARGIN_LEFT,
+        bottom=PRES_MARGIN_BOTTOM,
+        top=PRES_MARGIN_TOP,
+        right=PRES_MARGIN_RIGHT_LEGEND if legend_right else PRES_MARGIN_RIGHT,
+    )
+
+
+def _save_presentation_figure(fig: plt.Figure, base_path: Path) -> list[Path]:
+    saved: list[Path] = []
+    for ext in (".png", ".pdf"):
+        out = base_path.with_suffix(ext)
+        fig.savefig(out, bbox_inches="tight", dpi=PRES_DPI)
+        saved.append(out)
+    plt.close(fig)
+    return saved
+
+
+def plot_presentation_by_app(
+    df: pd.DataFrame,
+    metric: str,
+    ylabel: str,
+    short_labels: dict[str, str],
+    save_base: Path | None = None,
+    *,
+    italic_ylabel: bool = False,
+) -> None:
+    if metric not in df.columns:
+        raise KeyError(f"Metric {metric!r} not in dataframe")
+
+    labeled = apply_labels(df, short_labels)
+    plot_df = labeled[["app_label", "method_label", metric]].rename(
+        columns={metric: "value"}
+    )
+    capped_scores = _is_score_metric(metric)
+
+    fig, ax = plt.subplots(figsize=(PRES_WIDTH_APP, PRES_HEIGHT))
+    sns.barplot(
+        data=plot_df,
+        x="app_label",
+        y="value",
+        hue="method_label",
+        palette="Set2",
+        ax=ax,
+    )
+    _set_presentation_ylabel(ax, ylabel, italic=italic_ylabel)
+    ax.set_xlabel(PRES_XLABEL_APP, labelpad=4)
+    _decorate_presentation_axes(ax, capped_scores)
+    _finalize_presentation_layout(fig, ax, legend_right=True)
+
+    if save_base is not None:
+        _save_presentation_figure(fig, save_base)
+    else:
+        plt.show()
+
+
+def plot_presentation_by_method_mean(
+    df: pd.DataFrame,
+    metric: str,
+    ylabel: str,
+    short_labels: dict[str, str],
+    save_base: Path | None = None,
+    *,
+    italic_ylabel: bool = False,
+) -> None:
+    if metric not in df.columns:
+        raise KeyError(f"Metric {metric!r} not in dataframe")
+
+    means = df.groupby("method", as_index=False)[metric].mean()
+    means["method_label"] = means["method"].map(
+        lambda value: format_label(str(value), "method", short_labels)
+    )
+    plot_df = means.rename(columns={metric: "value"})
+    capped_scores = _is_score_metric(metric)
+    n_methods = len(plot_df)
+    palette = sns.color_palette("Set2", n_colors=n_methods)
+
+    fig, ax = plt.subplots(figsize=(PRES_WIDTH_METHOD, PRES_HEIGHT))
+    sns.barplot(
+        data=plot_df,
+        x="method_label",
+        y="value",
+        hue="method_label",
+        palette=palette,
+        dodge=False,
+        legend=False,
+        ax=ax,
+    )
+    _set_presentation_ylabel(ax, ylabel, italic=italic_ylabel)
+    ax.set_xlabel(PRES_XLABEL_METHOD, labelpad=4)
+    _decorate_presentation_axes(ax, capped_scores)
+    _finalize_presentation_layout(fig, ax)
+
+    if save_base is not None:
+        _save_presentation_figure(fig, save_base)
+    else:
+        plt.show()
+
+
+def _presentation_italic_ylabel(spec: PresentationMetric) -> bool:
+    return bool(spec.get("italic_ylabel", False))
+
+
+def render_presentation_charts(
+    df: pd.DataFrame,
+    short_labels: dict[str, str],
+) -> None:
+    for spec in PRESENTATION_METRICS:
+        metric = spec["metric"]
+        ylabel = spec["ylabel"]
+        italic = _presentation_italic_ylabel(spec)
+        display(Markdown(f"### {ylabel} — by app"))
+        plot_presentation_by_app(
+            df, metric, ylabel, short_labels, italic_ylabel=italic
+        )
+        display(Markdown(f"### {ylabel} — by method (mean over apps)"))
+        plot_presentation_by_method_mean(
+            df, metric, ylabel, short_labels, italic_ylabel=italic
+        )
+
+
+def export_presentation_charts(
+    df: pd.DataFrame,
+    short_labels: dict[str, str],
+    output_dir: Path,
+) -> list[Path]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    saved: list[Path] = []
+    for spec in PRESENTATION_METRICS:
+        metric = spec["metric"]
+        ylabel = spec["ylabel"]
+        slug = spec["slug"]
+        italic = _presentation_italic_ylabel(spec)
+
+        by_app_base = output_dir / f"{slug}_by_app"
+        plot_presentation_by_app(
+            df,
+            metric,
+            ylabel,
+            short_labels,
+            save_base=by_app_base,
+            italic_ylabel=italic,
+        )
+        saved.extend([by_app_base.with_suffix(ext) for ext in (".png", ".pdf")])
+
+        by_method_base = output_dir / f"{slug}_by_method_mean"
+        plot_presentation_by_method_mean(
+            df,
+            metric,
+            ylabel,
+            short_labels,
+            save_base=by_method_base,
+            italic_ylabel=italic,
+        )
+        saved.extend([by_method_base.with_suffix(ext) for ext in (".png", ".pdf")])
+
+    return saved
+
+
+def presentation_required_metrics() -> list[str]:
+    return [spec["metric"] for spec in PRESENTATION_METRICS]
