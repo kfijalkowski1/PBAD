@@ -1,0 +1,5 @@
+Warning: IPython is not installed. Mermaidjs magic function is not available.
+{
+  "dep_avg": 1.75,
+  "average_change_impact": 0.24107142857142858
+}

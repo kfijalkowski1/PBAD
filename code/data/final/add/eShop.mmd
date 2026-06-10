@@ -1,0 +1,44 @@
+flowchart LR
+
+    subgraph Clients["Client Apps"]
+        webMvc["Web Application"]
+        mobileApp["Mobile Application"]
+        adminApp["Admin Web Application"]
+    end
+
+    subgraph Cloud["eShop System"]
+        apiGateway["API Gateway"]
+        catalogApi["Catalog API"]
+        catalogDb[("Catalog DB")]
+        basketApi["Basket API"]
+        basketCache[("Redis")]
+        orderingApi["Ordering API"]
+        orderingDb[("Ordering DB")]
+        identityApi["Identity API"]
+        identityDb[("Identity DB")]
+        messageBus["Event Bus"]
+    end
+
+    emailSystem["Email Service"]
+    paymentGateway["Payment Processor"]
+
+    webMvc <--> apiGateway
+    mobileApp <--> apiGateway
+    adminApp <--> apiGateway
+
+    apiGateway <--> catalogApi
+    apiGateway <--> basketApi
+    apiGateway <--> orderingApi
+    apiGateway <--> identityApi
+
+    catalogApi <--> catalogDb
+    basketApi <--> basketCache
+    orderingApi <--> orderingDb
+    identityApi <--> identityDb
+
+    basketApi <--> messageBus
+    orderingApi <--> messageBus
+    catalogApi <--> messageBus
+
+    orderingApi <--> paymentGateway
+    orderingApi <--> emailSystem

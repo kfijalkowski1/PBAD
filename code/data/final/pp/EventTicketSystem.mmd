@@ -1,0 +1,115 @@
+graph TB
+    classDef client  fill:#2E79B5,stroke:#1a5a8a,color:#fff
+    classDef gateway fill:#C06028,stroke:#8a4018,color:#fff
+    classDef service fill:#1F8A65,stroke:#145c43,color:#fff
+    classDef infra   fill:#7B64B8,stroke:#5a469a,color:#fff
+    classDef db      fill:#4a4a4a,stroke:#2a2a2a,color:#ddd
+    classDef ext     fill:#8888A8,stroke:#606080,color:#fff
+
+    subgraph CLIENT["Client Layer"]
+        Web["Web Application"]:::client
+        Mobile["Mobile Application"]:::client
+    end
+
+    GW["API Gateway"]:::gateway
+
+    subgraph SERVICES["Microservices"]
+        Auth["Authentication Service"]:::service
+        User["User Service"]:::service
+        Event["Event Service"]:::service
+        Search["Search Service"]:::service
+        Inv["Inventory Service"]:::service
+        Order["Order Service"]:::service
+        Pay["Payment Service"]:::service
+        Ticket["Ticket Service"]:::service
+        Deliver["Delivery Service"]:::service
+        Notif["Notification Service"]:::service
+    end
+
+    Cache[("Cache")]:::infra
+    MQ[["Message Queue"]]:::infra
+
+    subgraph DATA["Data Stores  —  one DB per service"]
+        UDB[("User Database")]:::db
+        EDB[("Event Database")]:::db
+        IDB[("Inventory Database")]:::db
+        ODB[("Order Database")]:::db
+        PDB[("Payment Database")]:::db
+        TDB[("Ticket Database")]:::db
+        DDB[("Delivery Database")]:::db
+        SIdx[("Search Index")]:::db
+    end
+
+    subgraph EXT["External Services"]
+        IdP["Identity Provider"]:::ext
+        PGW["Payment Gateway"]:::ext
+        Email["Email Service"]:::ext
+        Push["Mobile Push Service"]:::ext
+        Venue["Venue Management System"]:::ext
+    end
+
+    %% ── Clients → Gateway ──────────────────────────────
+    Web    --> GW
+    Mobile --> GW
+
+    %% ── Gateway → Services (REST/HTTP) ─────────────────
+    GW --> Auth & User & Event & Inv & Order & Pay & Ticket & Deliver & Search & Notif
+
+    %% ── Auth Domain ────────────────────────────────────
+    Auth --> IdP
+    Auth --> User
+    Auth --> Cache
+
+    %% ── User Domain ────────────────────────────────────
+    User --> UDB
+    User --> Cache
+
+    %% ── Event Domain ───────────────────────────────────
+    Event --> EDB
+    Event --> Cache
+    Event --> Venue
+    Event --> Search
+
+    %% ── Inventory Domain ───────────────────────────────
+    Inv --> IDB
+    Inv --> Cache
+    Inv --> Event
+    Inv --> MQ
+
+    %% ── Order Domain ───────────────────────────────────
+    Order --> ODB
+    Order --> Inv
+    Order --> Pay
+    Order --> MQ
+
+    %% ── Payment Domain ─────────────────────────────────
+    Pay --> PDB
+    Pay --> Cache
+    Pay --> PGW
+    Pay --> MQ
+
+    %% ── Ticket Domain ──────────────────────────────────
+    Ticket --> TDB
+    Ticket --> Cache
+    Ticket --> MQ
+
+    %% ── Delivery Domain ────────────────────────────────
+    Deliver --> DDB
+    Deliver --> Cache
+    Deliver --> Email
+    Deliver --> Push
+    Deliver --> MQ
+
+    %% ── Search Domain ──────────────────────────────────
+    Search --> SIdx
+
+    %% ── Notification Domain ────────────────────────────
+    Notif --> Email
+    Notif --> Push
+
+    %% ── Async events (dashed = MQ consumer) ────────────
+    MQ -.->|PaymentProcessed| Ticket
+    MQ -.->|TicketGenerated| Deliver
+    MQ -.->|DeliveryCompleted| Notif
+    MQ -.->|InventoryUpdated| Search
+    MQ -.->|OrderFailed| Inv

@@ -1,0 +1,42 @@
+flowchart LR
+
+    subgraph Clients["Client Apps"]
+        web_mvc["Web Application"]
+        mobile["Mobile Application"]
+    end
+
+    subgraph Cloud["eShop System"]
+        api_gw["API Gateway"]
+
+        identity_svc["Identity API"]
+        catalog_svc["Catalog API"]
+        basket_svc["Basket API"]
+        ordering_svc["Ordering API"]
+        notification_svc["Notification Service"]
+
+        broker["Event Bus"]
+
+        identity_db[("Identity DB")]
+        catalog_db[("Catalog DB")]
+        catalog_cache[("Catalog Cache")]
+        basket_cache[("Redis")]
+        order_db[("Ordering DB")]
+    end
+
+    web_mvc <--> api_gw
+    mobile <--> api_gw
+
+    api_gw <--> identity_svc
+    api_gw <--> catalog_svc
+    api_gw <--> basket_svc
+    api_gw <--> ordering_svc
+
+    basket_svc <--> broker
+    ordering_svc <--> broker
+    broker <--> notification_svc
+
+    identity_svc <--> identity_db
+    catalog_svc <--> catalog_db
+    catalog_svc <--> catalog_cache
+    basket_svc <--> basket_cache
+    ordering_svc <--> order_db

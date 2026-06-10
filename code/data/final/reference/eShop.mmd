@@ -1,0 +1,98 @@
+flowchart LR
+
+    %% Client Apps
+    subgraph Clients["Client Apps"]
+        MobileApp["Mobile Application"]
+    end
+
+    %% Cloud Services
+    subgraph Cloud["Cloud Services (Aspire Orchestration)"]
+
+        %% BFF Layer
+        subgraph BFF["Frontend APIs"]
+            MobileAPI["Mobile API"]
+            BlazorApp["Web Application"]
+        end
+
+        %% Core Services
+        subgraph Identity["Identity Service"]
+            IdentityAPI["Identity API"]
+            IdentityDB[("Identity DB")]
+            IdentityAPI --> IdentityDB
+        end
+
+        subgraph Catalog["Catalog Service"]
+            CatalogAPI["Catalog API"]
+            CatalogDB[("Catalog DB")]
+            CatalogAPI --> CatalogDB
+        end
+
+        subgraph Order["Order Service"]
+            OrderingAPI["Ordering API"]
+            OrderProcessor["Order Processor"]
+            OrderDB[("Order DB")]
+
+            OrderingAPI --> OrderProcessor
+            OrderingAPI --> OrderDB
+            OrderProcessor --> OrderDB
+        end
+
+        subgraph Basket["Basket Service"]
+            BasketAPI["Basket API"]
+            Redis[("Redis")]
+            BasketAPI --> Redis
+        end
+
+        subgraph Payment["Payment Service"]
+            PaymentProcessor["Payment Processor"]
+        end
+
+        %% Infrastructure
+        EventBus["Event Bus (RabbitMQ)"]
+
+        %% Admin Services
+        subgraph Admin["Admin Services"]
+            WebhookClient["Webhook Client"]
+
+            subgraph Webhooks["Webhooks Service"]
+                WebhooksAPI["Webhooks API"]
+                WebhooksDB[("Webhooks DB")]
+                WebhooksAPI --> WebhooksDB
+            end
+
+            Observability["Observability Stack"]
+        end
+    end
+
+    %% AI Integration
+    OpenAI["OpenAI"]
+
+    %% Client Connections
+    MobileApp --> MobileAPI
+
+    %% BFF to Services
+    MobileAPI --> IdentityAPI
+    MobileAPI --> CatalogAPI
+    MobileAPI --> OrderingAPI
+    MobileAPI --> BasketAPI
+
+    BlazorApp --> CatalogAPI
+    BlazorApp --> OrderingAPI
+    BlazorApp --> BasketAPI
+    BlazorApp --> IdentityAPI
+
+    %% Event-Driven Communication
+    CatalogAPI <--> EventBus
+    OrderingAPI <--> EventBus
+    BasketAPI <--> EventBus
+    PaymentProcessor <--> EventBus
+    WebhooksAPI <--> EventBus
+    BlazorApp <--> EventBus
+
+    %% AI Connections
+    CatalogAPI -.-> OpenAI
+    BlazorApp -.-> OpenAI
+
+    %% Webhooks
+    WebhookClient --> WebhooksAPI
+

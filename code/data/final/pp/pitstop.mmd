@@ -1,0 +1,55 @@
+graph TB
+    subgraph Client["Client Layer"]
+        WebApp["Web Application"]
+    end
+
+    subgraph APIs["API Microservices"]
+        CustSvc["Customer Management API"]
+        VehSvc["Vehicle Management API"]
+        WSSvc["Workshop Management API"]
+    end
+
+    subgraph BG["Background Microservices"]
+        TimeSvc["Time Service"]
+        NotifSvc["Notification Service"]
+        InvSvc["Invoice Service"]
+        AuditSvc["Auditlog Service"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        MQ[("Message Queue")]
+        CustomerDB[(Customer Database)]
+        VehicleDB[(Vehicle Database)]
+        WorkshopDB[(Workshop Database)]
+        InvoiceDB[(Invoice Database)]
+        AuditDB[(Audit Database)]
+        SMTP["Test Mail Server"]
+    end
+
+    %% ── Synchronous REST (WebApp → APIs only) ──────────────────────────────
+    WebApp -->|HTTP REST| CustSvc
+    WebApp -->|HTTP REST| VehSvc
+    WebApp -->|HTTP REST| WSSvc
+
+    %% ── Events Published ───────────────────────────────────────────────────
+    CustSvc -->|"CustomerRegistered"| MQ
+    VehSvc  -->|"VehicleRegistered"| MQ
+    WSSvc   -->|"MaintenanceJobPlanned\nMaintenanceJobFinished"| MQ
+    TimeSvc -->|"DayHasPassed"| MQ
+
+    %% ── Events Consumed ────────────────────────────────────────────────────
+    MQ -->|"CustomerRegistered\nVehicleRegistered\n(build local read model)"| WSSvc
+    MQ -->|"MaintenanceJobPlanned\nDayHasPassed"| NotifSvc
+    MQ -->|"MaintenanceJobFinished"| InvSvc
+    MQ -->|"ALL events"| AuditSvc
+
+    %% ── Persistence ────────────────────────────────────────────────────────
+    CustSvc -->|"reads / writes"| CustomerDB
+    VehSvc  -->|"reads / writes"| VehicleDB
+    WSSvc   -->|"reads / writes"| WorkshopDB
+    InvSvc  -->|"reads / writes"| InvoiceDB
+    AuditSvc-->|"writes"| AuditDB
+
+    %% ── External I/O ───────────────────────────────────────────────────────
+    NotifSvc -->|"Customer notification"| SMTP
+    InvSvc   -->|"Invoice email"| SMTP
