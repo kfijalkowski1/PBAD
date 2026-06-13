@@ -1,13 +1,10 @@
 \section{Wprowadzenie}
 
-\begin{itemize}
-	\item motivate the need for robust, comparable evaluation of AI-generated software architecture
-	\item Explain limitations of current literature (arbitrary testing scenarios, human in the loop evaluation, heterogeneous and non-comparable setups)
-	\item **State the research question**
-		\item How do different low-interaction synthesis methods perform on common microservice benchmarks?
-		\item How can architecture synthesis methods be reliably compared?
-	\item (optional) Summarize contributions (if there are any lmao) 
-\end{itemize}
+Duże modele językowe coraz skuteczniej wspierają syntezę architektury oprogramowania na podstawie opisów wymagań w języku naturalnym. Publikacje w tej dziedzinie pokazują, że generatywne modele potrafią przekształcić dokumentację wymagań w propozycję podziału odpowiedzialności między komponentami, a niekiedy także wspierać cały proces projektowy \cite{pereiraGeneratingMicroserviceArchitectures2025}. Postęp w samym generowaniu architektury nie idzie jednak w parze z postępem w jej porównywalnej ocenie. Nadal otwarte pozostaje pytanie, w jaki sposób obiektywnie ustalić, które techniki syntezy dają lepsze wyniki.
+
+Metody opisane w literaturze są ewaluowane w ustawieniach trudnych do zestawienia: na różnych systemach testowych, z udziałem różnych modeli językowych, często z oceną ekspertów lub przy arbitralnie dobranych scenariuszach \cite{schmidSoftwareArchitectureMeets2025}.
+
+Celem niniejszej pracy jest opracowanie protokołu generowania i ewaluacji architektury mikroserwisowej z wymagań tekstowych, który umożliwia mierzenie jakości wyników w sposób porównywalny między metodami. Stawiamy następujące pytania badawcze: Jak metody syntezy architektury o minimalnej interakcji użytkownika radzą sobie na wspólnych benchmarkach mikroserwisowych?  W jaki sposób można wiarygodnie porównywać metody syntezy architektury?
 
 \section{Stan badań}
 
