@@ -593,6 +593,27 @@ def all_required_metrics(sections: list[MetricSection]) -> list[str]:
     return list(seen.keys())
 
 
+ChartKind = Literal["structural", "f1"]
+
+
+class ChartMetric(TypedDict):
+    metric: str
+    slug: str
+    kind: ChartKind
+
+
+CHART_METRICS: list[ChartMetric] = [
+    {
+        "metric": "average_change_impact",
+        "slug": "change_impact",
+        "kind": "structural",
+    },
+    {"metric": "dep_avg", "slug": "dependency_degree", "kind": "structural"},
+    {"metric": "node_f1", "slug": "node_f1", "kind": "f1"},
+    {"metric": "edge_f1", "slug": "edge_f1", "kind": "f1"},
+]
+
+
 class PresentationMetric(TypedDict):
     metric: str
     ylabel: str
@@ -600,22 +621,38 @@ class PresentationMetric(TypedDict):
     italic_ylabel: NotRequired[bool]
 
 
-PRESENTATION_METRICS: list[PresentationMetric] = [
-    {
-        "metric": "average_change_impact",
-        "ylabel": "Change Impact",
-        "slug": "change_impact",
-        "italic_ylabel": True,
-    },
-    {
-        "metric": "dep_avg",
-        "ylabel": "Maintainability Index",
-        "slug": "maintainability_index",
-        "italic_ylabel": True,
-    },
-    {"metric": "node_f1", "ylabel": "F1 (usługi)", "slug": "node_f1"},
-    {"metric": "edge_f1", "ylabel": "F1 (krawędzie)", "slug": "edge_f1"},
-]
+_PRESENTATION_YLABELS: dict[str, tuple[str, bool]] = {
+    "average_change_impact": ("Change Impact", True),
+    "dep_avg": ("Maintainability Index", True),
+    "node_f1": ("F1 (usługi)", False),
+    "edge_f1": ("F1 (krawędzie)", False),
+}
+
+_PRESENTATION_SLUG_OVERRIDES: dict[str, str] = {
+    "dep_avg": "maintainability_index",
+}
+
+
+def _build_presentation_metrics() -> list[PresentationMetric]:
+    metrics: list[PresentationMetric] = []
+    for spec in CHART_METRICS:
+        metric = spec["metric"]
+        ylabel, italic = _PRESENTATION_YLABELS[metric]
+        entry: PresentationMetric = {
+            "metric": metric,
+            "ylabel": ylabel,
+            "slug": _PRESENTATION_SLUG_OVERRIDES.get(metric, spec["slug"]),
+        }
+        if italic:
+            entry["italic_ylabel"] = True
+        metrics.append(entry)
+    return metrics
+
+
+PRESENTATION_METRICS: list[PresentationMetric] = _build_presentation_metrics()
+
+BAR_LABEL_PAD_FRACTION = 0.12
+BAR_LABEL_PAD_MIN = 0.03
 
 PRES_WIDTH_METHOD = 3.2
 PRES_WIDTH_APP = 12.0
@@ -629,9 +666,38 @@ PRES_MARGIN_BOTTOM = 0.18
 PRES_MARGIN_TOP = 0.92
 PRES_MARGIN_RIGHT = 0.94
 PRES_MARGIN_RIGHT_LEGEND = 0.78
-PRES_LABEL_PAD_FRACTION = 0.12
-PRES_LABEL_PAD_MIN = 0.03
 VERDANA_FONT_DIR = Path("/usr/share/fonts/truetype/msttcorefonts")
+
+PAPER_WIDTH = 3.35
+PAPER_HEIGHT = 2.7
+PAPER_DPI = 200
+PAPER_BAR_WIDTH = 0.85
+PAPER_BAR_GAP = 0.05
+PAPER_SAVEFIG_PAD_INCHES = 0.08
+PAPER_BAR_LABEL_SIZE = 5
+PAPER_BAR_LABEL_SIZE_AGG = 7
+PAPER_AXIS_LABEL_SIZE = 8
+PAPER_TICK_SIZE = 7
+PAPER_LEGEND_SIZE = 7
+PAPER_XLABEL_APP = "Aplikacja"
+PAPER_XLABEL_METHOD = "Metoda"
+PAPER_MARGIN_LEFT = 0.22
+PAPER_MARGIN_BOTTOM = 0.38
+PAPER_MARGIN_BOTTOM_COMPACT = 0.20
+PAPER_MARGIN_TOP = 0.95
+PAPER_MARGIN_RIGHT = 0.98
+
+_PAPER_YLABEL_NAMES: dict[str, str] = {
+    "average_change_impact": "Change Impact",
+    "dep_avg": "Dependency degree",
+    "node_f1": "F1 (usługi)",
+    "edge_f1": "F1 (krawędzie)",
+}
+
+_PAPER_YLABEL_HINTS: dict[ChartKind, str] = {
+    "structural": "(mniej = lepiej)",
+    "f1": "(więcej = lepiej)",
+}
 
 
 def _register_verdana_fonts() -> None:
@@ -669,17 +735,28 @@ def _set_presentation_ylabel(ax: plt.Axes, ylabel: str, *, italic: bool = False)
     ax.set_ylabel(ylabel, fontstyle="italic" if italic else "normal")
 
 
-def _label_bars_exact(ax: plt.Axes, fmt: str = "%.3f") -> None:
+def _label_bars_exact(
+    ax: plt.Axes,
+    fmt: str = "%.3f",
+    *,
+    fontsize: float = PRES_BAR_LABEL_SIZE,
+    rotation: float = 0,
+    padding: float = 3,
+) -> None:
     for container in ax.containers:
         ax.bar_label(
             container,
             fmt=fmt,
-            padding=3,
-            fontsize=PRES_BAR_LABEL_SIZE,
+            padding=padding,
+            fontsize=fontsize,
+            rotation=rotation,
         )
 
 
-def _expand_presentation_ylim(ax: plt.Axes, capped_scores: bool) -> None:
+def _expand_bar_ylim(
+    ax: plt.Axes,
+    capped_scores: bool,
+) -> None:
     ymin, _ = ax.get_ylim()
     if capped_scores:
         ymin = 0.0
@@ -704,7 +781,7 @@ def _expand_presentation_ylim(ax: plt.Axes, capped_scores: bool) -> None:
         return
 
     span = label_top - ymin
-    pad = max(span * PRES_LABEL_PAD_FRACTION, PRES_LABEL_PAD_MIN)
+    pad = max(span * BAR_LABEL_PAD_FRACTION, BAR_LABEL_PAD_MIN)
     new_ymax = label_top + pad
     if capped_scores and content_top > 0.85:
         new_ymax = max(new_ymax, 1.08)
@@ -717,7 +794,7 @@ def _expand_presentation_ylim(ax: plt.Axes, capped_scores: bool) -> None:
 def _decorate_presentation_axes(ax: plt.Axes, capped_scores: bool) -> None:
     _apply_y_grid(ax)
     _label_bars_exact(ax)
-    _expand_presentation_ylim(ax, capped_scores)
+    _expand_bar_ylim(ax, capped_scores)
     sns.despine(trim=True)
 
 
@@ -891,5 +968,273 @@ def export_presentation_charts(
     return saved
 
 
+def chart_required_metrics() -> list[str]:
+    return [spec["metric"] for spec in CHART_METRICS]
+
+
 def presentation_required_metrics() -> list[str]:
-    return [spec["metric"] for spec in PRESENTATION_METRICS]
+    return chart_required_metrics()
+
+
+def setup_paper_chart_style() -> None:
+    sns.set_theme(style="whitegrid", context="paper")
+    sns.set_palette("Set2")
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.serif": ["DejaVu Serif", "Times New Roman", "Times", "serif"],
+            "font.size": PAPER_TICK_SIZE,
+            "axes.labelsize": PAPER_AXIS_LABEL_SIZE,
+            "axes.titlesize": PAPER_AXIS_LABEL_SIZE,
+            "xtick.labelsize": PAPER_TICK_SIZE,
+            "ytick.labelsize": PAPER_TICK_SIZE,
+            "legend.fontsize": PAPER_LEGEND_SIZE,
+        }
+    )
+
+
+def _paper_ylabel_text(spec: ChartMetric) -> str:
+    name = _PAPER_YLABEL_NAMES[spec["metric"]]
+    hint = _PAPER_YLABEL_HINTS[spec["kind"]]
+    return f"{name}\n{hint}"
+
+
+def _set_paper_ylabel(ax: plt.Axes, spec: ChartMetric) -> None:
+    ax.set_ylabel(_paper_ylabel_text(spec), fontsize=PAPER_AXIS_LABEL_SIZE)
+
+
+def _decorate_paper_axes(
+    ax: plt.Axes,
+    spec: ChartMetric,
+    *,
+    bar_label_size: float = PAPER_BAR_LABEL_SIZE,
+    bar_label_rotation: float = 0,
+) -> None:
+    capped_scores = _is_score_metric(spec["metric"])
+    fix_ymax_at_one = spec["kind"] == "f1"
+    _label_bars_exact(
+        ax,
+        fontsize=bar_label_size,
+        rotation=bar_label_rotation,
+        padding=2 if bar_label_rotation else 3,
+    )
+    if fix_ymax_at_one:
+        ax.set_ylim(0, 1.0)
+        ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    else:
+        _expand_bar_ylim(ax, capped_scores)
+    _apply_y_grid(ax)
+
+
+def _finalize_paper_layout(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    *,
+    legend_below: bool = False,
+    diagonal_xticks: bool = False,
+) -> None:
+    if diagonal_xticks:
+        for label in ax.get_xticklabels():
+            label.set_rotation(45)
+            label.set_ha("right")
+            label.set_rotation_mode("anchor")
+    else:
+        for label in ax.get_xticklabels():
+            label.set_rotation(0)
+            label.set_ha("center")
+    if legend_below:
+        ax.set_xlabel(ax.get_xlabel(), fontsize=PAPER_AXIS_LABEL_SIZE, labelpad=10)
+        fig.subplots_adjust(
+            left=PAPER_MARGIN_LEFT,
+            bottom=PAPER_MARGIN_BOTTOM,
+            top=PAPER_MARGIN_TOP,
+            right=PAPER_MARGIN_RIGHT,
+        )
+        fig.canvas.draw()
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.remove()
+        if handles:
+            fig.legend(
+                handles,
+                labels,
+                loc="lower left",
+                bbox_to_anchor=(0.02, 0.02),
+                bbox_transform=fig.transFigure,
+                ncol=1,
+                frameon=True,
+                fontsize=PAPER_LEGEND_SIZE,
+            )
+    else:
+        ax.set_xlabel(ax.get_xlabel(), fontsize=PAPER_AXIS_LABEL_SIZE, labelpad=4)
+        ax.tick_params(axis="both", labelsize=PAPER_TICK_SIZE)
+        fig.subplots_adjust(
+            left=PAPER_MARGIN_LEFT,
+            bottom=PAPER_MARGIN_BOTTOM_COMPACT,
+            top=PAPER_MARGIN_TOP,
+            right=PAPER_MARGIN_RIGHT,
+        )
+    ax.tick_params(axis="y", labelsize=PAPER_TICK_SIZE)
+    if diagonal_xticks:
+        ax.tick_params(axis="x", labelsize=PAPER_TICK_SIZE)
+
+
+def _set_paper_app_xlim(ax: plt.Axes, n_apps: int) -> None:
+    ax.set_xlim(-0.5, n_apps - 0.5)
+
+
+def _save_paper_figure(
+    fig: plt.Figure,
+    base_path: Path,
+    png_dir: Path | None = None,
+) -> list[Path]:
+    saved: list[Path] = []
+    pdf_path = base_path.with_suffix(".pdf")
+    fig.savefig(pdf_path, bbox_inches="tight", pad_inches=PAPER_SAVEFIG_PAD_INCHES)
+    saved.append(pdf_path)
+    if png_dir is not None:
+        png_dir.mkdir(parents=True, exist_ok=True)
+        png_path = png_dir / f"{base_path.name}.png"
+        fig.savefig(
+            png_path,
+            bbox_inches="tight",
+            pad_inches=PAPER_SAVEFIG_PAD_INCHES,
+            dpi=PAPER_DPI,
+        )
+        saved.append(png_path)
+    plt.close(fig)
+    return saved
+
+
+def plot_paper_by_app(
+    df: pd.DataFrame,
+    spec: ChartMetric,
+    short_labels: dict[str, str],
+    save_base: Path | None = None,
+    png_dir: Path | None = None,
+) -> None:
+    metric = spec["metric"]
+    if metric not in df.columns:
+        raise KeyError(f"Metric {metric!r} not in dataframe")
+
+    labeled = apply_labels(df, short_labels)
+    plot_df = labeled[["app_label", "method_label", metric]].rename(
+        columns={metric: "value"}
+    )
+
+    fig, ax = plt.subplots(figsize=(PAPER_WIDTH, PAPER_HEIGHT))
+    sns.barplot(
+        data=plot_df,
+        x="app_label",
+        y="value",
+        hue="method_label",
+        palette="Set2",
+        width=PAPER_BAR_WIDTH,
+        gap=PAPER_BAR_GAP,
+        ax=ax,
+    )
+    _set_paper_app_xlim(ax, plot_df["app_label"].nunique())
+    _set_paper_ylabel(ax, spec)
+    ax.set_xlabel(PAPER_XLABEL_APP, labelpad=4)
+    _decorate_paper_axes(
+        ax,
+        spec,
+        bar_label_size=PAPER_BAR_LABEL_SIZE,
+        bar_label_rotation=90,
+    )
+    _finalize_paper_layout(fig, ax, legend_below=True, diagonal_xticks=True)
+
+    if save_base is not None:
+        _save_paper_figure(fig, save_base, png_dir)
+    else:
+        plt.show()
+
+
+def plot_paper_by_method_mean(
+    df: pd.DataFrame,
+    spec: ChartMetric,
+    short_labels: dict[str, str],
+    save_base: Path | None = None,
+    png_dir: Path | None = None,
+) -> None:
+    metric = spec["metric"]
+    if metric not in df.columns:
+        raise KeyError(f"Metric {metric!r} not in dataframe")
+
+    means = df.groupby("method", as_index=False)[metric].mean()
+    means["method_label"] = means["method"].map(
+        lambda value: format_label(str(value), "method", short_labels)
+    )
+    plot_df = means.rename(columns={metric: "value"})
+    capped_scores = _is_score_metric(metric)
+    n_methods = len(plot_df)
+    palette = sns.color_palette("Set2", n_colors=n_methods)
+
+    fig, ax = plt.subplots(figsize=(PAPER_WIDTH, PAPER_HEIGHT))
+    sns.barplot(
+        data=plot_df,
+        x="method_label",
+        y="value",
+        hue="method_label",
+        palette=palette,
+        dodge=False,
+        legend=False,
+        width=PAPER_BAR_WIDTH,
+        ax=ax,
+    )
+    _set_paper_ylabel(ax, spec)
+    ax.set_xlabel(PAPER_XLABEL_METHOD, labelpad=4)
+    _decorate_paper_axes(
+        ax,
+        spec,
+        bar_label_size=PAPER_BAR_LABEL_SIZE_AGG,
+    )
+    _finalize_paper_layout(fig, ax)
+
+    if save_base is not None:
+        _save_paper_figure(fig, save_base, png_dir)
+    else:
+        plt.show()
+
+
+def render_paper_charts(
+    df: pd.DataFrame,
+    short_labels: dict[str, str],
+) -> None:
+    for spec in CHART_METRICS:
+        ylabel = _paper_ylabel_text(spec)
+        display(Markdown(f"### {ylabel} — by app"))
+        plot_paper_by_app(df, spec, short_labels)
+        display(Markdown(f"### {ylabel} — by method (mean over apps)"))
+        plot_paper_by_method_mean(df, spec, short_labels)
+
+
+def export_paper_charts(
+    df: pd.DataFrame,
+    short_labels: dict[str, str],
+    pdf_dir: Path,
+    png_dir: Path | None = None,
+) -> list[Path]:
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    saved: list[Path] = []
+    for spec in CHART_METRICS:
+        slug = spec["slug"]
+
+        by_app_base = pdf_dir / f"{slug}_by_app"
+        plot_paper_by_app(
+            df, spec, short_labels, save_base=by_app_base, png_dir=png_dir
+        )
+        saved.append(by_app_base.with_suffix(".pdf"))
+        if png_dir is not None:
+            saved.append(png_dir / f"{by_app_base.name}.png")
+
+        by_method_base = pdf_dir / f"{slug}_by_method_mean"
+        plot_paper_by_method_mean(
+            df, spec, short_labels, save_base=by_method_base, png_dir=png_dir
+        )
+        saved.append(by_method_base.with_suffix(".pdf"))
+        if png_dir is not None:
+            saved.append(png_dir / f"{by_method_base.name}.png")
+
+    return saved
