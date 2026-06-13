@@ -18,7 +18,7 @@ Obecna literatura dotycząca metod syntezy systemów z wykorzystaniem dużych mo
 
 % scenario-based, metrics, reliance on expert evaluation
 
-Ocena jakości architektury oprogramowania najczęściej opiera się na subiektywnej ocenie ekspertów, co wprowadza element nieobiektywności i utrudnia porównywanie różnych podejść. Klasyczne metody takie jak ATAM (\emph{Architecture Tradeoff Analysis Method}) czy SAAM (\emph{Software Architecture Analysis Method}) formułują wymagania niefunkcjonalne w postaci scenariuszy jakościowych i badają, w jaki sposób dana architektura reaguje na te scenariusze \cite{kazman_atam_2000, kazman_saam_1944}. Odrębną klasę podejść stanowią metody wyspecjalizowane w analizie modyfikowalności architektury, badające nie tylko zgodność z wymaganiami, ale także koszt rozwoju i utrzymania, czego przykładem jest podejście ALMA (\emph{Architecture-Level Modifiability Analysis}) \cite{bengtsson_alma_2004}. Ocena może być wspomagana podejściami opartymi na eksperckim przeglądzie architektury z użyciem list kontrolnych, w których wykorzystywany jest strukturyzowany zestaw pytań dotyczących m.in. powiązań z wymaganiami, modularności czy aspektów bezpieczeństwa \cite{uta_design_review_checklist, cianca_eval_arch_2000}. Wreszcie, istnieją podejścia oparte na metrykach, które próbują uchwycić jakość architektury poprzez ilościowe miary, takie jak liczba zależności między komponentami czy stopień modularności \cite{bengtsson_alma_2004, add}.\todo{@kf wspominałeś, że tutaj trzeba wstawić jakieś cytowanie z książki}
+Ocena jakości architektury oprogramowania najczęściej opiera się na subiektywnej ocenie ekspertów, co wprowadza element nieobiektywności i utrudnia porównywanie różnych podejść. Klasyczne metody takie jak ATAM (\emph{Architecture Tradeoff Analysis Method}) czy SAAM (\emph{Software Architecture Analysis Method}) formułują wymagania niefunkcjonalne w postaci scenariuszy jakościowych i badają, w jaki sposób dana architektura reaguje na te scenariusze \cite{kazman_atam_2000, kazman_saam_1944}. Odrębną klasę podejść stanowią metody wyspecjalizowane w analizie modyfikowalności architektury, badające nie tylko zgodność z wymaganiami, ale także koszt rozwoju i utrzymania, czego przykładem jest podejście ALMA (\emph{Architecture-Level Modifiability Analysis}) \cite{bengtsson_alma_2004}. Ocena może być wspomagana podejściami opartymi na eksperckim przeglądzie architektury z użyciem list kontrolnych, w których wykorzystywany jest strukturyzowany zestaw pytań dotyczących m.in. powiązań z wymaganiami, modularności czy aspektów bezpieczeństwa \cite{uta_design_review_checklist, cianca_eval_arch_2000}. Wreszcie, istnieją podejścia oparte na metrykach, które próbują uchwycić jakość architektury poprzez ilościowe miary, takie jak liczba zależności między komponentami czy stopień modularności \cite{bengtsson_alma_2004, add, ford2021}.
 
 \subsection{Ewaluacja architektur generowanych przez SI}
 
@@ -49,15 +49,15 @@ W celu zbadania zgodności wytworzonej architektury z referencyjnym opisem wykor
 
 Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
-\paragraph{eShop (eShopOnContainers)} -- rozbudowana aplikacja referencyjna dla platformy .NET, składająca się z wielu kooperujących mikroserwisów (m.in. koszyk, katalog, tożsamość użytkownika, zamówienia). Dostarcza wysoce ustrukturyzowane wymagania w formie wypunktowanych list, z wyraźnym podziałem na wymagania funkcjonalne (np. zarządzanie koszykiem) i niefunkcjonalne (wymagana wysoka dostępność, wsparcie dla wielu klientów front-endowych). Dokumentacja zawiera szczegółowe wizualne diagramy architektoniczne, obrazują one strukturę systemu, mapowanie aplikacji klienckich przez API Gateway do serwisów docelowych oraz infrastrukturę komunikacji asynchronicznej opartej na szynie zdarzeń. \cite{noauthor_dotneteshop_2026}
+\paragraph{eShop (eShopOnContainers)} -- rozbudowana aplikacja referencyjna dla platformy .NET, składająca się z wielu kooperujących mikroserwisów (m.in. koszyk, katalog, tożsamość użytkownika, zamówienia). Dostarcza wysoce ustrukturyzowane wymagania w formie wypunktowanych list, z wyraźnym podziałem na wymagania funkcjonalne (np. zarządzanie koszykiem) i niefunkcjonalne (wymagana wysoka dostępność, wsparcie dla wielu klientów front-endowych). Dokumentacja zawiera szczegółowe wizualne diagramy architektoniczne, obrazują one strukturę systemu, mapowanie aplikacji klienckich przez API Gateway do serwisów docelowych oraz infrastrukturę komunikacji asynchronicznej opartej na szynie zdarzeń \cite{noauthor_dotneteshop_2026}.
 
-\paragraph{Pitstop} -- aplikacja do zarządzania warsztatem samochodowym obrazująca architekturę opartą na wzorcach Event Sourcing oraz CQRS i zaprojektowana zgodnie z metodyką BDD. Projekt nie posiada spisanych historyjek użytkownika, ale dostarcza bogaty i sformalizowany model domeny oraz wyniki warsztatów \textit{Event Storming}. Architektura dokumentowana jest diagramami ilustrującymi mapę kontekstów (ang. \textit{Context Map}) oraz schematem przepływu poszczególnych komend i zdarzeń pomiędzy serwisami za pomocą brokera wiadomości. \cite{wijk_edwinvwpitstop_2026}
+\paragraph{Pitstop} -- aplikacja do zarządzania warsztatem samochodowym obrazująca architekturę opartą na wzorcach Event Sourcing oraz CQRS i zaprojektowana zgodnie z metodyką BDD. Projekt nie posiada spisanych historyjek użytkownika, ale dostarcza bogaty i sformalizowany model domeny oraz wyniki warsztatów \textit{Event Storming}. Architektura dokumentowana jest diagramami ilustrującymi mapę kontekstów (ang. \textit{Context Map}) oraz schematem przepływu poszczególnych komend i zdarzeń pomiędzy serwisami za pomocą brokera wiadomości \cite{wijk_edwinvwpitstop_2026}.
 
-\paragraph{Online Marketplace} -- benchmark mikroserwisowy ukierunkowany na wyzwania zarządzania danymi w aplikacjach rozproszonych (transakcje rozproszone, przetwarzanie zdarzeń i zapytań, egzekwowanie ograniczeń integralności, replikacja danych). Modeluje platformę handlową, w której kupujący i sprzedawcy korzystają z katalogu produktów, koszyka i procesu realizacji zamówienia; system obejmuje osiem typów mikroserwisów wraz z zdefiniowanymi typami zdarzeń i kryteriami spójności danych między usługami. Autorzy precyzują wymagania jakościowe dotyczące m.in.\ izolacji zasobów i spójności stanu, co odróżnia ten benchmark od prostszych aplikacji referencyjnych. Architektura topologiczna opiera się na komunikacji asynchronicznej przez brokera wiadomości. \cite{laigner_online_marketplace_2025}
+\paragraph{Online Marketplace} -- benchmark mikroserwisowy ukierunkowany na wyzwania zarządzania danymi w aplikacjach rozproszonych (transakcje rozproszone, przetwarzanie zdarzeń i zapytań, egzekwowanie ograniczeń integralności, replikacja danych). Modeluje platformę handlową, w której kupujący i sprzedawcy korzystają z katalogu produktów, koszyka i procesu realizacji zamówienia; system obejmuje osiem typów mikroserwisów wraz z zdefiniowanymi typami zdarzeń i kryteriami spójności danych między usługami. Autorzy precyzują wymagania jakościowe dotyczące m.in.\ izolacji zasobów i spójności stanu, co odróżnia ten benchmark od prostszych aplikacji referencyjnych. Architektura topologiczna opiera się na komunikacji asynchronicznej przez brokera wiadomości \cite{laigner_online_marketplace_2025}.
 
-\paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR). \cite{slater_quantitative_2025}
+\paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR) \cite{slater_quantitative_2025}.
 
-\paragraph{HotelPricingSystem} -- system wspierający zarządzanie cenami hotelowymi. Dostępność dokumentacji jest zbliżona do \emph{EventTicketSystem}: zawiera szczegółowy opis wymagań, atrybutów jakościowych, model domenowy, model C4 oraz ADR. Wymagania funkcjonalne i niefunkcjonalne są jasno rozdzielone, a scenariusze testowe zostały sformalizowane w postaci tabeli z przypisanymi atrybutami jakościowymi. \cite{slater_quantitative_2025}
+\paragraph{HotelPricingSystem} -- system wspierający zarządzanie cenami hotelowymi. Dostępność dokumentacji jest zbliżona do \emph{EventTicketSystem}: zawiera szczegółowy opis wymagań, atrybutów jakościowych, model domenowy, model C4 oraz ADR. Wymagania funkcjonalne i niefunkcjonalne są jasno rozdzielone, a scenariusze testowe zostały sformalizowane w postaci tabeli z przypisanymi atrybutami jakościowymi \cite{slater_quantitative_2025}.
 
 \subsection{Dobór metod syntezy architektury}
 
@@ -67,11 +67,11 @@ Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
 Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako wejście wyłącznie opis wymagań w języku naturalnym oraz wymagają minimalnej interakcji użytkownika w trakcie procesu. Wybór ten miał na celu ograniczenie wpływu czynnika ludzkiego oraz zapewnienie możliwie obiektywnego porównania różnych podejść w jednolitym protokole eksperymentalnym. Do wybranych metod wprowadziliśmy pomniejsze modyfikacje pozwalające na w pełni automatyczną syntezę architektury mikroserwisowej. Wybraliśmy trzy następujące metody:
 
-\paragraph{Prompt Pattern Sequences} -- zaproponowane jako uporządkowana sekwencja wzorców promptów wspierających podejmowanie decyzji architektonicznych z wykorzystaniem modeli generatywnych. Autorzy wyróżniają zestaw person i wzorców (m.in.\ \emph{Software Architect Persona}, \emph{Technical Premises}, \emph{Uncertain Requirements Statement}, \emph{Quality Attribute Question}, \emph{Architectural Project Context}), które kolejno przetwarzają ten sam opis wymagań, dodając do niego kontekst techniczny oraz pytania dotyczące atrybutów jakościowych. \cite{maranhao} Zaadaptowaliśmy tę koncepcję do w pełni automatycznej syntezy architektury mikroserwisowej: zastosowaliśmy ustaloną, statyczną sekwencję promptów, w której jedynym wejściem użytkownika jest treść wymagań, a wszystkie kolejne kroki (analiza wymagań, identyfikacja usług, szkic relacji między nimi) wykonywane są przez ten sam model językowy.
+\paragraph{Prompt Pattern Sequences} -- zaproponowane jako uporządkowana sekwencja wzorców promptów wspierających podejmowanie decyzji architektonicznych z wykorzystaniem modeli generatywnych. Autorzy wyróżniają zestaw person i wzorców (m.in.\ \emph{Software Architect Persona}, \emph{Technical Premises}, \emph{Uncertain Requirements Statement}, \emph{Quality Attribute Question}, \emph{Architectural Project Context}), które kolejno przetwarzają ten sam opis wymagań, dodając do niego kontekst techniczny oraz pytania dotyczące atrybutów jakościowych \cite{maranhao}. Zaadaptowaliśmy tę koncepcję do w pełni automatycznej syntezy architektury mikroserwisowej: zastosowaliśmy ustaloną, statyczną sekwencję promptów, w której jedynym wejściem użytkownika jest treść wymagań, a wszystkie kolejne kroki (analiza wymagań, identyfikacja usług, szkic relacji między nimi) wykonywane są przez ten sam model językowy.
 
 \paragraph{Attribute-Driven Design} -- proces podzielony na stałych etapach pracy nad architekturą: od doprecyzowania celów i atrybutów jakościowych, przez identyfikację głównych odpowiedzialności oraz wybór taktyk architektonicznych, aż po uszczegółowienie komponentów. Efektem każdego etapu są artefakty tekstowe, co pozwala śledzić pracę modelu \cite{add}. W naszym wariancie zminimalizowaliśmy rolę człowieka: model otrzymuje skondensowany opis metody ADD, listę wymagań oraz ogólną listę atrybutów jakościowych, a następnie samodzielnie przechodzi przez kolejne kroki, generując docelowy graf usług i ich zależności.
 
-\paragraph{Progressive Prompting} -- w oryginalnym ujęciu metoda ta prowadzi model przez kolejne etapy: ekstrakcję wymagań funkcjonalnych z dokumentu, konstruowanie modelu obiektowego, a następnie generację testów i kodu na podstawie tego modelu. \cite{wei} Na potrzeby niniejszego badania wykorzystaliśmy część ,,architektoniczną'' tego podejścia: zdefiniowaliśmy sekwencję promptów, w której model najpierw porządkuje i uzupełnia wymagania, następnie projektuje komponenty i ich odpowiedzialności, a w ostatnim kroku odwzorowuje projekt na architekturę mikroserwisową, reprezentowaną jako graf usług i ich powiązań.
+\paragraph{Progressive Prompting} -- w oryginalnym ujęciu metoda ta prowadzi model przez kolejne etapy: ekstrakcję wymagań funkcjonalnych z dokumentu, konstruowanie modelu obiektowego, a następnie generację testów i kodu na podstawie tego modelu \cite{wei}. Na potrzeby niniejszego badania wykorzystaliśmy część ,,architektoniczną'' tego podejścia: zdefiniowaliśmy sekwencję promptów, w której model najpierw porządkuje i uzupełnia wymagania, następnie projektuje komponenty i ich odpowiedzialności, a w ostatnim kroku odwzorowuje projekt na architekturę mikroserwisową, reprezentowaną jako graf usług i ich powiązań.
 
 \subsection{Procedura syntezy architektury}
 
@@ -81,11 +81,11 @@ Zastosowaliśmy jednolity protokół eksperymentu dla wszystkich systemów refer
 
 Dla każdego systemu wyodrębnialiśmy fragmenty dokumentacji stanowiące opis wymagań. Otrzymany tekst był następnie włączany do szablonów promptów specyficznych dla danej metody (Prompt Pattern Sequences, ADD, Progressive Prompting).
 
-Wszystkie wywołania realizowano przy użyciu modelu językowego Claude Sonnet 4.6 w trybie \emph{Thinking} z kontekstem o rozmiarze $1M$ tokenów w usłudze AWS Bedrock. Parametry sterujące generacją utrzymywano stałe w całym eksperymencie: $temperature=1.0, effort=high, maxTokens=64000$. \todo{@kf @bp czy faktycznie tak było?}
+Wszystkie wywołania realizowano przy użyciu modelu językowego Claude Sonnet 4.6 w trybie \emph{Thinking} z kontekstem o rozmiarze $1M$ tokenów w usłudze AWS Bedrock. Parametry sterujące generacją utrzymywano stałe w całym eksperymencie: $temperature=1.0, effort=high, maxTokens=64000$.
 
 Dla każdej pary (system referencyjny, metoda syntezy) wykonywaliśmy pojedynczy przebieg generacji architektury. Wejściem była pełna, wyekstrahowana dokumentacja wymagań, a wynikiem artefakt tekstowy zawierający proponowany podział na usługi i opis powiązań między nimi w formacie Mermaid. Generacja odbywała się bez interakcji z użytkownikiem.
 
-\subsection{Obróbka wyników}
+\subsection{Analiza wyników}
 
 % name unification and graph extraction, exclusion rules (telemetry stack, deployment attributes/replication, concrete tech stack choices like Kafka vs RabbitMQ)
 
@@ -93,17 +93,15 @@ Aby zadbać o porównywalność rezultatów, oczyściliśmy grafy z nieistotnych
 
 \subsection{Metryki ewaluacyjne}
 
-Pierwsza grupa stosowanych przez nas metryk obejmuje strukturalne miary grafowe obliczane wyłącznie na podstawie wygenerowanego diagramu usług, bez udziału architektury referencyjnej: średni stopień zależności (\emph{Average Dependency Degree}) oraz średni wpływ zmiany (\emph{Average Change Impact})
+Pierwsza grupa stosowanych przez nas metryk obejmuje strukturalne miary grafowe obliczane wyłącznie na podstawie wygenerowanego diagramu usług, bez udziału architektury referencyjnej: średni stopień zależności (\emph{Average Dependency Degree}) oraz średni wpływ zmiany (\emph{Average Change Impact}).
 
-Średni stopień zależności definiujemy jako średnią liczbę krawędzi wychodzących na węzeł w grafie usług, czyli stosunek liczby krawędzi do liczby węzłów. Niech $E$ będzie zbiorem krawędzi (ścieżek komunikacji) w grafie usług, a $V$ zbiorem węzłów (usług). Wtedy:
+Średni stopień zależności definiujemy jako średnią liczbę krawędzi wychodzących na węzeł w grafie usług, czyli stosunek liczby krawędzi do liczby węzłów \cite{ford2021}. Niech $E$ będzie zbiorem krawędzi (ścieżek komunikacji) w grafie usług, a $V$ zbiorem węzłów (usług). Wtedy:
 
 \begin{equation}
 \text{AvgDepDeg}(E, V) = \frac{1}{|V|} \sum_{v \in V} \text{deg}^+(v).
 \end{equation}
 
-\todo{cytowanie}
-
-Średni wpływ zmiany (\emph{Average Change Impact}) to przeciętna liczba usług, które muszą zostać zmodyfikowane w typowych scenariuszach zmian funkcjonalnych. \cite{bengtsson_alma_2004} Niech $S$ będzie zbiorem rozważanych scenariuszy zmian. Wtedy:
+Średni wpływ zmiany (\emph{Average Change Impact}) to przeciętna liczba usług, które muszą zostać zmodyfikowane w typowych scenariuszach zmian funkcjonalnych. \cite{ahuja_automatically_2025}. Niech $S$ będzie zbiorem rozważanych scenariuszy zmian. Wtedy:
 
 \begin{equation}
 \text{ACI}(E, V, S) = \frac{1}{|S|} \sum_{s \in S} |\{v \in V : \text{affects}(s, v)\}|.
@@ -116,7 +114,7 @@ W praktyce aproksymujemy $\text{ACI}$ zakładając, że zmiana może nastąpić 
 \text{ACI}(E, V) = \frac{1}{|V|} \sum_{v \in V} |\{u \in V : v \leadsto u\}|.
 \end{equation}
 
-Druga grupa wyraża podobieństwo grafu wygenerowanego do grafu usług referencyjnego na poziomie węzłów i krawędzi (rozpatrywanych rozłącznie), wykorzystując klasyczne miary \emph{precision}, \emph{recall} i F1. Jest to podejście bezpośrednio zaczerpnięte z literatury dotyczącej generowania architektury mikroserwisowej z wykorzystaniem modeli językowych \cite{pereiraGeneratingMicroserviceArchitectures2025}. Badamy zgodność wygenerowanego grafu z gradem referencyjnym, traktując zadanie jak problem klasyfikacji binarnej: czy dana usługa lub ścieżka komunikacji została poprawnie odtworzona. Za prawdziwe pozytywy $TP$ uznajemy wierzchołki obecne w obu zbiorach (po normalizacji nazw), za fałszywe pozytywy $FP$ wierzchołki występujące tylko w architekturze wygenerowanej przez model językowy, a za fałszywymi negatywy $FN$ -- wierzchołki obecne jedynie grafie referencyjnym. \cite{pereiraGeneratingMicroserviceArchitectures2025} W ten sposób możliwe jest obliczenie klasycznych metryk:
+Druga grupa wyraża podobieństwo grafu wygenerowanego do grafu usług referencyjnego na poziomie węzłów i krawędzi (rozpatrywanych rozłącznie), wykorzystując klasyczne miary \emph{precision}, \emph{recall} i F1. Jest to podejście bezpośrednio zaczerpnięte z literatury dotyczącej generowania architektury mikroserwisowej z wykorzystaniem modeli językowych \cite{pereiraGeneratingMicroserviceArchitectures2025}. Badamy zgodność wygenerowanego grafu z gradem referencyjnym, traktując zadanie jak problem klasyfikacji binarnej: czy dana usługa lub ścieżka komunikacji została poprawnie odtworzona. Za prawdziwe pozytywy $TP$ uznajemy wierzchołki obecne w obu zbiorach (po normalizacji nazw), za fałszywe pozytywy $FP$ wierzchołki występujące tylko w architekturze wygenerowanej przez model językowy, a za fałszywymi negatywy $FN$ -- wierzchołki obecne jedynie grafie referencyjnym \cite{pereiraGeneratingMicroserviceArchitectures2025}. W ten sposób możliwe jest obliczenie klasycznych metryk:
 
 \begin{equation}
 \text{precision} = \frac{TP}{TP + FP},
@@ -156,35 +154,35 @@ Tabela~\ref{tab:results_agg} prezentuje wartości uśrednione po pięciu aplikac
         PPS & 1,176 & 0,202 & 0,678 & 0,781 & 0,713 & 0,456 & 0,447 & 0,437 \\
         \bottomrule
     \end{tabular}
-    \caption{Zagregowane wyniki eksperymentu uśrednione po aplikacjach.}
+    \caption{Wyniki eksperymentu}
     \label{tab:results_agg}
 \end{table}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{dependency_degree_by_method_mean}
-    \caption{Średni stopień zależności uśredniony po aplikacjach.}
+    \caption{Średni stopień zależności}
     \label{fig:dep_method}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{change_impact_by_method_mean}
-    \caption{Średni wpływ zmiany uśredniony po aplikacjach.}
+    \caption{Średni wpływ zmiany}
     \label{fig:aci_method}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{dependency_degree_by_app}
-    \caption{Średni stopień zależności w poszczególnych aplikacjach.}
+    \caption{Średni stopień zależności według aplikacji}
     \label{fig:dep_app}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\columnwidth]{change_impact_by_app}
-    \caption{Średni wpływ zmiany w poszczególnych aplikacjach.}
+    \caption{Średni wpływ zmiany według aplikacji}
     \label{fig:aci_app}
 \end{figure}
 
