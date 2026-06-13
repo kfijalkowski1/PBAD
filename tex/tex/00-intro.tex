@@ -56,7 +56,7 @@ Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
 \paragraph{Pitstop} -- aplikacja do zarządzania warsztatem samochodowym obrazująca architekturę opartą na wzorcach Event Sourcing oraz CQRS i zaprojektowana zgodnie z metodyką BDD. Projekt nie posiada spisanych historyjek użytkownika, ale dostarcza bogaty i sformalizowany model domeny oraz wyniki warsztatów \textit{Event Storming}. Architektura dokumentowana jest diagramami ilustrującymi mapę kontekstów (ang. \textit{Context Map}) oraz schematem przepływu poszczególnych komend i zdarzeń pomiędzy serwisami za pomocą brokera wiadomości. \cite{wijk_edwinvwpitstop_2026}
 
-\paragraph{Spring Petclinic Microservices} -- rozproszona wersja klasycznej aplikacji złożona z kilku głównych domenowych mikroserwisów i infrastruktury bazującej na Spring Cloud. Projekt zawiera zwięzły opis domenowy (oparty na zarządzaniu weterynarzami oraz wizytami), z kolei wymagania niefunkcjonalne nie zostały formalnie wyodrębnione. Zawarto w nim także nieformalne scenariusze użycia pod postacią zapytań do chatbota opartego na systemach GenAI. Architektura topologiczna jest dobrze udokumentowana za pomocą czytelnego diagramu załączonego jako statyczny obraz w głównym pliku dokumentacji. \cite{noauthor_spring-petclinicspring-petclinic-microservices_2026}
+\paragraph{Online Marketplace} -- benchmark mikroserwisowy ukierunkowany na wyzwania zarządzania danymi w aplikacjach rozproszonych (transakcje rozproszone, przetwarzanie zdarzeń i zapytań, egzekwowanie ograniczeń integralności, replikacja danych). Modeluje platformę handlową, w której kupujący i sprzedawcy korzystają z katalogu produktów, koszyka i procesu realizacji zamówienia; system obejmuje osiem typów mikroserwisów wraz z zdefiniowanymi typami zdarzeń i kryteriami spójności danych między usługami. Autorzy precyzują wymagania jakościowe dotyczące m.in.\ izolacji zasobów i spójności stanu, co odróżnia ten benchmark od prostszych aplikacji referencyjnych. Architektura topologiczna opiera się na komunikacji asynchronicznej przez brokera wiadomości. \cite{laigner_online_marketplace_2025}
 
 \paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR). \cite{slater_quantitative_2025}
 
@@ -68,7 +68,7 @@ Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
 % Method selection criteria (minimal user interaction, requirements \rightarrow architecture flow), describe each method briefly; this is already done, only needs to be reformulated
 
-Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako wejście wyłącznie opis wymagań w języku naturalnym oraz wymagają minimalnej interakcji użytkownika w trakcie procesu. Wybór ten miał na celu ograniczenie wpływu czynnika ludzkiego oraz zapewnienie możliwie obiektywnego porównania różnych podejść w jednolitym protokole eksperymentalnym. Do wybranych metod wprowadziliśmy pomniejsze modyfikacje pozwalające na w pełni automatyczną syntezę architektury mikroserwisowej. Wybraliśmy cztery następujące metody:
+Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako wejście wyłącznie opis wymagań w języku naturalnym oraz wymagają minimalnej interakcji użytkownika w trakcie procesu. Wybór ten miał na celu ograniczenie wpływu czynnika ludzkiego oraz zapewnienie możliwie obiektywnego porównania różnych podejść w jednolitym protokole eksperymentalnym. Do wybranych metod wprowadziliśmy pomniejsze modyfikacje pozwalające na w pełni automatyczną syntezę architektury mikroserwisowej. Wybraliśmy trzy następujące metody:
 
 \paragraph{Prompt Pattern Sequences} -- zaproponowane jako uporządkowana sekwencja wzorców promptów wspierających podejmowanie decyzji architektonicznych z wykorzystaniem modeli generatywnych. Autorzy wyróżniają zestaw person i wzorców (m.in.\ \emph{Software Architect Persona}, \emph{Technical Premises}, \emph{Uncertain Requirements Statement}, \emph{Quality Attribute Question}, \emph{Architectural Project Context}), które kolejno przetwarzają ten sam opis wymagań, dodając do niego kontekst techniczny oraz pytania dotyczące atrybutów jakościowych. \cite{maranhao} Zaadaptowaliśmy tę koncepcję do w pełni automatycznej syntezy architektury mikroserwisowej: zastosowaliśmy ustaloną, statyczną sekwencję promptów, w której jedynym wejściem użytkownika jest treść wymagań, a wszystkie kolejne kroki (analiza wymagań, identyfikacja usług, szkic relacji między nimi) wykonywane są przez ten sam model językowy.
 
@@ -76,15 +76,13 @@ Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako
 
 \paragraph{Progressive Prompting} -- w oryginalnym ujęciu metoda ta prowadzi model przez kolejne etapy: ekstrakcję wymagań funkcjonalnych z dokumentu, konstruowanie modelu obiektowego, a następnie generację testów i kodu na podstawie tego modelu. \cite{wei} Na potrzeby niniejszego badania wykorzystaliśmy część ,,architektoniczną'' tego podejścia: zdefiniowaliśmy sekwencję promptów, w której model najpierw porządkuje i uzupełnia wymagania, następnie projektuje komponenty i ich odpowiedzialności, a w ostatnim kroku odwzorowuje projekt na architekturę mikroserwisową, reprezentowaną jako graf usług i ich powiązań.
 
-\paragraph{ARLO} (\emph{A Tailorable Approach for Transforming Natural Language Software Requirements into Architecture using LLMs}) -- wyróżnia się na tle pozostałych metod jako bardziej wyrafinowane podejściem łącząc modele językowe z programowaniem całkowitoliczbowym. ARLO wykorzystuje model językowy do identyfikacji istotnych architektonicznie wymagań oraz powiązanych z nimi atrybutów jakościowych, a następnie mapuje je na macierz decyzji architektonicznych, w której poszczególne wybory (np. typ architektury, mechanizmy komunikacji, wzorce skalowania) oceniane są względem atrybutów jakościowych. Końcową architekturę wybiera się, rozwiązując zadanie optymalizacji całkowitoliczbowej, które maksymalizuje stopień spełnienia atrybutów jakościowych przy zachowaniu ograniczeń narzuconych przez macierz decyzji. \cite{arlo} W tym wypadku nie było potrzeby modyfikacji oryginalnej metody. \todo{@bp czy to prawda?}
-
 \subsection{Procedura syntezy architektury}
 
 % synthesis procedure (step by step, how many runs, handling of stochasticity (none xd))
 
 Zastosowaliśmy jednolity protokół eksperymentu dla wszystkich systemów referencyjnych i wszystkich technik syntezy. Punktem startowym były dostępne artefakty opisujace wymagania i kontekst działania systemu: opisy wymagań funkcjonalnych i niefunkcjonalnych, scenariusze użycia, atrybuty jakościowe, historyjki użytkowników. 
 
-Dla każdego systemu wyodrębnialiśmy fragmenty dokumentacji stanowiące opis wymagań. Otrzymany tekst był następnie włączany do szablonów promptów specyficznych dla danej metody (Prompt Pattern Sequences, ADD, Progressive Prompting, ARLO).
+Dla każdego systemu wyodrębnialiśmy fragmenty dokumentacji stanowiące opis wymagań. Otrzymany tekst był następnie włączany do szablonów promptów specyficznych dla danej metody (Prompt Pattern Sequences, ADD, Progressive Prompting).
 
 Wszystkie wywołania realizowano przy użyciu modelu językowego Claude Sonnet 4.6 w trybie \emph{Thinking} z kontekstem o rozmiarze $1M$ tokenów w usłudze AWS Bedrock. Parametry sterujące generacją utrzymywano stałe w całym eksperymencie: $temperature=1.0, effort=high, maxTokens=64000$. \todo{@kf @bp czy faktycznie tak było?}
 
@@ -137,96 +135,78 @@ F_1 = 2 \cdot \frac{\text{precision} \cdot \text{recall}}{\text{precision} + \te
 
 \section{Wyniki}
 
-Poniżej przedstawiamy wyniki wstępnego eksperymentu obejmującego dwie metody syntezy -- ADD oraz PPS -- na trzech systemach referencyjnych: Pitstop, EventTicketSystem i HotelPricingSystem. Wyniki pozostałych metod (Progressive Prompting, ARLO) oraz systemów (eShop, Petclinic) zostaną uzupełnione w kolejnych iteracjach.
+Tabela~\ref{tab:results_agg} prezentuje wartości uśrednione po pięciu aplikacjach referencyjnych. Metryki strukturalne wskazują spójny porządek PPS~$>$~PP~$>$~ADD: średni stopień zależności maleje z 1,382 (ADD) przez 1,243 (PP) do 1,176 (PPS), tj.\ o 0,206 punktu (14,9\%); średni wpływ zmiany z 0,246 przez 0,226 do 0,202 (spadek o 0,044 punktu, 17,9\%). Względem PPS metoda PP daje wyższy stopień zależności o 5,4\% i wyższy wpływ zmiany o 10,6\% (rys.\ \ref{fig:dep_method}, \ref{fig:aci_method}). Rozbicie na aplikacje (rys.\ \ref{fig:dep_app}, \ref{fig:aci_app}) pokazuje, że ten ranking nie utrzymuje się wszędzie identycznie, ale wskazuje na pewien trend.
 
-\subsection{Metryki strukturalne}
+\begin{table}[t]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{2.5pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{@{}l rrrrrrrr@{}}
+        \toprule
+        Metoda &
+        \rotatebox{90}{\makecell[l]{Stopień\\zależności}} &
+        \rotatebox{90}{\makecell[l]{Wpływ\\zmiany}} &
+        \rotatebox{90}{\makecell[l]{Prec.\\(usługi)}} &
+        \rotatebox{90}{\makecell[l]{Odtw.\\(usługi)}} &
+        \rotatebox{90}{\makecell[l]{F1\\(usługi)}} &
+        \rotatebox{90}{\makecell[l]{Prec.\\(krawędzie)}} &
+        \rotatebox{90}{\makecell[l]{Odtw.\\(krawędzie)}} &
+        \rotatebox{90}{\makecell[l]{F1\\(krawędzie)}} \\
+        \midrule
+        ADD & 1,382 & 0,246 & 0,749 & 0,804 & 0,762 & 0,459 & 0,515 & 0,471 \\
+        PP  & 1,243 & 0,226 & 0,756 & 0,757 & 0,740 & 0,484 & 0,423 & 0,445 \\
+        PPS & 1,176 & 0,202 & 0,678 & 0,781 & 0,713 & 0,456 & 0,447 & 0,437 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Zagregowane wyniki eksperymentu uśrednione po aplikacjach.}
+    \label{tab:results_agg}
+\end{table}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\columnwidth]{fig_depavg_method}
-    \caption{Średni stopień zależności (AvgDepDeg).}
-    \label{fig:depavg_method}
+    \includegraphics[width=\columnwidth]{dependency_degree_by_method_mean}
+    \caption{Średni stopień zależności uśredniony po aplikacjach.}
+    \label{fig:dep_method}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\columnwidth]{fig_aci_method}
-    \caption{Średni wpływ zmiany (ACI).}
+    \includegraphics[width=\columnwidth]{change_impact_by_method_mean}
+    \caption{Średni wpływ zmiany uśredniony po aplikacjach.}
     \label{fig:aci_method}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}lrr@{}}
-\toprule
-Metoda & AvgDepDeg & ACI \\
-\midrule
-ADD & 1{,}567 & 0{,}278 \\
-PPS & 1{,}153 & 0{,}172 \\
-\bottomrule
-\end{tabular}
-\caption{Metryki strukturalne (3 systemy).}
-\label{tab:structural_method}
-\end{table}
-
-ADD generuje architektury o wyższym średnim stopniu zależności (1{,}57 vs.\ 1{,}15) oraz wyższym średnim wpływie zmiany (0{,}28 vs.\ 0{,}17). Obie metryki są spójne dla wszystkich trzech systemów, co sugeruje systematyczną różnicę w gęstości wygenerowanych grafów komunikacyjnych.
-
-\subsection{Zgodność z architekturą referencyjną}
-
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\columnwidth]{fig_node_method}
-    \caption{Metryki podobieństwa węzłów.}
-    \label{fig:node_method}
+    \includegraphics[width=\columnwidth]{dependency_degree_by_app}
+    \caption{Średni stopień zależności w poszczególnych aplikacjach.}
+    \label{fig:dep_app}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\columnwidth]{fig_edge_method}
-    \caption{Metryki podobieństwa krawędzi.}
-    \label{fig:edge_method}
+    \includegraphics[width=\columnwidth]{change_impact_by_app}
+    \caption{Średni wpływ zmiany w poszczególnych aplikacjach.}
+    \label{fig:aci_app}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Metoda & Precision & Recall & F1 \\
-\midrule
-ADD & 0{,}883 & 0{,}891 & 0{,}887 \\
-PPS & 0{,}799 & 0{,}867 & 0{,}823 \\
-\bottomrule
-\end{tabular}
-\caption{Metryki podobieństwa węzłów.}
-\label{tab:node_method}
-\end{table}
+Metryki zgodności z grafem referencyjnym (tab.\ \ref{tab:results_agg}) nie dają tak jednoznacznego obrazu. Dla usług F1 wynosi $0,762$ (ADD), $0,740$ (PP) i $0,713$ (PPS); precyzja $0,749$, $0,756$ i $0,678$; odzysk $0,804$, $0,757$ i $0,781$. Dla krawędzi F1 to $0,471$, $0,445$ i $0,437$; precyzja $0,459$, $0,484$ i $0,456$; odzysk $0,515$, $0,423$ i $0,447$. Rozpiętość między metodami wynosi $0,049$ punktu F1 dla usług i $0,034$ dla krawędzi; brak powtarzalnego porządku PPS~$>$~PP~$>$~ADD: na poziomie zagregowanym nieco lepiej wypada ADD, lecz przewaga mieści się w wąskim przedziale (ok.\ 5\%).
 
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Metoda & Precision & Recall & F1 \\
-\midrule
-ADD & 0{,}647 & 0{,}708 & 0{,}663 \\
-PPS & 0{,}648 & 0{,}566 & 0{,}603 \\
-\bottomrule
-\end{tabular}
-\caption{Metryki podobieństwa krawędzi.}
-\label{tab:edge_method}
-\end{table}
-
-ADD osiąga wyższe F1 zarówno na poziomie węzłów (0{,}89 vs.\ 0{,}82), jak i krawędzi (0{,}66 vs.\ 0{,}60). Przy zbliżonej precyzji krawędzi (0{,}65 dla obu metod), przewaga ADD wynika przede wszystkim z wyraźnie wyższego recall krawędzi (0{,}71 vs.\ 0{,}57), co oznacza lepsze odtwarzanie połączeń komunikacyjnych względem referencji.
+Jakościowy przegląd diagramów potwierdza natomiast, że wszystkie podejścia poprawnie identyfikują generyczne elementy wspólnej infrastruktury (API gateway, broker wiadomości), lecz różnią się w podziale odpowiedzialności między mikroserwisami.
 
 \section{Dyskusja}
 
-Wyższy AvgDepDeg i ACI dla ADD nie są jednoznacznym wskaźnikiem jakości -- odzwierciedlają przede wszystkim tendencję metody do generowania bardziej rozbudowanych wzorców komunikacyjnych. W Pitstop ADD uwzględnił serwis logowania połączony ze wszystkimi usługami za pomocą połączeń pomocniczych (linie przerywane w diagramie Mermaid), co zawyżyło liczbę krawędzi. Efektem jest wysoki edge recall (0{,}91) przy niskiej edge precision (0{,}61) -- ADD ,,odnajduje'' większość krawędzi referencyjnych, ale generuje też liczne nadmiarowe.
+Strukturalne miary grafowe okazują się użyteczną heurystyką oceny architektur generowanych przez modele językowe: są tanie w obliczeniu, powtarzalne i --- w przeciwieństwie do metryk F1 --- wrażliwe na różnice, które mają bezpośredni przełożenie na modularność i koszt zmian. W badanej próbie wystarczyły, by wyróżnić metodę (PPS) na tle pozostałych, podczas gdy miary zgodności z grafem referencyjnym nie wskazały wyraźnego lidera mimo podobnego nakładu pracy syntezy.
 
-ADD osiąga wyższy edge recall we wszystkich trzech systemach (0{,}91, 0{,}60, 0{,}62 vs.\ 0{,}76, 0{,}55, 0{,}38 dla PPS). Wyjątkiem pod względem edge F1 jest Pitstop, gdzie PPS (0{,}78) nieznacznie przewyższa ADD (0{,}73). Prosta, zdarzeniowa topologia Pitstop -- oparcie o jedną szynę komunikatów i brak rozbudowanych zależności synchronicznych -- jest lepiej uchwycona przez sekwencyjne wzorce promptów PPS niż przez bardziej szczegółową procedurę ADD.
+Słaby sygnał F1 można wyjaśnić kilkoma mechanizmami. Wiele topologii mikroserwisów może poprawnie realizować te same wymagania, w związku z czym referencyjny podział na usługi nie jest jednoznaczny. F1 traktuje każdą usługę i każdą krawędź równorzędnie, podczas gdy w praktyce błąd w bramce API lub brokerze ma inne konsekwencje niż nadmiarowa granula serwisu.
 
-PPS wygenerował dla EventTicketSystem 37 węzłów wobec 26 w referencji, osiągając node recall $= 1{,}00$ lecz precision $= 0{,}70$. Wszystkie węzły referencyjne zostały poprawnie zidentyfikowane, jednak PPS dołożył 11 dodatkowych serwisów nieobecnych w referencji. Wskazuje to na tendencję PPS do granularnej dekompozycji domeny -- model identyfikuje więcej logicznych odpowiedzialności niż przewiduje referencja, nie pomijając przy tym żadnej z opisanych w wymaganiach.
-
-PPS wykazuje dramatycznie niższe ACI dla EventTicketSystem (0{,}092 vs.\ 0{,}281 dla ADD) pomimo większej liczby wygenerowanych węzłów. W architekturze ADD serwis uwierzytelniania (AuthSvc) jest bezpośrednio podłączony do każdego z pozostałych serwisów domenowych, co tworzy gęstą sieć propagacji zmian i drastycznie podnosi ACI. W architekturze PPS komunikacja odbywa się głównie przez API Gateway i szynę komunikatów, co ogranicza liczbę węzłów osiągalnych z danego źródła. Wynik ilustruje, jak konkretna decyzja wzorcowa -- centralizacja vs.\ dystrybucja weryfikacji tożsamości -- przekłada się na mierzalną różnicę w metrykach architektonicznych.
+Żadna z badanych metryk nie zastępuje oceny eksperckiej. Metryki grafowe nie uchwycą poprawności biznesowej podziału. Automatyczna synteza wspomagana modelami językowymi może przyspieszyć pracę architekta, lecz pełne zastąpienie procesu decyzyjnego pozostaje mało prawdopodobne.
 
 \section{Ograniczenia badania}
 
+Badanie obejmuje pięć aplikacji referencyjnych i trzy metody syntezy; zakres ten ogranicza generalizację wniosków. Do zbudowania solidnego, powtarzalnego benchmarku potrzebne są wielkoskalowe, dobrze udokumentowane systemy mikroserwisowe z kompletnymi wymaganiami funkcjonalnymi i niefunkcjonalnymi oraz wiarygodną architekturą referencyjną. Obecna literatura i repozytoria open source takiego zbioru nie zapewniają. Dostępne przykłady są albo niedostatecznie udokumentowane, albo zbyt małe, albo opisują wyłącznie topologię wdrożeniową bez wymagań, na których można by obiektywnie ocenić syntezę -- w praktyce, ostatni z braków był największym ograniczeniem.
+
 \section{Wnioski}
+
+Metryki strukturalne pozwalają porównywać metody syntezy architektury wspomaganej przez modele językowe. Aby ocena była wiarygodna, potrzebne są lepiej udokumentowane, większe benchmarki, oraz -- mimo wszystko -- ocena ekspercka. Pełna automatyzacja procesu projektowania architektury pozostaje celem odległym.

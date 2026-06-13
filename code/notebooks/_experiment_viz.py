@@ -670,6 +670,7 @@ VERDANA_FONT_DIR = Path("/usr/share/fonts/truetype/msttcorefonts")
 
 PAPER_WIDTH = 3.35
 PAPER_HEIGHT = 2.7
+PAPER_HEIGHT_METHOD = 2.0
 PAPER_DPI = 200
 PAPER_BAR_WIDTH = 0.85
 PAPER_BAR_GAP = 0.05
@@ -1171,7 +1172,7 @@ def plot_paper_by_method_mean(
     n_methods = len(plot_df)
     palette = sns.color_palette("Set2", n_colors=n_methods)
 
-    fig, ax = plt.subplots(figsize=(PAPER_WIDTH, PAPER_HEIGHT))
+    fig, ax = plt.subplots(figsize=(PAPER_WIDTH, PAPER_HEIGHT_METHOD))
     sns.barplot(
         data=plot_df,
         x="method_label",
