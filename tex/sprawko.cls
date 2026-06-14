@@ -129,16 +129,6 @@
 	\fancyfoot[C]{\thepage}
 }
 
-\fancypagestyle{headings}{
-	\fancyhead{}
-	\renewcommand{\headrulewidth}{1pt}
-	\fancyheadoffset{0cm}
-	\fancyhead[RO]{\nouppercase{\thesection.\hspace{8pt}\leftmark}}
-	\fancyfoot{}
-	\fancyfoot[C]{\thepage}
-}
-\pagestyle{headings}
-
 \renewcommand{\sectionmark}[1]{
 	\markboth{#1}{#1}
 }

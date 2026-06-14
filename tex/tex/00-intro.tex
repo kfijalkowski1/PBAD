@@ -10,33 +10,19 @@ Celem niniejszej pracy jest opracowanie protokołu generowania i ewaluacji archi
 
 \subsection{Metody syntezy architektury oprogramowania wspomagane przez modele językowe}
 
-% both human in the loop and fully automatic, mostly focus on what's discussed in the paper
-
 Obecna literatura dotycząca metod syntezy systemów z wykorzystaniem dużych modeli językowych skupia się głównie na bezpośrednim wytwarzaniu kodu, a nie na wysokopoziomowej architekturze systemów \cite{schmidSoftwareArchitectureMeets2025}. Prace dotyczące generowania \emph{stricte} architektury dotyczą głównie generowania mikroserwisów na podstawie tekstowych opisów wymagań \cite{carvalhoUsefulnessAutomaticallyGenerated2024}, wspomagania decyzji projektowych \cite{eisenreichRequirementsArchitectureAIBased2024}, niekiedy łączą oba poziomy i pozwalają przejść przez cały proces powstawania systemu \cite{wei}. Przeważają podejścia iteracyjne, półautomatyczne, wymagające interakcji z użytkownikiem \cite{schmidSoftwareArchitectureMeets2025}.
 
 \subsection{Ocena jakości architektury oprogramowania}
-
-% scenario-based, metrics, reliance on expert evaluation
 
 Ocena jakości architektury oprogramowania najczęściej opiera się na subiektywnej ocenie ekspertów, co wprowadza element nieobiektywności i utrudnia porównywanie różnych podejść. Klasyczne metody takie jak ATAM (\emph{Architecture Tradeoff Analysis Method}) czy SAAM (\emph{Software Architecture Analysis Method}) formułują wymagania niefunkcjonalne w postaci scenariuszy jakościowych i badają, w jaki sposób dana architektura reaguje na te scenariusze \cite{kazman_atam_2000, kazman_saam_1944}. Odrębną klasę podejść stanowią metody wyspecjalizowane w analizie modyfikowalności architektury, badające nie tylko zgodność z wymaganiami, ale także koszt rozwoju i utrzymania, czego przykładem jest podejście ALMA (\emph{Architecture-Level Modifiability Analysis}) \cite{bengtsson_alma_2004}. Ocena może być wspomagana podejściami opartymi na eksperckim przeglądzie architektury z użyciem list kontrolnych, w których wykorzystywany jest strukturyzowany zestaw pytań dotyczących m.in. powiązań z wymaganiami, modularności czy aspektów bezpieczeństwa \cite{uta_design_review_checklist, cianca_eval_arch_2000}. Wreszcie, istnieją podejścia oparte na metrykach, które próbują uchwycić jakość architektury poprzez ilościowe miary, takie jak liczba zależności między komponentami czy stopień modularności \cite{bengtsson_alma_2004, add, ford2021}.
 
 \subsection{Ewaluacja architektur generowanych przez SI}
 
-% microservice genration from text, adr generation, NLP vs structural metrics, current research tends to focus on code generation rather than high-level architecture
-
-% describe gaps and motivate a need for a common evaluation protocol
-
 Ewaluacja architektury wytworzonej przez duże modele językowe wiąże się z pewnymi unikalnymi wyzwaniami. Nie istnieje obecnie heterogeniczny, powszechnie akceptowany benchmark pozwalający na porównywanie różnych metod syntezy architektury, a istniejące prace często opierają się na subiektywnych ocenach ekspertów, analizie wytworzonego kodu, bądź spełnieniu arbitralnie ustalonych w eksperymencie wymagań. Popularne jest wykorzystanie klasycznych metryk z dziedziny uczenia maszynowego (F1, \emph{precision}, \emph{recall}) do analizy opisów tekstowych wygenerowanych przez modele językowe, niekiedy w tym samym celu wykorzystuje się metryki z dziedziny przetwarzania języka naturalnego, takie jak BLEU czy BERTScore. Metryki czysto architektoniczne są również wykorzystywane, ale nie jest to widoczny standard. Większość istniejących prac porównuje wygenerowane artefakty z przygotowaną wcześniej referencyjną architekturą, jednak nie istnieje obecnie standardowy, heterogeniczny benchmarków, który pozwalałby na porównywanie różnych metod syntezy architektury \cite{schmidSoftwareArchitectureMeets2025}.
 
 \section{Metodologia}
 
-% clear formulation of research question, high level study overview; maybe introduce some expected answers to research questions
-
-% is this section actually needed?
-
 \subsection{Dobór aplikacji referencyjnych}
-
-% selection of reference microservice applications (mention the meta-analysis), inclusion criteria (distributed systems, available requirements and architecture documentation); 
 
 W celu zbadania zgodności wytworzonej architektury z referencyjnym opisem wykorzystaliśmy wybrane publiczne dostępne aplikacje otwartoźródłowe szeroko cytowane w literaturze \cite{imranur_curated_2019, slater_quantitative_2025}. Aby zapewnić różnorodność i reprezentatywność, wybraliśmy systemy o różnej wielkości, złożoności i różnym stopniu rozbudowania opisu wymagań. Kryteria doboru obejmowały:
 
@@ -55,15 +41,11 @@ Na podstawie tych kryteriów wybraliśmy pięć systemów:
 
 \paragraph{Online Marketplace} -- benchmark mikroserwisowy ukierunkowany na wyzwania zarządzania danymi w aplikacjach rozproszonych (transakcje rozproszone, przetwarzanie zdarzeń i zapytań, egzekwowanie ograniczeń integralności, replikacja danych). Modeluje platformę handlową, w której kupujący i sprzedawcy korzystają z katalogu produktów, koszyka i procesu realizacji zamówienia; system obejmuje osiem typów mikroserwisów wraz z zdefiniowanymi typami zdarzeń i kryteriami spójności danych między usługami. Autorzy precyzują wymagania jakościowe dotyczące m.in.\ izolacji zasobów i spójności stanu, co odróżnia ten benchmark od prostszych aplikacji referencyjnych. Architektura topologiczna opiera się na komunikacji asynchronicznej przez brokera wiadomości \cite{laigner_online_marketplace_2025}.
 
-\paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR) \cite{slater_quantitative_2025}.
+\paragraph{EventTicketSystem} -- system do rezerwacji biletów na wydarzenia (\textit{Event Ticket Booking System}). Projekt zawiera szczegółowy opis wymagań funkcjonalnych i niefunkcjonalnych, atrybutów jakościowych scenariuszy oceny, opis domeny, a także wynikowej architektury w postaci modelu C4 oraz decyzji architektonicznych (ADR) \cite{add}.
 
-\paragraph{HotelPricingSystem} -- system wspierający zarządzanie cenami hotelowymi. Dostępność dokumentacji jest zbliżona do \emph{EventTicketSystem}: zawiera szczegółowy opis wymagań, atrybutów jakościowych, model domenowy, model C4 oraz ADR. Wymagania funkcjonalne i niefunkcjonalne są jasno rozdzielone, a scenariusze testowe zostały sformalizowane w postaci tabeli z przypisanymi atrybutami jakościowymi \cite{slater_quantitative_2025}.
+\paragraph{HotelPricingSystem} -- system wspierający zarządzanie cenami hotelowymi. Dostępność dokumentacji jest zbliżona do \emph{EventTicketSystem}: zawiera szczegółowy opis wymagań, atrybutów jakościowych, model domenowy, model C4 oraz ADR. Wymagania funkcjonalne i niefunkcjonalne są jasno rozdzielone, a scenariusze testowe zostały sformalizowane w postaci tabeli z przypisanymi atrybutami jakościowymi \cite{add}.
 
 \subsection{Dobór metod syntezy architektury}
-
-% find a better name for this section;
-
-% Method selection criteria (minimal user interaction, requirements \rightarrow architecture flow), describe each method briefly; this is already done, only needs to be reformulated
 
 Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako wejście wyłącznie opis wymagań w języku naturalnym oraz wymagają minimalnej interakcji użytkownika w trakcie procesu. Wybór ten miał na celu ograniczenie wpływu czynnika ludzkiego oraz zapewnienie możliwie obiektywnego porównania różnych podejść w jednolitym protokole eksperymentalnym. Do wybranych metod wprowadziliśmy pomniejsze modyfikacje pozwalające na w pełni automatyczną syntezę architektury mikroserwisowej. Wybraliśmy trzy następujące metody:
 
@@ -75,8 +57,6 @@ Skoncentrowaliśmy się na metodach syntezy architektury, które przyjmują jako
 
 \subsection{Procedura syntezy architektury}
 
-% synthesis procedure (step by step, how many runs, handling of stochasticity (none xd))
-
 Zastosowaliśmy jednolity protokół eksperymentu dla wszystkich systemów referencyjnych i wszystkich technik syntezy. Punktem startowym były dostępne artefakty opisujace wymagania i kontekst działania systemu: opisy wymagań funkcjonalnych i niefunkcjonalnych, scenariusze użycia, atrybuty jakościowe, historyjki użytkowników. 
 
 Dla każdego systemu wyodrębnialiśmy fragmenty dokumentacji stanowiące opis wymagań. Otrzymany tekst był następnie włączany do szablonów promptów specyficznych dla danej metody (Prompt Pattern Sequences, ADD, Progressive Prompting).
@@ -87,9 +67,7 @@ Dla każdej pary (system referencyjny, metoda syntezy) wykonywaliśmy pojedynczy
 
 \subsection{Analiza wyników}
 
-% name unification and graph extraction, exclusion rules (telemetry stack, deployment attributes/replication, concrete tech stack choices like Kafka vs RabbitMQ)
-
-Aby zadbać o porównywalność rezultatów, oczyściliśmy grafy z nieistotnych pod kątem badania elementów i uspójniliśmy nazewnictwo. Ujednoliciliśmy nazwy usług w grafie, aby zachować zgodność z oryginalnymi nazwami z dokumentacji poszczególnych aplikacji. Usunęliśmy synonimy niewprowadzające istotnych różnic semantycznych, np. \emph{User Service} vs. \emph{User Management Service} czy \emph{Order Service} vs. \emph{Ordering Service}. Usunęliśmy z wygenerowanych grafów usługi pomocnicze, takie jak stos telemetrii czy komponenty infrastrukturalne. Ich zawarcie w grafie nie jest błędem, ale nie jest także istotne z punktu widzenia badania. Analogicznie, pominęliśmy niekiedy precyzowane przez model aspekty wdrożeniowe, na przykład stopień replikacji brokera wiadomości czy zastosowanie konkretnych technologii (np. \emph{Kafka} vs. \emph{RabbitMQ}). Ostatecznie otrzymaliśmy graf skierowany dla każdej pary (aplikacja, metoda), w którym węzły odpowiadają usługom, a krawędzie reprezentują komunikację synchroniczną lub asynchroniczną między nimi.
+Aby zadbać o porównywalność rezultatów, oczyściliśmy grafy z nieistotnych pod kątem badania elementów i uspójniliśmy nazewnictwo. Ujednoliciliśmy nazwy usług w grafie, aby zachować zgodność z oryginalnymi nazwami z dokumentacji poszczególnych aplikacji. Usunęliśmy synonimy niewprowadzające istotnych różnic semantycznych, np. \emph{User Service} vs. \emph{User Management Service} czy \emph{Order Service} vs. \emph{Ordering Service}. Usunęliśmy z wygenerowanych grafów usługi pomocnicze, takie jak stos telemetrii czy komponenty infrastrukturalne (o ile ich uwzględnienie nie było wprost wymienione w wymaganiach). Ich zawarcie w grafie nie jest błędem, ale nie jest także istotne z punktu widzenia badania. Analogicznie, pominęliśmy niekiedy precyzowane przez model aspekty wdrożeniowe, na przykład stopień replikacji brokera wiadomości czy zastosowanie konkretnych technologii (np. \emph{Kafka} vs. \emph{RabbitMQ}). Ostatecznie otrzymaliśmy graf skierowany dla każdej pary (aplikacja, metoda), w którym węzły odpowiadają usługom, a krawędzie reprezentują komunikację synchroniczną lub asynchroniczną między nimi.
 
 \subsection{Metryki ewaluacyjne}
 
